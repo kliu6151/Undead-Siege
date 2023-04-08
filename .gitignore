@@ -64,3 +64,13 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+.vscode
+
+dist/*
+
+!dist/builtin
+
+!dist/hw4_assets/
+
+*.zip
