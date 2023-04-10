@@ -71,6 +71,6 @@ dist/*
 
 !dist/builtin
 
-!dist/hw4_assets/
+!dist/assets/
 
 *.zip

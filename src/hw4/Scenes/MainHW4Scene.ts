@@ -77,29 +77,29 @@ export default class MainHW4Scene extends HW4Scene {
      */
     public override loadScene() {
         // Load the player and enemy spritesheets
-        this.load.spritesheet("player1", "hw4_assets/spritesheets/player1.json");
+        this.load.spritesheet("player1", "assets/spritesheets/player1.json");
 
         // Load in the enemy sprites
-        this.load.spritesheet("BlueEnemy", "hw4_assets/spritesheets/BlueEnemy.json");
-        this.load.spritesheet("RedEnemy", "hw4_assets/spritesheets/RedEnemy.json");
-        this.load.spritesheet("BlueHealer", "hw4_assets/spritesheets/BlueHealer.json");
-        this.load.spritesheet("RedHealer", "hw4_assets/spritesheets/RedHealer.json");
+        this.load.spritesheet("BlueEnemy", "assets/spritesheets/BlueEnemy.json");
+        this.load.spritesheet("RedEnemy", "assets/spritesheets/RedEnemy.json");
+        this.load.spritesheet("BlueHealer", "assets/spritesheets/BlueHealer.json");
+        this.load.spritesheet("RedHealer", "assets/spritesheets/RedHealer.json");
 
         // Load the tilemap
-        this.load.tilemap("level", "hw4_assets/tilemaps/HW3Tilemap.json");
+        this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
 
         // Load the enemy locations
-        this.load.object("red", "hw4_assets/data/enemies/red.json");
-        this.load.object("blue", "hw4_assets/data/enemies/blue.json");
+        this.load.object("red", "assets/data/enemies/red.json");
+        this.load.object("blue", "assets/data/enemies/blue.json");
 
         // Load the healthpack and lasergun loactions
-        this.load.object("healthpacks", "hw4_assets/data/items/healthpacks.json");
-        this.load.object("laserguns", "hw4_assets/data/items/laserguns.json");
+        this.load.object("healthpacks", "assets/data/items/healthpacks.json");
+        this.load.object("laserguns", "assets/data/items/laserguns.json");
 
         // Load the healthpack, inventory slot, and laser gun sprites
-        this.load.image("healthpack", "hw4_assets/sprites/healthpack.png");
-        this.load.image("inventorySlot", "hw4_assets/sprites/inventory.png");
-        this.load.image("laserGun", "hw4_assets/sprites/laserGun.png");
+        this.load.image("healthpack", "assets/sprites/healthpack.png");
+        this.load.image("inventorySlot", "assets/sprites/inventory.png");
+        this.load.image("laserGun", "assets/sprites/laserGun.png");
     }
     /**
      * @see Scene.startScene
@@ -208,8 +208,6 @@ export default class MainHW4Scene extends HW4Scene {
         this.getLayer("slots").setDepth(1);
         this.getLayer("items").setDepth(2);
     }
-
-
 
 
     /**

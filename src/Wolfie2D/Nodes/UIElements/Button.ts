@@ -5,6 +5,8 @@ import Vec2 from "../../DataTypes/Vec2";
 /** A clickable button UIElement */
 export default class Button extends Label {
 
+	isDisabled = false;
+
 	constructor(position: Vec2, text: string){
 		super(position, text);
 		
@@ -24,4 +26,18 @@ export default class Button extends Label {
 			return this.backgroundColor;
 		}
 	}
+
+	buttonStyle (backgroundColor: Color, textColor: Color, size: Vec2, fontStr: string): void {
+		this.setBackgroundColor(backgroundColor);
+		this.setTextColor(textColor);
+		this.size.x = size.x;
+		this.size.y = size.y;
+		this.font = fontStr;
+	}
+
+	disable (): void {
+		this.isDisabled = true;
+		this.buttonStyle(new Color(100, 100, 100), new Color(255, 255, 255), this.size, this.font);
+	}
 }
+
