@@ -19,6 +19,7 @@ import NPCActor from "../Actors/NPCActor";
 import PlayerActor from "../Actors/PlayerActor";
 import GuardBehavior from "../AI/NPC/NPCBehavior/GaurdBehavior";
 import HealerBehavior from "../AI/NPC/NPCBehavior/HealerBehavior";
+import ZombieBehavior from "../AI/NPC/NPCBehavior/ZombieBehavior";
 import PlayerAI from "../AI/Player/PlayerAI";
 import { ItemEvent, PlayerEvent, BattlerEvent } from "../Events";
 import Battler from "../GameSystems/BattleSystem/Battler";
@@ -329,7 +330,7 @@ export default class MainHW4Scene extends HW4Scene {
         let red = this.load.getObject("red");
 
         // Initialize the red healers
-        for (let i = 0; i < red.healers.length; i++) {
+        /*for (let i = 0; i < red.healers.length; i++) {
             let npc = this.add.animatedSprite(NPCActor, "RedHealer", "primary");
             npc.position.set(red.healers[i][0], red.healers[i][1]);
             npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
@@ -371,7 +372,7 @@ export default class MainHW4Scene extends HW4Scene {
             npc.animation.play("IDLE");
             // Add the NPC to the battlers array
             this.battlers.push(npc);
-        }
+        }*/
 
         // Get the object data for the blue enemies
         let blue = this.load.getObject("blue");
@@ -393,7 +394,7 @@ export default class MainHW4Scene extends HW4Scene {
             npc.navkey = "navmesh";
 
             // Give the NPCs their AI
-            npc.addAI(GuardBehavior, {target: this.battlers[0], range: 100});
+            npc.addAI(ZombieBehavior, {target: this.battlers[0], range: 100});
 
             // Play the NPCs "IDLE" animation 
             npc.animation.play("IDLE");
@@ -402,7 +403,7 @@ export default class MainHW4Scene extends HW4Scene {
         }
 
         // Initialize the blue healers
-        for (let i = 0; i < blue.healers.length; i++) {
+        /*for (let i = 0; i < blue.healers.length; i++) {
             
             let npc = this.add.animatedSprite(NPCActor, "BlueHealer", "primary");
             npc.position.set(blue.healers[i][0], blue.healers[i][1]);
@@ -420,7 +421,7 @@ export default class MainHW4Scene extends HW4Scene {
             npc.addAI(HealerBehavior);
             npc.animation.play("IDLE");
             this.battlers.push(npc);
-        }
+        }*/
 
 
     }
