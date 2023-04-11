@@ -295,7 +295,7 @@ export default class MainHW4Scene extends HW4Scene {
         this.isPaused = !this.isPaused;
         this.pauseText.visible = this.isPaused;
     }
-    
+
     
 
     /**

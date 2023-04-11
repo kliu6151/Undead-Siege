@@ -6,6 +6,7 @@ import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
 import Timer from "../../../Wolfie2D/Timing/Timer";
 import NPCActor from "../../Actors/NPCActor";
 import { ItemEvent } from "../../Events";
+import MainHW4Scene from "../../Scenes/MainHW4Scene";
 import NPCAction from "./NPCActions/NPCAction";
 
 
@@ -25,6 +26,7 @@ export default abstract class NPCBehavior extends StateMachineGoapAI<NPCAction> 
     public activate(options: Record<string, any>): void {}
 
     public update(deltaT: number): void {
+        if ((<MainHW4Scene>this.owner.getScene()).isPaused) return;
         super.update(deltaT);
     }
 
