@@ -21,9 +21,9 @@ export default class Controls extends Scene {
 
 
   public static BACKGROUND_KEY = "BACKGROUND";
-  public static BACKGROUND_PATH = "assets/images/background.jpg";
+  public static BACKGROUND_PATH = "assets/sprites/background.jpg";
   public static MOUSE_KEY = "MOUSE";
-    public static MOUSE_PATH = "assets/images/Mouse.png";
+    public static MOUSE_PATH = "assets/sprites/Mouse.png";
 
   private background: Sprite;
   private mouse: Sprite;

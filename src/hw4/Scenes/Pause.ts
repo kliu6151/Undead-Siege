@@ -19,9 +19,9 @@ export default class Pause extends Scene {
   private control: Layer;
 
   public static LOGO_KEY = "LOGO";
-  public static LOGO_PATH = "assets/images/logo.png";
+  public static LOGO_PATH = "assets/sprites/logo.png";
   public static BG_KEY = "BG";
-  public static BG_PATH = "assets/images/pauseBg.jpg";
+  public static BG_PATH = "assets/sprites/pauseBg.jpg";
 
   private background: Sprite;
   private logo: Sprite;

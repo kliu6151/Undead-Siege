@@ -18,7 +18,7 @@ export default class StartMenu extends Scene {
     private bgLayer: Layer;
 
     public static BACKGROUND_KEY = "BACKGROUND"
-    public static BACKGROUND_PATH = "assets/images/background.jpg"
+    public static BACKGROUND_PATH = "assets/sprites/background.jpg"
 
     private background: Sprite;
 

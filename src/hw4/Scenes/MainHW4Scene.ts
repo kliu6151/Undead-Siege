@@ -69,9 +69,9 @@ export default class MainHW4Scene extends HW4Scene {
     private fuelCounter: Label;
 
     public static MATERIAL_KEY = "MATERIAL";
-    public static MATERIAL_PATH = "assets/images/Gear.png";
+    public static MATERIAL_PATH = "assets/sprites/loot.png";
     public static FUEL_KEY = "FUEL";
-    public static FUEL_PATH = "assets/images/Fuel.png";
+    public static FUEL_PATH = "assets/sprites/fuel.png";
     
     /** All the battlers in the HW3Scene (including the player) */
     private battlers: (Battler & Actor)[];
@@ -134,9 +134,9 @@ export default class MainHW4Scene extends HW4Scene {
         this.load.object("fuels", "assets/data/items/fuels.json");
 
         // Load the healthpack, inventory slot, and laser gun sprites
-        this.load.image("healthpack", "assets/sprites/healthpack.png");
+        // this.load.image("healthpack", "assets/sprites/healthpack.png");
         this.load.image("inventorySlot", "assets/sprites/inventory.png");
-        this.load.image("laserGun", "assets/sprites/laserGun.png");
+        // this.load.image("laserGun", "assets/sprites/laserGun.png");
 
         this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
         this.load.image(MainHW4Scene.FUEL_KEY, MainHW4Scene.FUEL_PATH);
@@ -314,12 +314,14 @@ export default class MainHW4Scene extends HW4Scene {
 
         //Materials Icon
         this.materialIcon = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Counters");
+        this.materialIcon.scale.set(0.5, 0.5);
         this.materialIcon.position.set(this.viewport.getHalfSize().x + this.viewport.getHalfSize().x/3, 15);
         //Material Counter
         this.materialCounter = <Label>this.add.uiElement(UIElementType.LABEL, "Counters", {position: new Vec2(this.viewport.getHalfSize().x + this.viewport.getHalfSize().x/3 + 20, 15), text: "0"});
         //Fuel Icon
         this.fuelIcon = this.add.sprite(MainHW4Scene.FUEL_KEY, "Counters");
-        this.fuelIcon.position.set(this.viewport.getHalfSize().x + 2 * (this.viewport.getHalfSize().x/3), 15);
+        this.fuelIcon.scale.set(0.6, 0.6);
+        this.fuelIcon.position.set(this.viewport.getHalfSize().x + 2 * (this.viewport.getHalfSize().x/3), 13);
         //Fuel Counter
         this.fuelCounter = <Label>this.add.uiElement(UIElementType.LABEL, "Counters", {position: new Vec2(this.viewport.getHalfSize().x + 2 * (this.viewport.getHalfSize().x/3) + 20, 15), text: "0"});
 

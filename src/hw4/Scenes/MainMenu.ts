@@ -20,10 +20,10 @@ export default class MainMenu extends Scene {
 
 
   public static BACKGROUND_KEY = "BACKGROUND";
-  public static BACKGROUND_PATH = "assets/images/background.jpg";
+  public static BACKGROUND_PATH = "assets/sprites/background.jpg";
 
   public static LOGO_KEY = "LOGO";
-  public static LOGO_PATH = "assets/images/logo.png";
+  public static LOGO_PATH = "assets/sprites/logo.png";
 
   private background: Sprite;
   private logo: Sprite;
