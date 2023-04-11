@@ -896,7 +896,7 @@
          "margin":0,
          "name":"CC",
          "spacing":0,
-         "tilecount":16,
+         "tilecount":80,
          "tileheight":8,
          "tilewidth":8
         }],
