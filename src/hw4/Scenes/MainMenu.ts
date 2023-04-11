@@ -18,7 +18,6 @@ export default class MainMenu extends Scene {
   private about: Layer;
   private control: Layer;
 
-
   public static BACKGROUND_KEY = "BACKGROUND";
   public static BACKGROUND_PATH = "assets/sprites/background.jpg";
 
@@ -35,7 +34,10 @@ export default class MainMenu extends Scene {
 
   public startScene() {
     const center = this.viewport.getCenter();
+    console.log(center);
 
+    const size = this.viewport.getHalfSize();
+    console.log(size.x, size.y);
     this.addLayer("BACKGROUND", 0);
     this.initBackground();
 
@@ -46,10 +48,13 @@ export default class MainMenu extends Scene {
     this.mainMenu = this.addUILayer("mainMenu");
 
     //Play Button
-    const play = <Button>(this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
-        position: new Vec2(center.x - 450, center.y + 300),
-        text: "Play",
-        }));
+    const play = <Button>this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
+      position: new Vec2(
+        center.x - (center.x * 5) / 10,
+        center.y + (center.y * 8) / 10
+      ),
+      text: "Play",
+    });
 
     play.size.set(300, 50);
     play.textColor = Color.RED;
@@ -59,10 +64,14 @@ export default class MainMenu extends Scene {
     play.onClickEventId = "play";
 
     //Level Selection
-    const selectLevel = <Button>(this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
-      position: new Vec2(center.x + 300, center.y + 100),
-      text: "Level Selection",
-    }));
+    const selectLevel = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "mainMenu",
+      {
+        position: new Vec2(center.x + center.x * 4/10, center.y + center.y * 3/10),
+        text: "Level Selection",
+      }
+    );
     // play.setTextColor(Color.BLACK);
 
     selectLevel.size.set(300, 50);
@@ -72,7 +81,7 @@ export default class MainMenu extends Scene {
     selectLevel.onClickEventId = "Level Selection";
 
     const controls = this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
-      position: new Vec2(center.x + 300, center.y + 200),
+      position: new Vec2(center.x + center.x * 4/10, center.y + center.y * 50/100),
       text: "Controls",
     });
     controls.size.set(300, 50);
@@ -82,7 +91,7 @@ export default class MainMenu extends Scene {
     controls.onClickEventId = "controls";
 
     const help = this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
-      position: new Vec2(center.x + 300, center.y + 300),
+      position: new Vec2(center.x + center.x * 4/10, center.y + center.y * 70/100),
       text: "Help",
     });
     help.size.set(300, 50);
@@ -93,19 +102,19 @@ export default class MainMenu extends Scene {
 
     //Credit
     const creditK = <Label>this.add.uiElement(UIElementType.LABEL, "mainMenu", {
-        position: new Vec2(center.x + 600, center.y - 300),
-        text: "Kevin Liu",
-        });
+      position: new Vec2(center.x + center.x * 8/10, center.y - center.y * 8/10),
+      text: "Kevin Liu",
+    });
     creditK.textColor = Color.WHITE;
     const creditJ = <Label>this.add.uiElement(UIElementType.LABEL, "mainMenu", {
-        position: new Vec2(center.x + 600, center.y - 225),
-        text: "Joey Chan",
-        });
+      position: new Vec2(center.x + center.x * 8/10, center.y - center.y * 65/100),
+      text: "Joey Chan",
+    });
     creditJ.textColor = Color.WHITE;
     const creditL = <Label>this.add.uiElement(UIElementType.LABEL, "mainMenu", {
-        position: new Vec2(center.x + 600, center.y - 150),
-        text: "Luigi Razon",
-        });
+      position: new Vec2(center.x + center.x * 8/10, center.y - center.y * 50/100),
+      text: "Luigi Razon",
+    });
     creditL.textColor = Color.WHITE;
 
     // Subscribe to the button events
@@ -135,12 +144,12 @@ export default class MainMenu extends Scene {
         this.sceneManager.changeToScene(Help);
         break;
       }
-        case "Level Selection": {
+      case "Level Selection": {
         this.sceneManager.changeToScene(LevelSelectionScene);
         break;
+      }
     }
   }
-}
   protected initBackground(): void {
     this.background = this.add.sprite(MainMenu.BACKGROUND_KEY, "BACKGROUND");
     const center = this.viewport.getCenter();
@@ -165,7 +174,14 @@ export default class MainMenu extends Scene {
     this.logo = this.add.sprite(MainMenu.LOGO_KEY, "LOGO");
     const center = this.viewport.getCenter();
 
-    this.logo.scale.set(5, 5);
-    this.logo.position.set(center.x - 400, center.y - 100);
+    // Calculate the desired scale based on the viewport dimensions
+    const scaleFactor = Math.min((center.x * 2) / 1280, (center.y * 2) / 720);
+
+    // Use the calculated scale factor to set the logo scale
+    this.logo.scale.set(5 * scaleFactor, 5 * scaleFactor);
+    this.logo.position.set(
+      center.x - (center.x * 45) / 100,
+      center.y - (center.y * 2) / 10
+    );
   }
 }
