@@ -71,13 +71,21 @@ export default class Timer implements Updateable {
 
     update(deltaT: number){
         if(this.state === TimerState.ACTIVE){
-            this.timeLeft -= deltaT*1000;
+            this.timeLeft -= deltaT * 1000;
 
             if(this.timeLeft <= 0){
                 this.timeLeft = MathUtils.clampLow0(this.timeLeft);
                 this.end();
             }
         }
+    }
+
+    public getRemainingTime(): number {
+        return this.timeLeft / 1000;
+    }
+
+    public getTotalTime(): number {
+        return this.totalTime / 1000;  
     }
 
     protected end(){

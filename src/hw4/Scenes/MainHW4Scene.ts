@@ -34,6 +34,11 @@ import BasicTargetable from "../GameSystems/Targeting/BasicTargetable";
 import Position from "../GameSystems/Targeting/Position";
 import AstarStrategy from "../Pathfinding/AstarStrategy";
 import HW4Scene from "./HW4Scene";
+import Label from "../../Wolfie2D/Nodes/UIElements/Label";
+import Button from "../../Wolfie2D/Nodes/UIElements/Button";
+import Layer from "../../Wolfie2D/Scene/Layer";
+import { UIElementType } from "../../Wolfie2D/Nodes/UIElements/UIElementTypes";
+import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 
 const BattlerGroups = {
     RED: 1,
@@ -45,11 +50,28 @@ export default class MainHW4Scene extends HW4Scene {
     /** GameSystems in the HW3 Scene */
     private inventoryHud: InventoryHUD;
 
+    //Timers
+    private countDownTimer: Timer;
+    private timerLabel: Label;
+    private elapsedTime: number;
+
+    //UI Sprites
+    private materialIcon: Sprite;
+    private fuelIcon: Sprite;
+
+    //UI Counter Labels
+    private materialCounter: Label;
+    private fuelCounter: Label;
+
+    public static MATERIAL_KEY = "MATERIAL";
+    public static MATERIAL_PATH = "assets/images/Gear.png";
+    public static FUEL_KEY = "FUEL";
+    public static FUEL_PATH = "assets/images/Fuel.png";
+    
     /** All the battlers in the HW3Scene (including the player) */
     private battlers: (Battler & Actor)[];
     /** Healthbars for the battlers */
     private healthbars: Map<number, HealthbarHUD>;
-
 
     private bases: BattlerBase[];
 
@@ -100,6 +122,10 @@ export default class MainHW4Scene extends HW4Scene {
         this.load.image("healthpack", "assets/sprites/healthpack.png");
         this.load.image("inventorySlot", "assets/sprites/inventory.png");
         this.load.image("laserGun", "assets/sprites/laserGun.png");
+
+        this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
+        this.load.image(MainHW4Scene.FUEL_KEY, MainHW4Scene.FUEL_PATH);
+
     }
     /**
      * @see Scene.startScene
@@ -118,6 +144,11 @@ export default class MainHW4Scene extends HW4Scene {
         this.viewport.setZoomLevel(2);
 
         this.initLayers();
+        this.initializeUI();
+
+        this.elapsedTime = 0;
+        this.countDownTimer = new Timer(120 * 1000);
+        this.countDownTimer.start();
         
         // Create the player
         this.initializePlayer();
@@ -145,11 +176,24 @@ export default class MainHW4Scene extends HW4Scene {
      * @see Scene.updateScene
      */
     public override updateScene(deltaT: number): void {
+        console.log('deltaT:', deltaT);
+
         while (this.receiver.hasNextEvent()) {
             this.handleEvent(this.receiver.getNextEvent());
         }
-        this.inventoryHud.update(deltaT);
+        // this.inventoryHud.update(deltaT);
         this.healthbars.forEach(healthbar => healthbar.update(deltaT));
+    
+        this.elapsedTime += deltaT;
+
+        // Update the timer
+        this.countDownTimer.update(deltaT);
+
+        // Update the timer label
+        const remainingTime = Math.max(this.countDownTimer.getTotalTime() - this.elapsedTime, 0);
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = Math.floor(remainingTime % 60);
+        this.timerLabel.text = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
     /**
@@ -200,11 +244,42 @@ export default class MainHW4Scene extends HW4Scene {
         
     }
 
+    initializeUI(): void {
+
+        //timer
+        this.timerLabel = <Button>this.add.uiElement(UIElementType.BUTTON, "timer", {
+            position: new Vec2(this.viewport.getHalfSize().x, 15),
+            text: "00:00"
+        });
+        // Remove the font-related line if you don't have custom fonts
+        this.timerLabel.borderColor = Color.WHITE;
+        this.timerLabel.textColor = Color.WHITE;
+        this.timerLabel.backgroundColor = Color.BLACK
+        this.timerLabel.fontSize = 32;
+
+        //Materials Icon
+        this.materialIcon = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Counters");
+        this.materialIcon.position.set(this.viewport.getHalfSize().x + this.viewport.getHalfSize().x/3, 15);
+        //Material Counter
+        this.materialCounter = <Label>this.add.uiElement(UIElementType.LABEL, "Counters", {position: new Vec2(this.viewport.getHalfSize().x + this.viewport.getHalfSize().x/3 + 20, 15), text: "0"});
+        //Fuel Icon
+        this.fuelIcon = this.add.sprite(MainHW4Scene.FUEL_KEY, "Counters");
+        this.fuelIcon.position.set(this.viewport.getHalfSize().x + 2 * (this.viewport.getHalfSize().x/3), 15);
+        //Fuel Counter
+        this.fuelCounter = <Label>this.add.uiElement(UIElementType.LABEL, "Counters", {position: new Vec2(this.viewport.getHalfSize().x + 2 * (this.viewport.getHalfSize().x/3) + 20, 15), text: "0"});
+
+    }
+
+
     /** Initializes the layers in the scene */
     protected initLayers(): void {
         this.addLayer("primary", 10);
         this.addUILayer("slots");
         this.addUILayer("items");
+        this.addUILayer("timer");
+        this.addUILayer("Counters")
+        this.getLayer("timer").setDepth(1);
+        this.getLayer("Counters").setDepth(1);
         this.getLayer("slots").setDepth(1);
         this.getLayer("items").setDepth(2);
     }
@@ -221,13 +296,13 @@ export default class MainHW4Scene extends HW4Scene {
         player.health = 10;
         player.maxHealth = 10;
 
-        player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
-        this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
-            start: new Vec2(232, 24),
-            slotLayer: "slots",
-            padding: 8,
-            itemLayer: "items"
-        });
+        // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
+        // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
+        //     start: new Vec2(232, 24),
+        //     slotLayer: "slots",
+        //     padding: 8,
+        //     itemLayer: "items"
+        // });
 
         // Give the player physics
         player.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
@@ -360,6 +435,7 @@ export default class MainHW4Scene extends HW4Scene {
             let sprite = this.add.sprite("laserGun", "primary");
             let line = <Line>this.add.graphic(GraphicType.LINE, "primary", {start: Vec2.ZERO, end: Vec2.ZERO});
             this.laserguns[i] = LaserGun.create(sprite, line);
+            sprite.scale.set(0.5, 0.5);
             this.laserguns[i].position.set(laserguns.items[i][0], laserguns.items[i][1]);
         }
 
@@ -367,6 +443,7 @@ export default class MainHW4Scene extends HW4Scene {
         this.healthpacks = new Array<Healthpack>(healthpacks.items.length);
         for (let i = 0; i < healthpacks.items.length; i++) {
             let sprite = this.add.sprite("healthpack", "primary");
+            sprite.scale.set(0.5, 0.5);
             this.healthpacks[i] = new Healthpack(sprite);
             this.healthpacks[i].position.set(healthpacks.items[i][0], healthpacks.items[i][1]);
         }
