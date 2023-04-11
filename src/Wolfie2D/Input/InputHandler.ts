@@ -4,6 +4,7 @@ import GameEvent from "../Events/GameEvent";
 import { GameEventType } from "../Events/GameEventType";
 import Updateable from "../DataTypes/Interfaces/Updateable";
 import Receiver from "../Events/Receiver";
+import { InputEvent } from "../../hw4/Events";
 
 export enum InputHandlers {
     MOUSE_DOWN = 0,
@@ -102,6 +103,11 @@ export default class InputHandler implements Updateable {
         let key = this.getKey(event);
         let gameEvent = new GameEvent(GameEventType.KEY_DOWN, {key: key});
         this.eventQueue.addEvent(gameEvent);
+
+        if (key === 'escape') {
+            let pauseEvent = new GameEvent(InputEvent.PAUSED, {});
+            this.eventQueue.addEvent(pauseEvent);
+        }
     }
 
     private handleKeyUp = (event: KeyboardEvent): void => {

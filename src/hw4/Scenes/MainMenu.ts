@@ -71,25 +71,25 @@ export default class MainMenu extends Scene {
     selectLevel.backgroundColor = Color.BLACK;
     selectLevel.onClickEventId = "Level Selection";
 
-    const astar = this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
+    const controls = this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
       position: new Vec2(center.x + 300, center.y + 200),
       text: "Controls",
     });
-    astar.size.set(300, 50);
-    astar.borderWidth = 2;
-    astar.borderColor = Color.WHITE;
-    astar.backgroundColor = Color.BLACK;
-    astar.onClickEventId = "controls";
+    controls.size.set(300, 50);
+    controls.borderWidth = 2;
+    controls.borderColor = Color.WHITE;
+    controls.backgroundColor = Color.BLACK;
+    controls.onClickEventId = "controls";
 
-    const guard = this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
+    const help = this.add.uiElement(UIElementType.BUTTON, "mainMenu", {
       position: new Vec2(center.x + 300, center.y + 300),
       text: "Help",
     });
-    guard.size.set(300, 50);
-    guard.borderWidth = 2;
-    guard.borderColor = Color.WHITE;
-    guard.backgroundColor = Color.BLACK;
-    guard.onClickEventId = "help";
+    help.size.set(300, 50);
+    help.borderWidth = 2;
+    help.borderColor = Color.WHITE;
+    help.backgroundColor = Color.BLACK;
+    help.onClickEventId = "help";
 
     //Credit
     const creditK = <Label>this.add.uiElement(UIElementType.LABEL, "mainMenu", {

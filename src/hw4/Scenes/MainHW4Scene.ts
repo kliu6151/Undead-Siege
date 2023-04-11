@@ -21,7 +21,7 @@ import GuardBehavior from "../AI/NPC/NPCBehavior/GaurdBehavior";
 import HealerBehavior from "../AI/NPC/NPCBehavior/HealerBehavior";
 import ZombieBehavior from "../AI/NPC/NPCBehavior/ZombieBehavior";
 import PlayerAI from "../AI/Player/PlayerAI";
-import { ItemEvent, PlayerEvent, BattlerEvent } from "../Events";
+import { ItemEvent, PlayerEvent, BattlerEvent, InputEvent } from "../Events";
 import Battler from "../GameSystems/BattleSystem/Battler";
 import BattlerBase from "../GameSystems/BattleSystem/BattlerBase";
 import HealthbarHUD from "../GameSystems/HUD/HealthbarHUD";
@@ -42,6 +42,8 @@ import { UIElementType } from "../../Wolfie2D/Nodes/UIElements/UIElementTypes";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Material from "../GameSystems/ItemSystem/Items/Material";
 import Fuel from "../GameSystems/ItemSystem/Items/Fuel";
+import Pause from "./Pause";
+
 
 const BattlerGroups = {
     RED: 1,
@@ -178,6 +180,7 @@ export default class MainHW4Scene extends HW4Scene {
         this.receiver.subscribe(ItemEvent.ITEM_REQUEST);
         this.receiver.subscribe(ItemEvent.MATERIAL_PICKED_UP);
         this.receiver.subscribe(ItemEvent.FUEL_PICKED_UP);
+        this.receiver.subscribe(InputEvent.PAUSED);
 
         // Add a UI for health
         this.addUILayer("health");
@@ -217,6 +220,10 @@ export default class MainHW4Scene extends HW4Scene {
      */
     public handleEvent(event: GameEvent): void {
         switch (event.type) {
+            case InputEvent.PAUSED: {
+                this.handlePaused();
+                break;
+            }
             case BattlerEvent.BATTLER_KILLED: {
                 this.handleBattlerKilled(event);
                 break;
@@ -250,7 +257,7 @@ export default class MainHW4Scene extends HW4Scene {
         if (items.length > 0) {
             const pickedUpItem = items.reduce(ClosestPositioned(node));
             inventory.add(pickedUpItem);
-            
+
             if (pickedUpItem instanceof Material) {
                 this.emitter.fireEvent(ItemEvent.MATERIAL_PICKED_UP);
             } else if (pickedUpItem instanceof Fuel) {
@@ -268,6 +275,13 @@ export default class MainHW4Scene extends HW4Scene {
         const currentValue = parseInt(this.fuelCounter.text);
         this.fuelCounter.text = (currentValue + 1).toString();
     }
+
+    private handlePaused(): void {
+        this.sceneManager.changeToScene(Pause);
+        // const pauseScene = new PauseScene(this.viewport, this.sceneManager, this.renderingManager, {});
+        // this.sceneManager.pushScene(pauseScene);
+    }
+    
     
 
     /**

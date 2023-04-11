@@ -27,3 +27,9 @@ export enum HudEvent {
 export enum PlayerEvent {
     PLAYER_KILLED = "PLAYER_KILLED"
 }
+
+export enum InputEvent {
+    PAUSED = "PAUSED",
+    SET_TIMEOUT = "SET_TIMEOUT",
+    RESUMED = "RESUMED",
+}
