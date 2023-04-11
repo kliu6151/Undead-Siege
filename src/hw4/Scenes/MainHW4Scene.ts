@@ -119,7 +119,7 @@ export default class MainHW4Scene extends HW4Scene {
         this.load.spritesheet("RedHealer", "assets/spritesheets/RedHealer.json");
 
         // Load the tilemap
-        this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
+        this.load.tilemap("level", "assets/tilemaps/Level1Map.json");
 
         // Load the enemy locations
         this.load.object("red", "assets/data/enemies/red.json");
