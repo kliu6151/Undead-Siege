@@ -33,13 +33,12 @@ export default class StartMenu extends Scene {
         
         const center = this.viewport.getCenter();
 
-        this.addLayer("BACKGROUND", 0);
+        this.addLayer("BACKGROUND", 1);
 		this.initBackground();
 
-
-        // The start menu
         this.startMenu = this.addUILayer("startMenu");
 
+        // The start menu
         const start = <Label>this.add.uiElement(UIElementType.LABEL, "startMenu", {position: new Vec2(center.x, center.y + center.y/1.5), text: "Click anywhere to start"});
         start.size.set(center.x * 2, center.y + center.y * 1.5 + center.y * 2);
         start.borderWidth = 2;

@@ -52,6 +52,10 @@ const BattlerGroups = {
 
 export default class MainHW4Scene extends HW4Scene {
 
+    public isPaused: boolean;
+    private pauseLayer: Layer;
+    private pauseText: Label;
+
     /** GameSystems in the HW3 Scene */
     private inventoryHud: InventoryHUD;
 
@@ -160,6 +164,7 @@ export default class MainHW4Scene extends HW4Scene {
 
         this.initLayers();
         this.initializeUI();
+        this.initPauseUI();
 
         this.elapsedTime = 0;
         this.countDownTimer = new Timer(120 * 1000);
@@ -194,31 +199,35 @@ export default class MainHW4Scene extends HW4Scene {
      * @see Scene.updateScene
      */
     public override updateScene(deltaT: number): void {
-        console.log('deltaT:', deltaT);
-
+        // Move input handling outside the if statement
         while (this.receiver.hasNextEvent()) {
             this.handleEvent(this.receiver.getNextEvent());
         }
-        // this.inventoryHud.update(deltaT);
-        this.healthbars.forEach(healthbar => healthbar.update(deltaT));
     
-        this.elapsedTime += deltaT;
-
-        // Update the timer
-        this.countDownTimer.update(deltaT);
-
-        // Update the timer label
-        const remainingTime = Math.max(this.countDownTimer.getTotalTime() - this.elapsedTime, 0);
-        const minutes = Math.floor(remainingTime / 60);
-        const seconds = Math.floor(remainingTime % 60);
-        this.timerLabel.text = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        if (!this.isPaused) {
+            // this.inventoryHud.update(deltaT);
+            this.healthbars.forEach(healthbar => healthbar.update(deltaT));
+        
+            this.elapsedTime += deltaT;
+    
+            // Update the timer
+            this.countDownTimer.update(deltaT);
+    
+            // Update the timer label
+            const remainingTime = Math.max(this.countDownTimer.getTotalTime() - this.elapsedTime, 0);
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = Math.floor(remainingTime % 60);
+            this.timerLabel.text = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
     }
+    
 
     /**
      * Handle events from the rest of the game
      * @param event a game event
      */
     public handleEvent(event: GameEvent): void {
+        if(!this.isPaused || event.type === InputEvent.PAUSED) {
         switch (event.type) {
             case InputEvent.PAUSED: {
                 this.handlePaused();
@@ -247,6 +256,7 @@ export default class MainHW4Scene extends HW4Scene {
                 throw new Error(`Unhandled event type "${event.type}" caught in HW3Scene event handler`);
             }
         }
+    }
     }
 
     protected handleItemRequest(node: GameNode, inventory: Inventory): void {
@@ -277,9 +287,13 @@ export default class MainHW4Scene extends HW4Scene {
     }
 
     private handlePaused(): void {
-        this.sceneManager.changeToScene(Pause);
-        // const pauseScene = new PauseScene(this.viewport, this.sceneManager, this.renderingManager, {});
-        // this.sceneManager.pushScene(pauseScene);
+        // if (!this.isPaused) {
+        //     this.isPaused = true;
+        //     const pauseScene = new Pause(this.viewport, this.sceneManager, this.renderingManager, {});
+        //     pauseScene.startScene();
+        // }
+        this.isPaused = !this.isPaused;
+        this.pauseText.visible = this.isPaused;
     }
     
     
@@ -325,6 +339,19 @@ export default class MainHW4Scene extends HW4Scene {
         //Fuel Counter
         this.fuelCounter = <Label>this.add.uiElement(UIElementType.LABEL, "Counters", {position: new Vec2(this.viewport.getHalfSize().x + 2 * (this.viewport.getHalfSize().x/3) + 20, 15), text: "0"});
 
+
+    }
+
+    private initPauseUI(): void {
+        // Create and add pause UI elements here
+        // For example, you can create a text label to show "Paused":
+        this.pauseText = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+            position: new Vec2(this.viewport.getHalfSize().x, this.viewport.getHalfSize().y),
+            text: "Paused"
+        });
+        this.pauseText.textColor = Color.WHITE;
+        this.pauseText.fontSize = 32;
+        this.pauseText.visible = false; // Make sure it's not visible by default
     }
 
 
@@ -334,7 +361,9 @@ export default class MainHW4Scene extends HW4Scene {
         this.addUILayer("slots");
         this.addUILayer("items");
         this.addUILayer("timer");
-        this.addUILayer("Counters")
+        this.addUILayer("Counters");
+        this.addUILayer("Pause");
+        this.getLayer("Pause").setDepth(1);
         this.getLayer("timer").setDepth(1);
         this.getLayer("Counters").setDepth(1);
         this.getLayer("slots").setDepth(1);

@@ -33,12 +33,12 @@ export default class Pause extends Scene {
 
   public startScene() {
     const center = this.viewport.getCenter();
+    // this.Pause = this.addUILayer("BG");
+    // this.addLayer("BG", 0);
+    // this.initBackground();
 
-    this.addLayer("BG", 0);
-    this.initBackground();
-
-    this.addLayer("LOGO", 1);
-    this.initLogo();
+    // this.addLayer("LOGO", 1);
+    // this.initLogo();
 
     // The main menu
     this.Pause = this.addUILayer("Pause");
@@ -113,7 +113,15 @@ export default class Pause extends Scene {
         this.sceneManager.changeToScene(LevelSelectionScene);
         break;
     }
+    case "resume": {
+      this.handlePaused();
+      break;
+    }
   }
+}
+
+protected handlePaused(): void {
+  this.sceneManager.changeToScene(MainHW4Scene);
 }
 
 protected initBackground(): void {
@@ -134,8 +142,8 @@ protected initBackground(): void {
     this.viewport.getHalfSize().scale(.5);
 
     this.background.position.copy(center);
-
 }
+
   protected initLogo(): void {
     this.logo = this.add.sprite(Pause.LOGO_KEY, "LOGO");
     // const center = this.viewport.getCenter();
@@ -143,4 +151,5 @@ protected initBackground(): void {
     this.logo.scale.set(1, 1);
     this.logo.position.set(this.viewport.getHalfSize().x, 70);
   }
+  
 }
