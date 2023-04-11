@@ -33,7 +33,7 @@ export default class Inventory implements Unique {
     /** An emitter used to emit events when this inventory changes */
     protected _emitter: Emitter;
 
-    public constructor(capacity: number = 10) {
+    public constructor(capacity: number = 9999) {
         this.__id = Inventory.NEXT_ID 
         Inventory.NEXT_ID += 1;
 

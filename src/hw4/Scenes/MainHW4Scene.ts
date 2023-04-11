@@ -40,6 +40,8 @@ import Button from "../../Wolfie2D/Nodes/UIElements/Button";
 import Layer from "../../Wolfie2D/Scene/Layer";
 import { UIElementType } from "../../Wolfie2D/Nodes/UIElements/UIElementTypes";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
+import Material from "../GameSystems/ItemSystem/Items/Material";
+import Fuel from "../GameSystems/ItemSystem/Items/Fuel";
 
 const BattlerGroups = {
     RED: 1,
@@ -79,6 +81,9 @@ export default class MainHW4Scene extends HW4Scene {
     private healthpacks: Array<Healthpack>;
     private laserguns: Array<LaserGun>;
 
+    private materials: Array<Material>;
+    private fuels: Array<Fuel>;
+
     // The wall layer of the tilemap
     private walls: OrthogonalTilemap;
 
@@ -93,6 +98,9 @@ export default class MainHW4Scene extends HW4Scene {
 
         this.laserguns = new Array<LaserGun>();
         this.healthpacks = new Array<Healthpack>();
+
+        this.materials = new Array<Material>();
+        this.fuels = new Array<Fuel>();
     }
 
     /**
@@ -118,6 +126,10 @@ export default class MainHW4Scene extends HW4Scene {
         // Load the healthpack and lasergun loactions
         this.load.object("healthpacks", "assets/data/items/healthpacks.json");
         this.load.object("laserguns", "assets/data/items/laserguns.json");
+
+        // Load the material and fuel locations
+        this.load.object("materials", "assets/data/items/materials.json");
+        this.load.object("fuels", "assets/data/items/fuels.json");
 
         // Load the healthpack, inventory slot, and laser gun sprites
         this.load.image("healthpack", "assets/sprites/healthpack.png");
@@ -164,6 +176,8 @@ export default class MainHW4Scene extends HW4Scene {
         this.receiver.subscribe("healthpack");
         this.receiver.subscribe("enemyDied");
         this.receiver.subscribe(ItemEvent.ITEM_REQUEST);
+        this.receiver.subscribe(ItemEvent.MATERIAL_PICKED_UP);
+        this.receiver.subscribe(ItemEvent.FUEL_PICKED_UP);
 
         // Add a UI for health
         this.addUILayer("health");
@@ -214,6 +228,14 @@ export default class MainHW4Scene extends HW4Scene {
                 this.handleItemRequest(event.data.get("node"), event.data.get("inventory"));
                 break;
             }
+            case ItemEvent.MATERIAL_PICKED_UP: {
+                this.handleMaterialPickedUp();
+                break;
+            }
+            case ItemEvent.FUEL_PICKED_UP: {
+                this.handleFuelPickedUp();
+                break;
+            }
             default: {
                 throw new Error(`Unhandled event type "${event.type}" caught in HW3Scene event handler`);
             }
@@ -221,14 +243,32 @@ export default class MainHW4Scene extends HW4Scene {
     }
 
     protected handleItemRequest(node: GameNode, inventory: Inventory): void {
-        let items: Item[] = new Array<Item>(...this.healthpacks, ...this.laserguns).filter((item: Item) => {
+        let items: Item[] = new Array<Item>(...this.materials, ...this.fuels).filter((item: Item) => {
             return item.inventory === null && item.position.distanceTo(node.position) <= 100;
         });
 
         if (items.length > 0) {
-            inventory.add(items.reduce(ClosestPositioned(node)));
+            const pickedUpItem = items.reduce(ClosestPositioned(node));
+            inventory.add(pickedUpItem);
+            
+            if (pickedUpItem instanceof Material) {
+                this.emitter.fireEvent(ItemEvent.MATERIAL_PICKED_UP);
+            } else if (pickedUpItem instanceof Fuel) {
+                this.emitter.fireEvent(ItemEvent.FUEL_PICKED_UP);
+            }
         }
     }
+
+    private handleMaterialPickedUp(): void {
+        const currentValue = parseInt(this.materialCounter.text);
+        this.materialCounter.text = (currentValue + 1).toString();
+    }
+    
+    private handleFuelPickedUp(): void {
+        const currentValue = parseInt(this.fuelCounter.text);
+        this.fuelCounter.text = (currentValue + 1).toString();
+    }
+    
 
     /**
      * Handles an NPC being killed by unregistering the NPC from the scenes subsystems
@@ -429,24 +469,44 @@ export default class MainHW4Scene extends HW4Scene {
     /**
      * Initialize the items in the scene (healthpacks and laser guns)
      */
-    protected initializeItems(): void {
-        let laserguns = this.load.getObject("laserguns");
-        this.laserguns = new Array<LaserGun>(laserguns.items.length);
-        for (let i = 0; i < laserguns.items.length; i++) {
-            let sprite = this.add.sprite("laserGun", "primary");
-            let line = <Line>this.add.graphic(GraphicType.LINE, "primary", {start: Vec2.ZERO, end: Vec2.ZERO});
-            this.laserguns[i] = LaserGun.create(sprite, line);
-            sprite.scale.set(0.5, 0.5);
-            this.laserguns[i].position.set(laserguns.items[i][0], laserguns.items[i][1]);
-        }
+    // protected initializeItems(): void {
+    //     let laserguns = this.load.getObject("laserguns");
+    //     this.laserguns = new Array<LaserGun>(laserguns.items.length);
+    //     for (let i = 0; i < laserguns.items.length; i++) {
+    //         let sprite = this.add.sprite("laserGun", "primary");
+    //         let line = <Line>this.add.graphic(GraphicType.LINE, "primary", {start: Vec2.ZERO, end: Vec2.ZERO});
+    //         this.laserguns[i] = LaserGun.create(sprite, line);
+    //         sprite.scale.set(0.5, 0.5);
+    //         this.laserguns[i].position.set(laserguns.items[i][0], laserguns.items[i][1]);
+    //     }
 
-        let healthpacks = this.load.getObject("healthpacks");
-        this.healthpacks = new Array<Healthpack>(healthpacks.items.length);
-        for (let i = 0; i < healthpacks.items.length; i++) {
-            let sprite = this.add.sprite("healthpack", "primary");
+    //     let healthpacks = this.load.getObject("healthpacks");
+    //     this.healthpacks = new Array<Healthpack>(healthpacks.items.length);
+    //     for (let i = 0; i < healthpacks.items.length; i++) {
+    //         let sprite = this.add.sprite("healthpack", "primary");
+    //         sprite.scale.set(0.5, 0.5);
+    //         this.healthpacks[i] = new Healthpack(sprite);
+    //         this.healthpacks[i].position.set(healthpacks.items[i][0], healthpacks.items[i][1]);
+    //     }
+    // }
+
+    //Initialize the items Material and Fuels
+    protected initializeItems(): void {
+        let materials = this.load.getObject("materials");
+        this.materials = new Array<Material>(materials.items.length);
+        for (let i = 0; i < materials.items.length; i++) {
+            let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
             sprite.scale.set(0.5, 0.5);
-            this.healthpacks[i] = new Healthpack(sprite);
-            this.healthpacks[i].position.set(healthpacks.items[i][0], healthpacks.items[i][1]);
+            this.materials[i] = new Material(sprite);
+            this.materials[i].position.set(materials.items[i][0], materials.items[i][1]);
+        }
+        let fuels = this.load.getObject("fuels");
+        this.fuels = new Array<Fuel>(fuels.items.length);
+        for (let i = 0; i < fuels.items.length; i++) {
+            let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
+            sprite.scale.set(0.5, 0.5);
+            this.fuels[i] = new Fuel(sprite);
+            this.fuels[i].position.set(fuels.items[i][0], fuels.items[i][1]);
         }
     }
     /**
