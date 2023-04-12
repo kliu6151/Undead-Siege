@@ -67,6 +67,7 @@ export default class MainHW4Scene extends HW4Scene {
   private fuelIcon: Sprite;
   private pause_background: Sprite;
   private logo: Sprite;
+  private night: Sprite;
 
   //UI Counter Labels
   private materialCounter: Label;
@@ -88,6 +89,8 @@ export default class MainHW4Scene extends HW4Scene {
   public static PAUSE_BG_PATH = "assets/sprites/pauseBg.jpg";
   public static LOGO_KEY = "LOGO";
   public static LOGO_PATH = "assets/sprites/logo.png";
+  public static NIGHT_KEY = "NIGHT";
+  public static NIGHT_PATH = "assets/sprites/black.png";
 
   /** All the battlers in the HW3Scene (including the player) */
   private battlers: (Battler & Actor)[];
@@ -163,6 +166,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.load.image(MainHW4Scene.FUEL_KEY, MainHW4Scene.FUEL_PATH);
     this.load.image(MainHW4Scene.LOGO_KEY, MainHW4Scene.LOGO_PATH);
     this.load.image(MainHW4Scene.PAUSE_BG_KEY, MainHW4Scene.PAUSE_BG_PATH);
+    this.load.image(MainHW4Scene.NIGHT_KEY, MainHW4Scene.NIGHT_PATH);
   }
   /**
    * @see Scene.startScene
@@ -204,7 +208,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(ItemEvent.MATERIAL_PICKED_UP);
     this.receiver.subscribe(ItemEvent.FUEL_PICKED_UP);
     this.receiver.subscribe(InputEvent.PAUSED);
-    this.receiver.subscribe("exit")
+    this.receiver.subscribe("exit");
     this.receiver.subscribe("unPause");
 
     // Add a UI for health
@@ -242,6 +246,16 @@ export default class MainHW4Scene extends HW4Scene {
       this.timerLabel.text = `${String(minutes).padStart(2, "0")}:${String(
         seconds
       ).padStart(2, "0")}`;
+      if (remainingTime <= 0) {
+        console.log("DUSK");
+        this.night = this.add.sprite(MainHW4Scene.NIGHT_KEY, "night");
+        this.night.alpha = 0.1;
+        this.night.scale.set(2, 2);
+        this.night.position.set(
+          this.viewport.getHalfSize().x,
+          this.viewport.getHalfSize().y
+        );
+      }
     }
   }
 
@@ -251,18 +265,17 @@ export default class MainHW4Scene extends HW4Scene {
    */
   public handleEvent(event: GameEvent): void {
     if (this.isPaused) {
-        switch (event.type) {
-            case "exit": {
-                this.sceneManager.changeToScene(MainMenu);
-                break;
-            }
-            case "unPause": {
-                this.handlePaused();
-                break;
-            }
+      switch (event.type) {
+        case "exit": {
+          this.sceneManager.changeToScene(MainMenu);
+          break;
         }
-    }
-    else if (!this.isPaused || event.type === InputEvent.PAUSED) {
+        case "unPause": {
+          this.handlePaused();
+          break;
+        }
+      }
+    } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
         case InputEvent.PAUSED: {
           this.handlePaused();
@@ -298,7 +311,6 @@ export default class MainHW4Scene extends HW4Scene {
       }
     }
   }
-
 
   protected handleItemRequest(node: GameNode, inventory: Inventory): void {
     let items: Item[] = new Array<Item>(
@@ -512,6 +524,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.addUILayer("timer");
     this.addUILayer("Counters");
     this.addUILayer("Pause");
+    this.addUILayer("night");
+    this.getLayer("night").setDepth(0);
     this.getLayer("Pause").setDepth(1);
     this.getLayer("timer").setDepth(1);
     this.getLayer("Counters").setDepth(1);
