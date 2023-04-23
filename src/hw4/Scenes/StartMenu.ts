@@ -88,7 +88,7 @@ export default class StartMenu extends Scene {
         // // Set the scale of the background image to match the viewport dimensions
         this.background.scale.set(scaleX, scaleY);
 
-        //Rever the viewport halfsize
+        //Revert the viewport halfsize
         this.viewport.getHalfSize().scale(.5);
 
 		this.background.position.copy(center);

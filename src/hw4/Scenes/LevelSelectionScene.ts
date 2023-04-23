@@ -19,13 +19,13 @@ export default class LevelSelectionScene extends Scene {
 
   private highestLevelCompleted: number = 0;
 
+  private levelButtons: Button[] = [];
 
 
   public static BACKGROUND_KEY = "BACKGROUND";
   public static BACKGROUND_PATH = "assets/sprites/background.jpg";
 
   private background: Sprite;
-  private logo: Sprite;
 
   public loadScene() {
     this.load.image(LevelSelectionScene.BACKGROUND_KEY, LevelSelectionScene.BACKGROUND_PATH);
@@ -33,7 +33,7 @@ export default class LevelSelectionScene extends Scene {
 
   public startScene() {
     const center = this.viewport.getCenter();
-
+    console.log("CENTER IN LEVELSELECTIONSCENE: ", center)
     this.highestLevelCompleted = parseInt(localStorage.getItem("highestLevelCompleted") || "0");
 
 
@@ -55,7 +55,7 @@ export default class LevelSelectionScene extends Scene {
       backButton.onClickEventId = "return";
 
    // Create an array to store the level buttons
-   const levelButtons: Button[] = [];
+   this.levelButtons = [];
 
    // Loop through the levels and create buttons
    for (let i = 1; i <= 6; i++) {
@@ -77,8 +77,8 @@ export default class LevelSelectionScene extends Scene {
        levelButton.disable();
      }
 
-     levelButtons.push(levelButton);
    }
+   this.unlockLevels(this.levelButtons);
 
 
    /**
@@ -99,6 +99,8 @@ export default class LevelSelectionScene extends Scene {
     this.receiver.subscribe("Level4");
     this.receiver.subscribe("Level5");
     this.receiver.subscribe("Level6");
+    this.receiver.subscribe("allLevelCheatUnlock");
+
 
   }
 
@@ -108,8 +110,17 @@ export default class LevelSelectionScene extends Scene {
     }
   }
 
+
+
   public handleEvent(event: GameEvent): void {
     switch (event.type) {
+      case "allLevelCheatUnlock": {
+        this.highestLevelCompleted = 5;
+        localStorage.setItem("highestLevelCompleted", this.highestLevelCompleted.toString());
+        this.unlockLevels(this.levelButtons);
+        break;
+    }
+
         case "return":
             this.sceneManager.changeToScene(MainMenu);
             break;
@@ -141,10 +152,22 @@ export default class LevelSelectionScene extends Scene {
     // // Set the scale of the background image to match the viewport dimensions
     this.background.scale.set(scaleX, scaleY);
 
-    //Rever the viewport halfsize
+    //Revert the viewport halfsize
     this.viewport.getHalfSize().scale(0.5);
 
     this.background.position.copy(center);
   }
+
+  private unlockLevels(levelButtons: Button[]): void {
+    for (let i = 0; i < levelButtons.length; i++) {
+        if (i <= this.highestLevelCompleted) {
+            levelButtons[i].backgroundColor = Color.BLACK;
+            levelButtons[i].enable(); // Enable the button
+        } else {
+            levelButtons[i].backgroundColor = Color.BLUE;
+            levelButtons[i].disable(); // Disable the button
+        }
+    }
+}
 
 }

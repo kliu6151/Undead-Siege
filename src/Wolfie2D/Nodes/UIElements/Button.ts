@@ -42,6 +42,12 @@ export default class Button extends Label {
 		this.updateSize();
 	}
 
+	enable (): void {
+		this.isDisabled = false;
+		this.buttonStyle(new Color(150, 75, 203), new Color(255, 255, 255), this.size, this.font);
+		this.updateSize();
+	}
+
 	updateSize(): void {
 		// Get the canvas to measure the text width
 		const canvas = document.createElement('canvas');

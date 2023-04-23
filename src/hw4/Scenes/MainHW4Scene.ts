@@ -176,7 +176,8 @@ export default class MainHW4Scene extends HW4Scene {
   public override startScene() {
     // Add in the tilemap
     let tilemapLayers = this.add.tilemap("level");
-
+    const tempSize = this.viewport.getCenter();
+    console.log("START OF 4: ", tempSize)
     // Get the wall layer
     this.walls = <OrthogonalTilemap>tilemapLayers[1].getItems()[0];
 
@@ -444,6 +445,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   private initPauseUI(): void {
     const center = this.viewport.getCenter();
+    console.log("CENTER IN MAIN: ", center);
     console.log(this.viewport);
     // Background
     this.pause_background = this.add.sprite(MainHW4Scene.PAUSE_BG_KEY, "Pause");
@@ -509,15 +511,16 @@ export default class MainHW4Scene extends HW4Scene {
     this.cheats.onClickEventId = "showCheats";
 
     this.AllLevelsCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 8, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
       text: "All Levels",
     });
     this.AllLevelsCheat.textColor = Color.WHITE;
     this.AllLevelsCheat.backgroundColor = Color.BLACK;
     this.AllLevelsCheat.fontSize = 24;
+    this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
 
     this.unlimitedHealthCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 8, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
       text: "Unlimited Health",
     });
     this.unlimitedHealthCheat.textColor = Color.WHITE;
@@ -525,7 +528,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.unlimitedHealthCheat.fontSize = 24;
 
     this.speedBoostCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 8, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
+      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
       text: "Speed Boost",
     });
     this.speedBoostCheat.textColor = Color.WHITE;

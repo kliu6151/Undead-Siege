@@ -164,7 +164,7 @@ export default class MainMenu extends Scene {
     // // Set the scale of the background image to match the viewport dimensions
     this.background.scale.set(scaleX, scaleY);
 
-    //Rever the viewport halfsize
+    //Revert the viewport halfsize
     this.viewport.getHalfSize().scale(0.5);
 
     this.background.position.copy(center);
