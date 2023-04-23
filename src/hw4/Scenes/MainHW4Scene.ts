@@ -84,6 +84,9 @@ export default class MainHW4Scene extends HW4Scene {
   private unlimitedHealthCheat: Button;
   private speedBoostCheat: Button;
 
+  private initialViewportSize: Vec2;
+
+
   public static MATERIAL_KEY = "MATERIAL";
   public static MATERIAL_PATH = "assets/sprites/loot.png";
   public static FUEL_KEY = "FUEL";
@@ -176,6 +179,7 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
+    this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
     // Add in the tilemap
     let tilemapLayers = this.add.tilemap("level");
     const tempSize = this.viewport.getCenter();
@@ -273,6 +277,7 @@ export default class MainHW4Scene extends HW4Scene {
     if (this.isPaused) {
       switch (event.type) {
         case "exit": {
+          this.resetViewportSize();
           this.sceneManager.changeToScene(MainMenu);
           break;
         }
@@ -449,12 +454,10 @@ export default class MainHW4Scene extends HW4Scene {
     const center = this.viewport.getCenter();
     // Background
     this.pause_background = this.add.sprite(MainHW4Scene.PAUSE_BG_KEY, "Pause");
-    const viewportSize = this.viewport.getHalfSize().scale(2);
     const imageSize = this.pause_background.size;
-    const scaleX = viewportSize.x / imageSize.x;
-    const scaleY = viewportSize.y / imageSize.y;
+    const scaleX = (this.viewport.getHalfSize().x * 2) / imageSize.x;
+    const scaleY = (this.viewport.getHalfSize().y * 2) / imageSize.y;
     this.pause_background.scale.set(scaleX, scaleY);
-    this.viewport.getHalfSize().scale(1 / 2);
     this.pause_background.position.copy(center).sub(this.viewport.getOrigin());
 
     // Logo
@@ -570,6 +573,11 @@ export default class MainHW4Scene extends HW4Scene {
     this.unlimitedHealthCheat.visible = false;
     this.AllLevelsCheat.visible = false;
     this.speedBoostCheat.visible = false;
+  }
+
+  public resetViewportSize(): void {
+    this.viewport.setBounds(0, 0, this.initialViewportSize.x, this.initialViewportSize.y);
+    this.viewport.setZoomLevel(1);
   }
 
   /** Initializes the layers in the scene */

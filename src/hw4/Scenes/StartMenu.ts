@@ -78,18 +78,16 @@ export default class StartMenu extends Scene {
 		this.background = this.add.sprite(StartMenu.BACKGROUND_KEY, "BACKGROUND");
         const center = this.viewport.getCenter();
 
-        const viewportSize = this.viewport.getHalfSize().scale(2);
         const imageSize = this.background.size;
 
         // Calculate the scale factors for the X and Y dimensions
-        const scaleX = viewportSize.x / imageSize.x;
-        const scaleY = viewportSize.y / imageSize.y;
+        const scaleX = (this.viewport.getHalfSize().x * 2) / imageSize.x;
+        const scaleY = (this.viewport.getHalfSize().y * 2) / imageSize.y;
 
         // // Set the scale of the background image to match the viewport dimensions
         this.background.scale.set(scaleX, scaleY);
 
         //Revert the viewport halfsize
-        this.viewport.getHalfSize().scale(.5);
 
 		this.background.position.copy(center);
 	}

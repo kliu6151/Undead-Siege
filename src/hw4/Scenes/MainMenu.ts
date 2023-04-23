@@ -27,12 +27,16 @@ export default class MainMenu extends Scene {
   private background: Sprite;
   private logo: Sprite;
 
+  private initialViewportSize: Vec2;
+
+
   public loadScene() {
     this.load.image(MainMenu.BACKGROUND_KEY, MainMenu.BACKGROUND_PATH);
     this.load.image(MainMenu.LOGO_KEY, MainMenu.LOGO_PATH);
   }
 
   public startScene() {
+    this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
     const center = this.viewport.getCenter();
     console.log(center);
 
@@ -154,18 +158,16 @@ export default class MainMenu extends Scene {
     this.background = this.add.sprite(MainMenu.BACKGROUND_KEY, "BACKGROUND");
     const center = this.viewport.getCenter();
 
-    const viewportSize = this.viewport.getHalfSize().scale(2);
     const imageSize = this.background.size;
 
     // Calculate the scale factors for the X and Y dimensions
-    const scaleX = viewportSize.x / imageSize.x;
-    const scaleY = viewportSize.y / imageSize.y;
+    const scaleX = (this.viewport.getHalfSize().x * 2) / imageSize.x;
+    const scaleY = (this.viewport.getHalfSize().y * 2) / imageSize.y;
 
     // // Set the scale of the background image to match the viewport dimensions
     this.background.scale.set(scaleX, scaleY);
 
     //Revert the viewport halfsize
-    this.viewport.getHalfSize().scale(0.5);
 
     this.background.position.copy(center);
   }
