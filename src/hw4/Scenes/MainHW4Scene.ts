@@ -77,9 +77,11 @@ export default class MainHW4Scene extends HW4Scene {
   private backButton: Button;
   private resume: Label;
   private controls: Label;
-  private saveAndExit: Label;
   private exit: Label;
   private cheats: Label;
+  private AllLevelsCheat: Button;
+  private unlimitedHealthCheat: Button;
+  private speedBoostCheat: Button;
 
   public static MATERIAL_KEY = "MATERIAL";
   public static MATERIAL_PATH = "assets/sprites/loot.png";
@@ -210,6 +212,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(InputEvent.PAUSED);
     this.receiver.subscribe("exit");
     this.receiver.subscribe("unPause");
+    this.receiver.subscribe("showCheats")
 
     // Add a UI for health
     this.addUILayer("health");
@@ -274,6 +277,14 @@ export default class MainHW4Scene extends HW4Scene {
           this.handlePaused();
           break;
         }
+        case "showCheats": {
+          this.handleShowCheats();
+          break;
+        }
+        case InputEvent.PAUSED: {
+          this.handlePaused();
+          break;
+        }
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
@@ -311,7 +322,6 @@ export default class MainHW4Scene extends HW4Scene {
       }
     }
   }
-
   protected handleItemRequest(node: GameNode, inventory: Inventory): void {
     let items: Item[] = new Array<Item>(
       ...this.materials,
@@ -352,6 +362,10 @@ export default class MainHW4Scene extends HW4Scene {
     } else {
       this.hidePauseUI();
     }
+  }
+
+  private handleShowCheats(): void {
+    this.showCheatsUI();
   }
 
   /**
@@ -492,6 +506,32 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.cheats.textColor = Color.WHITE;
     this.cheats.fontSize = 32;
+    this.cheats.onClickEventId = "showCheats";
+
+    this.AllLevelsCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x / 8, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
+      text: "All Levels",
+    });
+    this.AllLevelsCheat.textColor = Color.WHITE;
+    this.AllLevelsCheat.backgroundColor = Color.BLACK;
+    this.AllLevelsCheat.fontSize = 24;
+
+    this.unlimitedHealthCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x / 8, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
+      text: "Unlimited Health",
+    });
+    this.unlimitedHealthCheat.textColor = Color.WHITE;
+    this.unlimitedHealthCheat.backgroundColor = Color.BLACK;
+    this.unlimitedHealthCheat.fontSize = 24;
+
+    this.speedBoostCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x / 8, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
+      text: "Speed Boost",
+    });
+    this.speedBoostCheat.textColor = Color.WHITE;
+    this.speedBoostCheat.backgroundColor = Color.BLACK;
+    this.speedBoostCheat.fontSize = 24;
+
 
     this.hidePauseUI();
   }
@@ -514,6 +554,19 @@ export default class MainHW4Scene extends HW4Scene {
     this.controls.visible = false;
     this.exit.visible = false;
     this.cheats.visible = false;
+    this.hideCheatsUI();
+  }
+
+  private showCheatsUI(): void {
+    this.unlimitedHealthCheat.visible = true;
+    this.AllLevelsCheat.visible = true;
+    this.speedBoostCheat.visible = true;
+  }
+
+  private hideCheatsUI(): void {
+    this.unlimitedHealthCheat.visible = false;
+    this.AllLevelsCheat.visible = false;
+    this.speedBoostCheat.visible = false;
   }
 
   /** Initializes the layers in the scene */

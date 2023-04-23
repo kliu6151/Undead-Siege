@@ -9,7 +9,7 @@ export default class Button extends Label {
 
 	constructor(position: Vec2, text: string){
 		super(position, text);
-		
+		this.sizeToText();
 		this.backgroundColor = new Color(150, 75, 203);
 		this.borderColor = new Color(41, 46, 30);
 		this.textColor = new Color(255, 255, 255);
@@ -33,11 +33,22 @@ export default class Button extends Label {
 		this.size.x = size.x;
 		this.size.y = size.y;
 		this.font = fontStr;
+		this.updateSize();
 	}
 
 	disable (): void {
 		this.isDisabled = true;
 		this.buttonStyle(new Color(100, 100, 100), new Color(255, 255, 255), this.size, this.font);
+		this.updateSize();
+	}
+
+	updateSize(): void {
+		// Get the canvas to measure the text width
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		if (ctx) {
+			this.handleInitialSizing(ctx);
+		}
 	}
 }
 
