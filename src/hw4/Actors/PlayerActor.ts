@@ -28,6 +28,7 @@ export default class PlayerActor extends AnimatedSprite implements Battler {
         this.targetable = new BasicTargetable(this);
 
         this.receiver.subscribe(ItemEvent.LASERGUN_FIRED)
+        this.receiver.subscribe(ItemEvent.ZOMBIE_HIT_PLAYER);
     }
 
     get battlerActive(): boolean {

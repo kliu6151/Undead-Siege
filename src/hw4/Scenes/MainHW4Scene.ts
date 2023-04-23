@@ -43,6 +43,7 @@ import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Material from "../GameSystems/ItemSystem/Items/Material";
 import Fuel from "../GameSystems/ItemSystem/Items/Fuel";
 import MainMenu from "./MainMenu";
+import GraphUtils from "../../Wolfie2D/Utils/GraphUtils";
 
 const BattlerGroups = {
   RED: 1,
@@ -145,7 +146,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.load.spritesheet("RedHealer", "assets/spritesheets/RedHealer.json");
 
     // Load the tilemap
-    this.load.tilemap("level", "assets/tilemaps/Level1Map.json");
+    //this.load.tilemap("level", "assets/tilemaps/Level1Map.json");
+    this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
 
     // Load the enemy locations
     this.load.object("red", "assets/data/enemies/red.json");
@@ -444,7 +446,6 @@ export default class MainHW4Scene extends HW4Scene {
 
   private initPauseUI(): void {
     const center = this.viewport.getCenter();
-    console.log(this.viewport);
     // Background
     this.pause_background = this.add.sprite(MainHW4Scene.PAUSE_BG_KEY, "Pause");
     const viewportSize = this.viewport.getHalfSize().scale(2);
@@ -629,52 +630,7 @@ export default class MainHW4Scene extends HW4Scene {
    */
   protected initializeNPCs(): void {
     // Get the object data for the red enemies
-    let red = this.load.getObject("red");
-
-    // Initialize the red healers
-    /*for (let i = 0; i < red.healers.length; i++) {
-            let npc = this.add.animatedSprite(NPCActor, "RedHealer", "primary");
-            npc.position.set(red.healers[i][0], red.healers[i][1]);
-            npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
-
-            npc.battleGroup = 1;
-            npc.speed = 10;
-            npc.health = 10;
-            npc.maxHealth = 10;
-            npc.navkey = "navmesh";
-
-            // Give the NPC a healthbar
-            let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
-            this.healthbars.set(npc.id, healthbar);
-
-            npc.addAI(HealerBehavior);
-            npc.animation.play("IDLE");
-            this.battlers.push(npc);
-        }
-
-        for (let i = 0; i < red.enemies.length; i++) {
-            let npc = this.add.animatedSprite(NPCActor, "RedEnemy", "primary");
-            npc.position.set(red.enemies[i][0], red.enemies[i][1]);
-            npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
-
-            // Give the NPC a healthbar
-            let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
-            this.healthbars.set(npc.id, healthbar);
-            
-            // Set the NPCs stats
-            npc.battleGroup = 1
-            npc.speed = 10;
-            npc.health = 1;
-            npc.maxHealth = 10;
-            npc.navkey = "navmesh";
-
-            npc.addAI(GuardBehavior, {target: new BasicTargetable(new Position(npc.position.x, npc.position.y)), range: 100});
-
-            // Play the NPCs "IDLE" animation 
-            npc.animation.play("IDLE");
-            // Add the NPC to the battlers array
-            this.battlers.push(npc);
-        }*/
+    //let red = this.load.getObject("red");
 
     // Get the object data for the blue enemies
     let blue = this.load.getObject("blue");
@@ -692,15 +648,14 @@ export default class MainHW4Scene extends HW4Scene {
       });
       this.healthbars.set(npc.id, healthbar);
 
-      npc.battleGroup = 2;
+      npc.battleGroup = 1;
       npc.speed = 10;
       npc.health = 1;
       npc.maxHealth = 10;
       npc.navkey = "navmesh";
 
       // Give the NPCs their AI
-      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 100 });
-
+      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 2 });
       // Play the NPCs "IDLE" animation
       npc.animation.play("IDLE");
 

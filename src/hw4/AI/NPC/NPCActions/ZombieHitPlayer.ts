@@ -21,6 +21,7 @@ export default class ZombieHitPlayer extends NPCAction {
   }
 
   public performAction(target: TargetableEntity): void {
+    console.log("zombie hit player")
     this.timer.isStopped()
       ? console.log("Zombie Attack cooling down!")
       : console.log("Zombie Attack ready!");
@@ -54,7 +55,6 @@ export default class ZombieHitPlayer extends NPCAction {
   }
 
   public onExit(): Record<string, any> {
-    // Clear the reference to the lasergun
     return super.onExit();
   }
 }

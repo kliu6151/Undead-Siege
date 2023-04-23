@@ -1,7 +1,6 @@
 import NPCActor from "../../../Actors/NPCActor";
 import NPCBehavior from "../NPCBehavior";
 import Idle from "../NPCActions/GotoAction";
-import ShootLaserGun from "../NPCActions/ShootLaserGun";
 import BasicFinder from "../../../GameSystems/Searching/BasicFinder";
 import {
   BattlerActiveFilter,
@@ -14,7 +13,6 @@ import Item from "../../../GameSystems/ItemSystem/Item";
 import PickupItem from "../NPCActions/PickupItem";
 import { ClosestPositioned } from "../../../GameSystems/Searching/HW4Reducers";
 import { TargetableEntity } from "../../../GameSystems/Targeting/TargetableEntity";
-import LaserGun from "../../../GameSystems/ItemSystem/Items/LaserGun";
 import { TargetExists } from "../NPCStatuses/TargetExists";
 import { HasItem } from "../NPCStatuses/HasItem";
 import FalseStatus from "../NPCStatuses/FalseStatus";
@@ -22,6 +20,7 @@ import GameEvent from "../../../../Wolfie2D/Events/GameEvent";
 import GoapAction from "../../../../Wolfie2D/AI/Goap/GoapAction";
 import GoapState from "../../../../Wolfie2D/AI/Goap/GoapState";
 import Battler from "../../../GameSystems/BattleSystem/Battler";
+import ZombieHitPlayer from "../NPCActions/ZombieHitPlayer";
 
 export default class ZombieBehavior extends NPCBehavior {
   /** The target the guard should guard */
@@ -55,14 +54,14 @@ export default class ZombieBehavior extends NPCBehavior {
     }
   }
 
-  public update(deltaT: number): void {
+  public update(deltaT: number): void { 
     super.update(deltaT);
   }
 
   protected initializeStatuses(): void {
     let scene = this.owner.getScene();
 
-    // A status checking if there are any enemies at target the guard is guarding
+    // A status checking if there are any enemies at target the zombie is attacking
     let enemyBattlerFinder = new BasicFinder<Battler>(
       null,
       BattlerActiveFilter(),
@@ -83,30 +82,22 @@ export default class ZombieBehavior extends NPCBehavior {
   }
 
   protected initializeActions(): void {
-    let scene = this.owner.getScene();
+    // An action for attacking the target
+    let attack = new ZombieHitPlayer(this, this.owner);
+    attack.targets = [this.target];
+    attack.targetFinder = new BasicFinder();
+    attack.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
+    attack.addEffect(ZombieStatuses.GOAL);
+    attack.cost = 1;
+    this.addState(ZombieActions.ATTACK_PLAYER, attack);
 
-    // An action for shooting an enemy in the guards guard area
-    let attackEnemy = new ShootLaserGun(this, this.owner);
-    attackEnemy.targets = scene.getBattlers();
-    attackEnemy.targetFinder = new BasicFinder<Battler>(
-      ClosestPositioned(this.owner),
-      BattlerActiveFilter(),
-      EnemyFilter(this.owner),
-      RangeFilter(this.target, 0, this.range * this.range)
-    );
-    //shootEnemy.addPrecondition(ZombieStatuses.HAS_WEAPON);
-    attackEnemy.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
-    attackEnemy.addEffect(ZombieStatuses.GOAL);
-    attackEnemy.cost = 1;
-    this.addState(ZombieActions.ATTACK_PLAYER, attackEnemy);
-
-    // An action for following the player's location
-    let zombie = new Idle(this, this.owner);
-    zombie.targets = [this.target];
-    zombie.targetFinder = new BasicFinder();
-    zombie.addEffect(ZombieStatuses.GOAL);
-    zombie.cost = 1000;
-    this.addState(ZombieActions.MOVE_PLAYER, zombie);
+    // An action for moving towards the target
+    let moveTowards = new Idle(this, this.owner);
+    moveTowards.targets = [this.target];
+    moveTowards.targetFinder = new BasicFinder();
+    moveTowards.addEffect(ZombieStatuses.GOAL);
+    moveTowards.cost = 1000;
+    this.addState(ZombieActions.MOVE_TOWARDS_PLAYER, moveTowards);
   }
 
   public override addState(stateName: ZombieAction, state: GoapAction): void {
@@ -123,17 +114,17 @@ export interface ZombieOptions {
   range: number;
 }
 
-export type ZombieStatus = typeof ZombieStatuses[keyof typeof ZombieStatuses];
+export type ZombieStatus = (typeof ZombieStatuses)[keyof typeof ZombieStatuses];
 export const ZombieStatuses = {
+  ATTACK_PLAYER: "attack-player",
   PLAYER_IN_ZOMBIE_POSITION: "player-at-zombie-position",
-
   GOAL: "goal",
 } as const;
 
-export type ZombieAction = typeof ZombieActions[keyof typeof ZombieActions];
+export type ZombieAction = (typeof ZombieActions)[keyof typeof ZombieActions];
 export const ZombieActions = {
-
   ATTACK_PLAYER: "attack-player",
-
-  MOVE_PLAYER: "move-player",
+  CHASE_PLAYER: "chase-player",
+  MOVE_TOWARDS_PLAYER: "move-towards-player",
 } as const;
+
