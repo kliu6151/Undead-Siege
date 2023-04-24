@@ -84,6 +84,17 @@ export default class MainHW4Scene extends HW4Scene {
   private unlimitedHealthCheat: Button;
   private speedBoostCheat: Button;
 
+  //UI control labels
+  private upLabel: Label;
+  private downLabel: Label;
+  private leftLabel: Label;
+  private rightLabel: Label;
+  private shootLabel: Label;
+  private pauseLabel: Label;
+  private pickupLabel: Label;
+
+
+
   private initialViewportSize: Vec2;
 
 
@@ -219,7 +230,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(InputEvent.PAUSED);
     this.receiver.subscribe("exit");
     this.receiver.subscribe("unPause");
-    this.receiver.subscribe("showCheats")
+    this.receiver.subscribe("showCheats");
+    this.receiver.subscribe("showControls");
 
     // Add a UI for health
     this.addUILayer("health");
@@ -289,6 +301,11 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleShowCheats();
           break;
         }
+        case "showControls": {
+          console.log("SHOW CONTROLS")
+          this.handleShowControls();
+          break;
+        }
         case InputEvent.PAUSED: {
           this.handlePaused();
           break;
@@ -296,6 +313,10 @@ export default class MainHW4Scene extends HW4Scene {
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
+        case "allLevelCheatUnlock": {
+          this.handleAllLevelCheatUnlock();
+          break;
+        }
         case InputEvent.PAUSED: {
           this.handlePaused();
           break;
@@ -374,6 +395,14 @@ export default class MainHW4Scene extends HW4Scene {
 
   private handleShowCheats(): void {
     this.showCheatsUI();
+  }
+
+  private handleAllLevelCheatUnlock(): void {
+    this.emitter.fireEvent("allLevelCheatUnlock");
+  }
+
+  private handleShowControls(): void {
+    this.showControlsUI();
   }
 
   /**
@@ -497,6 +526,8 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.controls.textColor = Color.WHITE;
     this.controls.fontSize = 32;
+    this.controls.onClickEventId = "showControls";
+
     this.exit = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(this.viewport.getHalfSize().x, 200),
       text: "Exit",
@@ -538,6 +569,54 @@ export default class MainHW4Scene extends HW4Scene {
     this.speedBoostCheat.backgroundColor = Color.BLACK;
     this.speedBoostCheat.fontSize = 24;
 
+    this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (7*(this.viewport.getHalfSize().y / 8))),
+      text: "[W] - Up",
+    });
+    this.upLabel.textColor = Color.WHITE;
+    this.upLabel.fontSize = 16;
+
+    this.downLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (6*(this.viewport.getHalfSize().y / 8))),
+      text: "[S] - Down",
+    });
+    this.downLabel.textColor = Color.WHITE;
+    this.downLabel.fontSize = 16;
+
+    this.leftLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (5 * (this.viewport.getHalfSize().y / 8))),
+      text: "[A] - Left",
+    });
+    this.leftLabel.textColor = Color.WHITE;
+    this.leftLabel.fontSize = 16;
+
+    this.rightLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (4 * (this.viewport.getHalfSize().y / 8))),
+      text: "[D] - Right",
+    });
+    this.rightLabel.textColor = Color.WHITE;
+    this.rightLabel.fontSize = 16;
+    
+    this.shootLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (3 * (this.viewport.getHalfSize().y / 8))),
+      text: "[Left Click] - Shoot",
+    });
+    this.shootLabel.textColor = Color.WHITE;
+    this.shootLabel.fontSize = 16;
+
+    this.pickupLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
+      text: "[E] - Pickup",
+    });
+    this.pickupLabel.textColor = Color.WHITE;
+    this.pickupLabel.fontSize = 16;
+    
+    this.pauseLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (1*(this.viewport.getHalfSize().y / 8))),
+      text: "[ESC] - Pause",
+    });
+    this.pauseLabel.textColor = Color.WHITE;
+    this.pauseLabel.fontSize = 16;
 
     this.hidePauseUI();
   }
@@ -561,6 +640,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.exit.visible = false;
     this.cheats.visible = false;
     this.hideCheatsUI();
+    this.hideControlsUI();
   }
 
   private showCheatsUI(): void {
@@ -573,6 +653,26 @@ export default class MainHW4Scene extends HW4Scene {
     this.unlimitedHealthCheat.visible = false;
     this.AllLevelsCheat.visible = false;
     this.speedBoostCheat.visible = false;
+  }
+
+  private showControlsUI(): void {
+    this.upLabel.visible = true;  
+    this.downLabel.visible = true;
+    this.leftLabel.visible = true;
+    this.rightLabel.visible = true;
+    this.shootLabel.visible = true;
+    this.pauseLabel.visible = true;
+    this.pickupLabel.visible = true;
+  }
+
+  private hideControlsUI(): void {
+    this.upLabel.visible = false;
+    this.downLabel.visible = false;
+    this.leftLabel.visible = false;
+    this.rightLabel.visible = false;
+    this.shootLabel.visible = false;
+    this.pauseLabel.visible = false;
+    this.pickupLabel.visible = false;
   }
 
   public resetViewportSize(): void {

@@ -9,6 +9,7 @@ import GameEvent from "../../Wolfie2D/Events/GameEvent";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Button from "../../Wolfie2D/Nodes/UIElements/Button";
 import MainMenu from "./MainMenu";
+import { CheatEvent } from "../Events";
 
 export default class Help extends Scene {
   // Layers, for multiple main menu screens
@@ -41,7 +42,7 @@ export default class Help extends Scene {
     backButton.borderColor = Color.WHITE;
     backButton.backgroundColor = Color.BLACK;
     backButton.onClickEventId = "return";
-
+    
     const controlsLabel = <Label>this.add.uiElement(
       UIElementType.LABEL,
       "Help",
@@ -149,12 +150,20 @@ export default class Help extends Scene {
         cheatButtons.borderColor = Color.BLACK
         cheatButtons.textColor = Color.BLACK; 
         cheatButtons.backgroundColor = Color.WHITE;
-        cheatButtons.onClickEventId = cheats[i];
+        cheatButtons.onClick = () => {
+          if (cheats[i] === "UNLOCK ALL LEVELS") {
+            this.emitter.fireEvent("allLevelCheatUnlock");
+            console.log(this.emitter)
+
+          }
+        };
         cheatButtons.fontSize = 12
     }
 
     // Subscribe to the button events
     this.receiver.subscribe("return");
+    // this.receiver.subscribe("UNLOCK ALL LEVELS");
+
   }
 
   public updateScene() {
@@ -167,6 +176,9 @@ export default class Help extends Scene {
     switch (event.type) {
       case "return":
         this.sceneManager.changeToScene(MainMenu);
+        break;
+      case "UNLOCK ALL LEVELS":
+        this.emitter.fireEvent("allLevelCheatUnlock");
         break;
     }
   }

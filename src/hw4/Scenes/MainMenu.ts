@@ -27,16 +27,12 @@ export default class MainMenu extends Scene {
   private background: Sprite;
   private logo: Sprite;
 
-  private initialViewportSize: Vec2;
-
-
   public loadScene() {
     this.load.image(MainMenu.BACKGROUND_KEY, MainMenu.BACKGROUND_PATH);
     this.load.image(MainMenu.LOGO_KEY, MainMenu.LOGO_PATH);
   }
 
   public startScene() {
-    this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
     const center = this.viewport.getCenter();
     console.log(center);
 

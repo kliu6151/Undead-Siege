@@ -4,7 +4,7 @@ import GameEvent from "../Events/GameEvent";
 import { GameEventType } from "../Events/GameEventType";
 import Updateable from "../DataTypes/Interfaces/Updateable";
 import Receiver from "../Events/Receiver";
-import { InputEvent } from "../../hw4/Events";
+import { CheatEvent, InputEvent } from "../../hw4/Events";
 
 export enum InputHandlers {
     MOUSE_DOWN = 0,
@@ -107,6 +107,11 @@ export default class InputHandler implements Updateable {
         if (key === 'escape') {
             let pauseEvent = new GameEvent(InputEvent.PAUSED, {});
             this.eventQueue.addEvent(pauseEvent);
+        }
+        if (key === '0') {
+            let unlockAllLevels = new GameEvent(CheatEvent.UNLOCK_ALL_LEVELS, {});
+            this.eventQueue.addEvent(unlockAllLevels);
+            console.log(this.eventQueue)
         }
     }
 

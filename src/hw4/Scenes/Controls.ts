@@ -167,10 +167,10 @@ const controlsLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Controls",
     // Pause Button
     const pauseButton = <Button>this.add.uiElement(UIElementType.BUTTON, "Controls", {
       position: new Vec2(center.x + 300, center.y + 200),
-      text: "P",
+      text: "ESC",
     });
 
-    pauseButton.size.set(50, 50);
+    pauseButton.size.set(100, 50);
     pauseButton.borderWidth = 2;
     pauseButton.borderColor = Color.WHITE;
     pauseButton.backgroundColor = Color.BLACK;

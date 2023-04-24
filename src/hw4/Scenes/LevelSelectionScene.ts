@@ -10,6 +10,7 @@ import GameEvent from "../../Wolfie2D/Events/GameEvent";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Button from "../../Wolfie2D/Nodes/UIElements/Button";
 import MainMenu from "./MainMenu";
+import { CheatEvent } from "../Events";
 
 export default class LevelSelectionScene extends Scene {
   // Layers, for multiple main menu screens
@@ -31,9 +32,10 @@ export default class LevelSelectionScene extends Scene {
     this.load.image(LevelSelectionScene.BACKGROUND_KEY, LevelSelectionScene.BACKGROUND_PATH);
   }
 
+
+  
   public startScene() {
     const center = this.viewport.getCenter();
-    console.log("CENTER IN LEVELSELECTIONSCENE: ",center)
     this.highestLevelCompleted = parseInt(localStorage.getItem("highestLevelCompleted") || "0");
 
 
@@ -66,6 +68,7 @@ export default class LevelSelectionScene extends Scene {
 
      levelButton.size.set(300, 50);
      levelButton.borderWidth = 2;
+     levelButton.backgroundColor = Color.BLACK;
      levelButton.borderColor = Color.WHITE;
      levelButton.onClickEventId = `level${i}`;
 
@@ -76,7 +79,7 @@ export default class LevelSelectionScene extends Scene {
        levelButton.backgroundColor = Color.BLUE;
        levelButton.disable();
      }
-
+     this.levelButtons.push(levelButton);
    }
    this.unlockLevels(this.levelButtons);
 
@@ -100,6 +103,8 @@ export default class LevelSelectionScene extends Scene {
     this.receiver.subscribe("Level5");
     this.receiver.subscribe("Level6");
     this.receiver.subscribe("allLevelCheatUnlock");
+    this.receiver.subscribe(CheatEvent.UNLOCK_ALL_LEVELS);
+
 
 
   }
@@ -114,7 +119,8 @@ export default class LevelSelectionScene extends Scene {
 
   public handleEvent(event: GameEvent): void {
     switch (event.type) {
-      case "allLevelCheatUnlock": {
+      case CheatEvent.UNLOCK_ALL_LEVELS: {
+        console.log("ALL LEVELS UNLOCKED??")
         this.highestLevelCompleted = 5;
         localStorage.setItem("highestLevelCompleted", this.highestLevelCompleted.toString());
         this.unlockLevels(this.levelButtons);

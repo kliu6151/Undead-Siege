@@ -7,6 +7,11 @@ export enum BattlerEvent {
     HIT = "HIT",
 }
 
+export enum CheatEvent {
+    UNLOCK_ALL_LEVELS = "UNLOCK_ALL_LEVELS",
+    
+}
+
 export enum ItemEvent {
     ITEM_REQUEST = "ITEM_REQUEST",
 
