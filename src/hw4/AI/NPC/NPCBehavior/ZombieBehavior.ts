@@ -21,6 +21,7 @@ import GoapAction from "../../../../Wolfie2D/AI/Goap/GoapAction";
 import GoapState from "../../../../Wolfie2D/AI/Goap/GoapState";
 import Battler from "../../../GameSystems/BattleSystem/Battler";
 import ZombieHitPlayer from "../NPCActions/ZombieHitPlayer";
+import PlayerActor from "../../../Actors/PlayerActor";
 
 export default class ZombieBehavior extends NPCBehavior {
   /** The target the guard should guard */
@@ -54,7 +55,7 @@ export default class ZombieBehavior extends NPCBehavior {
     }
   }
 
-  public update(deltaT: number): void { 
+  public update(deltaT: number): void {
     super.update(deltaT);
   }
 
@@ -66,7 +67,7 @@ export default class ZombieBehavior extends NPCBehavior {
       null,
       BattlerActiveFilter(),
       EnemyFilter(this.owner),
-      RangeFilter(this.target, 0, this.range * this.range)
+      RangeFilter(this.owner, this.target, 0, this.range * this.range)
     );
     let playerAtZombiePosition = new TargetExists(
       scene.getBattlers(),
@@ -84,19 +85,26 @@ export default class ZombieBehavior extends NPCBehavior {
   protected initializeActions(): void {
     // An action for attacking the target
     let attack = new ZombieHitPlayer(this, this.owner);
-    attack.targets = [this.target];
-    attack.targetFinder = new BasicFinder();
-    attack.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
-    attack.addEffect(ZombieStatuses.GOAL);
-    attack.cost = 1;
+        attack.targets = [this.target];
+        attack.targetFinder = new BasicFinder<Battler>(
+          ClosestPositioned(this.owner),
+          BattlerActiveFilter(),
+          EnemyFilter(this.owner),
+          RangeFilter(this.owner, this.target, 0, this.range * this.range)
+        );
+        console.log("player is at"+this.target.position)
+        console.log("this zombie is at"+this.owner.position)
+        attack.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
+        attack.addEffect(ZombieStatuses.GOAL);
+        attack.cost = 1;
     this.addState(ZombieActions.ATTACK_PLAYER, attack);
 
     // An action for moving towards the target
     let moveTowards = new Idle(this, this.owner);
-    moveTowards.targets = [this.target];
-    moveTowards.targetFinder = new BasicFinder();
-    moveTowards.addEffect(ZombieStatuses.GOAL);
-    moveTowards.cost = 1000;
+        moveTowards.targets = [this.target];
+        moveTowards.targetFinder = new BasicFinder();
+        moveTowards.addEffect(ZombieStatuses.GOAL);
+        moveTowards.cost = 1000;
     this.addState(ZombieActions.MOVE_TOWARDS_PLAYER, moveTowards);
   }
 
@@ -127,4 +135,3 @@ export const ZombieActions = {
   CHASE_PLAYER: "chase-player",
   MOVE_TOWARDS_PLAYER: "move-towards-player",
 } as const;
-

@@ -765,7 +765,7 @@ export default class MainHW4Scene extends HW4Scene {
       npc.navkey = "navmesh";
 
       // Give the NPCs their AI
-      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 2 });
+      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
       // Play the NPCs "IDLE" animation
       npc.animation.play("IDLE");
 
