@@ -23,7 +23,6 @@ export default class ZombieHitPlayer extends NPCAction {
   }
 
   public performAction(target: Battler): void {
-    console.log("zombie hit player")
     this.timer.isStopped()
       ? console.log("Zombie Attack cooling down!")
       : console.log("Zombie Attack ready!");
