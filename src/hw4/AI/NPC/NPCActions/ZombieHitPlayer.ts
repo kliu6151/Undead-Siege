@@ -10,6 +10,8 @@ import NPCBehavior from "../NPCBehavior";
 import NPCAction from "./NPCAction";
 import { ItemEvent } from "../../../Events";
 import Timer from "../../../../Wolfie2D/Timing/Timer";
+import PlayerActor from "../../../Actors/PlayerActor";
+import Battler from "../../../GameSystems/BattleSystem/Battler";
 
 export default class ZombieHitPlayer extends NPCAction {
   protected timer: Timer;
@@ -20,16 +22,14 @@ export default class ZombieHitPlayer extends NPCAction {
     this.timer = new Timer(2000);
   }
 
-  public performAction(target: TargetableEntity): void {
+  public performAction(target: Battler): void {
     console.log("zombie hit player")
     this.timer.isStopped()
       ? console.log("Zombie Attack cooling down!")
       : console.log("Zombie Attack ready!");
     if (this.timer.isStopped()) {
       // Send a laser fired event
-      this.emitter.fireEvent(ItemEvent.ZOMBIE_HIT_PLAYER, {
-        actorId: this.actor.id,
-      });
+      target.health -= 1;
 
       this.timer.start();
     }

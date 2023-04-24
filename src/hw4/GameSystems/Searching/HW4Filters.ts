@@ -24,9 +24,15 @@ export function EnemyFilter(battler: Battler): (other: Battler) => boolean {
     return (other: Battler) => { return battler.battleGroup !== other.battleGroup; }
 }
 
-export function RangeFilter(positioned: Positioned, minDistSq: number, maxDistSq: number): (t: TargetableEntity) => boolean {
+export function RangeFilter(positioned: Positioned, target: Positioned, minDistSq: number, maxDistSq: number): (t: TargetableEntity) => boolean {
     return (t: TargetableEntity) => { 
-        let distSq = t.position.distanceSqTo(positioned.position)
+        let distSq = target.position.distanceSqTo(positioned.position);
+        //console.log("target" + target.position);
+        //console.log("this"+positioned.position)
+        //console.log(distSq)
+        //console.log(minDistSq)
+        //console.log(maxDistSq)
+        //console.log(distSq > minDistSq && distSq < maxDistSq);
         return distSq > minDistSq && distSq < maxDistSq;
     }
 }

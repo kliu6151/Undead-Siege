@@ -68,8 +68,8 @@ export default class GuardBehavior extends NPCBehavior {
     let enemyBattlerFinder = new BasicFinder<Battler>(
       null,
       BattlerActiveFilter(),
-      EnemyFilter(this.owner),
-      RangeFilter(this.target, 0, this.range * this.range)
+      EnemyFilter(this.owner)
+      //RangeFilter(this.target, 0, this.range * this.range)
     );
     let enemyAtGuardPosition = new TargetExists(
       scene.getBattlers(),
@@ -99,7 +99,7 @@ export default class GuardBehavior extends NPCBehavior {
     let scene = this.owner.getScene();
 
     // An action for shooting an enemy in the guards guard area
-    let shootEnemy = new ShootLaserGun(this, this.owner);
+    /*let shootEnemy = new ShootLaserGun(this, this.owner);
     shootEnemy.targets = scene.getBattlers();
     shootEnemy.targetFinder = new BasicFinder<Battler>(
       ClosestPositioned(this.owner),
@@ -110,7 +110,7 @@ export default class GuardBehavior extends NPCBehavior {
     shootEnemy.addPrecondition(GuardStatuses.ENEMY_IN_GUARD_POSITION);
     shootEnemy.addEffect(GuardStatuses.GOAL);
     shootEnemy.cost = 1;
-    this.addState(GuardActions.SHOOT_ENEMY, shootEnemy);
+    this.addState(GuardActions.SHOOT_ENEMY, shootEnemy);*/
 
     // An action for picking up a lasergun
     let pickupLaserGun = new PickupItem(this, this.owner);
