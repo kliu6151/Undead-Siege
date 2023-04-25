@@ -8,6 +8,7 @@ import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
 import MainHW4Scene from "./MainHW4Scene";
 import MainMenu from "../MainMenu";
 import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
+import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 
 /**
  * The first level for HW4 - should be the one with the grass and the clouds.
@@ -18,6 +19,7 @@ export default class Level2 extends MainHW4Scene {
 
     public static readonly TILEMAP_KEY = "LEVEL2";
     public static readonly TILEMAP_PATH = "assets/tilemaps/Level2Map.json";
+    // public static readonly TILEMAP_SCALE = new Vec2(2, 2);
     public static readonly WALLS_LAYER_KEY = "Main";
 
 

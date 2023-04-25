@@ -8,6 +8,7 @@ import Level2 from "./Level2";
 import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
 import MainHW4Scene from "./MainHW4Scene";
 import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
+import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 // import HW4Scene from "./HW4Scene";
 
 
@@ -25,6 +26,7 @@ export default class Level1 extends MainHW4Scene {
     //Tile maps
     public static readonly TILEMAP_KEY = "LEVEL1";
     public static readonly TILEMAP_PATH = "assets/tilemaps/Level1Map.json";
+    // public static readonly TILEMAP_SCALE = new Vec2(2, 2);
     public static readonly WALLS_LAYER_KEY = "Main";
 
     //Load the enemy sprites

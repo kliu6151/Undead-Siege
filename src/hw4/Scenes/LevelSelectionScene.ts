@@ -11,6 +11,8 @@ import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Button from "../../Wolfie2D/Nodes/UIElements/Button";
 import MainMenu from "./MainMenu";
 import { CheatEvent } from "../Events";
+import Level1 from "./Levels/Level1";
+import Level2 from "./Levels/Level2";
 
 export default class LevelSelectionScene extends Scene {
   // Layers, for multiple main menu screens
@@ -75,8 +77,9 @@ export default class LevelSelectionScene extends Scene {
      // Check if the level is unlocked
      if (i <= this.highestLevelCompleted + 1) {
        levelButton.backgroundColor = Color.BLACK;
+       levelButton.enable();
      } else {
-       levelButton.backgroundColor = Color.BLUE;
+       levelButton.backgroundColor = Color.WHITE;
        levelButton.disable();
      }
      this.levelButtons.push(levelButton);
@@ -120,7 +123,6 @@ export default class LevelSelectionScene extends Scene {
   public handleEvent(event: GameEvent): void {
     switch (event.type) {
       case CheatEvent.UNLOCK_ALL_LEVELS: {
-        console.log("ALL LEVELS UNLOCKED??")
         this.highestLevelCompleted = 5;
         localStorage.setItem("highestLevelCompleted", this.highestLevelCompleted.toString());
         this.unlockLevels(this.levelButtons);
@@ -131,9 +133,9 @@ export default class LevelSelectionScene extends Scene {
             this.sceneManager.changeToScene(MainMenu);
             break;
         case "level1":
-            break
+            this.sceneManager.changeToScene(Level1);
         case "Level2":
-            break
+            this.sceneManager.changeToScene(Level2);
         case "Level3":
             break
         case "Level4":

@@ -151,7 +151,7 @@ export default class MainHW4Scene extends HW4Scene {
   protected levelKey: string;
   protected wallsLayerKey: string;
   protected playerSpriteKey: string;
-
+  protected tilemapScale: Vec2;
   
 
   public constructor(
@@ -172,52 +172,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.fuels = new Array<Fuel>();
   }
 
-  /**
-   * @see Scene.update()
-   */
-  // public override loadScene() {
-  //   // Load the player and enemy spritesheets
-  //   this.load.spritesheet("player1", "assets/spritesheets/player1.json");
-
-  //   // Load in the enemy sprites
-  //   this.load.spritesheet("BlueEnemy", "assets/spritesheets/BlueEnemy.json");
-  //   this.load.spritesheet("RedEnemy", "assets/spritesheets/RedEnemy.json");
-  //   this.load.spritesheet("BlueHealer", "assets/spritesheets/BlueHealer.json");
-  //   this.load.spritesheet("RedHealer", "assets/spritesheets/RedHealer.json");
-
-  //   // Load the tilemap
-  //   this.load.tilemap("level", "assets/tilemaps/Level1Map.json");
-  //   // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
-
-  //   // Load the enemy locations
-  //   this.load.object("red", "assets/data/enemies/red.json");
-  //   this.load.object("blue", "assets/data/enemies/blue.json");
-
-  //   // Load the healthpack and lasergun loactions
-  //   this.load.object("healthpacks", "assets/data/items/healthpacks.json");
-  //   this.load.object("laserguns", "assets/data/items/laserguns.json");
-
-  //   // Load the material and fuel locations
-  //   this.load.object("materials", "assets/data/items/materials.json");
-  //   this.load.object("fuels", "assets/data/items/fuels.json");
-
-  //   // Load the healthpack, inventory slot, and laser gun sprites
-  //   // this.load.image("healthpack", "assets/sprites/healthpack.png");
-  //   this.load.image("inventorySlot", "assets/sprites/inventory.png");
-  //   // this.load.image("laserGun", "assets/sprites/laserGun.png");
-
-  //   this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
-  //   this.load.image(MainHW4Scene.FUEL_KEY, MainHW4Scene.FUEL_PATH);
-  //   this.load.image(MainHW4Scene.LOGO_KEY, MainHW4Scene.LOGO_PATH);
-  //   this.load.image(MainHW4Scene.PAUSE_BG_KEY, MainHW4Scene.PAUSE_BG_PATH);
-  //   this.load.image(MainHW4Scene.NIGHT_KEY, MainHW4Scene.NIGHT_PATH);
-
-  //   this.load.shader(
-  //     SpotlightShader.KEY,
-  //     SpotlightShader.VSHADER,
-  //     SpotlightShader.FSHADER
-  //   );
-  // }
 
   /**
    * @see Scene.startScene
@@ -225,7 +179,7 @@ export default class MainHW4Scene extends HW4Scene {
   public override startScene() {
     this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
     // Add in the tilemap
-    let tilemapLayers = this.add.tilemap(this.levelKey);
+    let tilemapLayers = this.add.tilemap(this.levelKey, this.tilemapScale);
     // Get the wall layer
     this.walls = <OrthogonalTilemap>tilemapLayers[1].getItems()[0];
 
@@ -240,7 +194,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.initPauseUI();
 
     this.elapsedTime = 0;
-    this.countDownTimer = new Timer(2 * 1000);
+    this.countDownTimer = new Timer(120 * 1000);
     this.countDownTimer.start();
 
     this.initializeWeaponSystem();
@@ -438,6 +392,7 @@ export default class MainHW4Scene extends HW4Scene {
         }
         case SceneEvent.LEVEL_END: {
           console.log("LEVEL END")
+          this.resetViewportSize();
           this.sceneManager.changeToScene(this.nextLevel);
           break;
         }
