@@ -216,7 +216,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeWeaponSystem();
     // Create the player
     this.initializePlayer();
-    this.initializeNPCs();
     this.initializeItems();
 
     this.initializeNavmesh();
