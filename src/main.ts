@@ -19,6 +19,7 @@ import StartMenu from "./hw4/Scenes/StartMenu";
             {name: PlayerInput.MOVE_RIGHT, keys: ["d"]},
             {name: PlayerInput.PICKUP_ITEM, keys: ["e"]},
             {name: PlayerInput.DROP_ITEM, keys: ["q"]},
+            {name: PlayerInput.ATTACKING, keys: ["p"]},
             {name: "slot1", keys: ["1"]},
             {name: "slot2", keys: ["2"]},
         ],

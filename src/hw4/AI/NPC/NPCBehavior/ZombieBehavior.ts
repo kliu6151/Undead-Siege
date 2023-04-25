@@ -92,8 +92,6 @@ export default class ZombieBehavior extends NPCBehavior {
           EnemyFilter(this.owner),
           RangeFilter(this.owner, this.target, 0, this.range * this.range)
         );
-        console.log("player is at"+this.target.position)
-        console.log("this zombie is at"+this.owner.position)
         attack.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
         attack.addEffect(ZombieStatuses.GOAL);
         attack.cost = 1;

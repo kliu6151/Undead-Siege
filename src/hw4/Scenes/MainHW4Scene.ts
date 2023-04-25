@@ -44,10 +44,15 @@ import Material from "../GameSystems/ItemSystem/Items/Material";
 import Fuel from "../GameSystems/ItemSystem/Items/Fuel";
 import Graphic from "../../Wolfie2D/Nodes/Graphic";
 import MainMenu from "./MainMenu";
+<<<<<<< HEAD
 import CanvasNode from "../../Wolfie2D/Nodes/CanvasNode";
 import LightMask from "../Custom/LightMask";
 import SpotlightShader from "../Custom/Shaders/SpotLightShader";
 import CanvasRenderer from "../../Wolfie2D/Rendering/CanvasRenderer";
+=======
+import GraphUtils from "../../Wolfie2D/Utils/GraphUtils";
+import PlayerWeapon from "../AI/Player/PlayerWeapon";
+>>>>>>> b10f72beaee6d2da8284c29124125e73a0d469d6
 
 const BattlerGroups = {
   RED: 1,
@@ -98,6 +103,7 @@ export default class MainHW4Scene extends HW4Scene {
   private pauseLabel: Label;
   private pickupLabel: Label;
 
+<<<<<<< HEAD
   private lightMask: LightMask;
   private lightMaskLayer: Layer;
 
@@ -108,6 +114,10 @@ export default class MainHW4Scene extends HW4Scene {
 
   private testLabel : Label;
 
+=======
+  private initialViewportSize: Vec2;
+
+>>>>>>> b10f72beaee6d2da8284c29124125e73a0d469d6
   public static MATERIAL_KEY = "MATERIAL";
   public static MATERIAL_PATH = "assets/sprites/loot.png";
   public static FUEL_KEY = "FUEL";
@@ -137,6 +147,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   // The position graph for the navmesh
   private graph: PositionGraph;
+  playerWeaponSystem: PlayerWeapon;
 
   public constructor(
     viewport: Viewport,
@@ -206,11 +217,14 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-    this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
+    this.initialViewportSize = new Vec2(
+      this.viewport.getHalfSize().x * 2,
+      this.viewport.getHalfSize().y * 2
+    );
     // Add in the tilemap
     let tilemapLayers = this.add.tilemap("level");
     const tempSize = this.viewport.getCenter();
-    console.log("START OF 4: ", tempSize)
+    console.log("START OF 4: ", tempSize);
     // Get the wall layer
     this.walls = <OrthogonalTilemap>tilemapLayers[1].getItems()[0];
 
@@ -228,6 +242,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.countDownTimer = new Timer(120 * 1000);
     this.countDownTimer.start();
 
+    this.initializeWeaponSystem();
     // Create the player
     this.initializePlayer();
     this.initializeItems();
@@ -392,7 +407,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case "showControls": {
-          console.log("SHOW CONTROLS")
+          console.log("SHOW CONTROLS");
           this.handleShowControls();
           break;
         }
@@ -660,75 +675,126 @@ export default class MainHW4Scene extends HW4Scene {
     this.cheats.fontSize = 32;
     this.cheats.onClickEventId = "showCheats";
 
-    this.AllLevelsCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
-      text: "All Levels",
-    });
+    this.AllLevelsCheat = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 7,
+          this.viewport.getHalfSize().y * 2 -
+            3 * (this.viewport.getHalfSize().y / 8)
+        ),
+        text: "All Levels",
+      }
+    );
     this.AllLevelsCheat.textColor = Color.WHITE;
     this.AllLevelsCheat.backgroundColor = Color.BLACK;
     this.AllLevelsCheat.fontSize = 24;
     this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
 
-    this.unlimitedHealthCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
-      text: "Unlimited Health",
-    });
+    this.unlimitedHealthCheat = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 7,
+          this.viewport.getHalfSize().y * 2 -
+            2 * (this.viewport.getHalfSize().y / 8)
+        ),
+        text: "Unlimited Health",
+      }
+    );
     this.unlimitedHealthCheat.textColor = Color.WHITE;
     this.unlimitedHealthCheat.backgroundColor = Color.BLACK;
     this.unlimitedHealthCheat.fontSize = 24;
 
-    this.speedBoostCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
-      text: "Speed Boost",
-    });
+    this.speedBoostCheat = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 7,
+          this.viewport.getHalfSize().y * 2 - this.viewport.getHalfSize().y / 8
+        ),
+        text: "Speed Boost",
+      }
+    );
     this.speedBoostCheat.textColor = Color.WHITE;
     this.speedBoostCheat.backgroundColor = Color.BLACK;
     this.speedBoostCheat.fontSize = 24;
 
     this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (7*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          7 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[W] - Up",
     });
     this.upLabel.textColor = Color.WHITE;
     this.upLabel.fontSize = 16;
 
     this.downLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (6*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          6 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[S] - Down",
     });
     this.downLabel.textColor = Color.WHITE;
     this.downLabel.fontSize = 16;
 
     this.leftLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (5 * (this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          5 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[A] - Left",
     });
     this.leftLabel.textColor = Color.WHITE;
     this.leftLabel.fontSize = 16;
 
     this.rightLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (4 * (this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          4 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[D] - Right",
     });
     this.rightLabel.textColor = Color.WHITE;
     this.rightLabel.fontSize = 16;
-    
+
     this.shootLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (3 * (this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          3 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[Left Click] - Shoot",
     });
     this.shootLabel.textColor = Color.WHITE;
     this.shootLabel.fontSize = 16;
 
     this.pickupLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          2 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[E] - Pickup",
     });
     this.pickupLabel.textColor = Color.WHITE;
     this.pickupLabel.fontSize = 16;
-    
+
     this.pauseLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (1*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          1 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[ESC] - Pause",
     });
     this.pauseLabel.textColor = Color.WHITE;
@@ -772,7 +838,7 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   private showControlsUI(): void {
-    this.upLabel.visible = true;  
+    this.upLabel.visible = true;
     this.downLabel.visible = true;
     this.leftLabel.visible = true;
     this.rightLabel.visible = true;
@@ -792,11 +858,39 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   public resetViewportSize(): void {
-    this.viewport.setBounds(0, 0, this.initialViewportSize.x, this.initialViewportSize.y);
+    this.viewport.setBounds(
+      0,
+      0,
+      this.initialViewportSize.x,
+      this.initialViewportSize.y
+    );
     this.viewport.setZoomLevel(1);
   }
 
+<<<<<<< HEAD
 
+=======
+  /** Initializes the layers in the scene */
+  protected initLayers(): void {
+    this.addLayer("primary", 10);
+    this.addUILayer("slots");
+    this.addUILayer("items");
+    this.addUILayer("timer");
+    this.addUILayer("Counters");
+    this.addUILayer("Pause");
+    this.addUILayer("night");
+    this.getLayer("night").setDepth(0);
+    this.getLayer("Pause").setDepth(1);
+    this.getLayer("timer").setDepth(1);
+    this.getLayer("Counters").setDepth(1);
+    this.getLayer("slots").setDepth(1);
+    this.getLayer("items").setDepth(2);
+  }
+  protected initializeWeaponSystem(): void {
+    this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
+    this.playerWeaponSystem.initializePool(this, "primary");
+  }
+>>>>>>> b10f72beaee6d2da8284c29124125e73a0d469d6
 
   /**
    * Initializes the player in the scene
@@ -826,9 +920,10 @@ export default class MainHW4Scene extends HW4Scene {
       offset: player.size.clone().scaled(0, -1 / 2),
     });
     this.healthbars.set(player.id, healthbar);
-
     // Give the player PlayerAI
-    player.addAI(PlayerAI);
+    player.addAI(PlayerAI, {
+      weaponSystem: this.playerWeaponSystem,
+    });
 
     // Start the player in the "IDLE" animation
     player.animation.play("IDLE");
