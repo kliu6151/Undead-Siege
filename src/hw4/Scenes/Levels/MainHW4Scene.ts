@@ -50,6 +50,8 @@ import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
 import CanvasRenderer from "../../../Wolfie2D/Rendering/CanvasRenderer";
 import GraphUtils from "../../../Wolfie2D/Utils/GraphUtils";
 import PlayerWeapon from "../../AI/Player/PlayerWeapon";
+import { PhysicsGroups } from "../../PhysicsGroups";
+import Particle from "../../../Wolfie2D/Nodes/Graphics/Particle";
 import Input from "../../../Wolfie2D/Input/Input";
 import Scene from "../../../Wolfie2D/Scene/Scene";
 
@@ -114,7 +116,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   private initialViewportSize: Vec2;
 
-  private testLabel : Label;
+  private testLabel: Label;
 
   public static MATERIAL_KEY = "MATERIAL";
   public static MATERIAL_PATH = "assets/sprites/loot.png";
@@ -129,6 +131,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   /** All the battlers in the HW3Scene (including the player) */
   private battlers: (Battler & Actor)[];
+  private zombies: NPCActor[];
   /** Healthbars for the battlers */
   private healthbars: Map<number, HealthbarHUD>;
 
@@ -160,10 +163,20 @@ export default class MainHW4Scene extends HW4Scene {
     renderingManager: RenderingManager,
     options: Record<string, any>
   ) {
-    super(viewport, sceneManager, renderingManager, options);
+    super(viewport, sceneManager, renderingManager, {
+      ...options,
+      physics: {
+        groupNames: [PhysicsGroups.PLAYER_WEAPON, PhysicsGroups.ZOMBIE],
+        collisions: [
+          [1, 1],
+          [1, 1],
+        ],
+      },
+    });
 
     this.battlers = new Array<Battler & Actor>();
     this.healthbars = new Map<number, HealthbarHUD>();
+    this.zombies = new Array<NPCActor>();
 
     this.laserguns = new Array<LaserGun>();
     this.healthpacks = new Array<Healthpack>();
@@ -177,7 +190,10 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-    this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
+    this.initialViewportSize = new Vec2(
+      this.viewport.getHalfSize().x * 2,
+      this.viewport.getHalfSize().y * 2
+    );
     // Add in the tilemap
     let tilemapLayers = this.add.tilemap(this.levelKey, this.tilemapScale);
     // Get the wall layer
@@ -204,6 +220,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeItems();
 
     this.initializeNavmesh();
+
+    this.initializeNPCs();
 
     this.night = this.add.sprite(MainHW4Scene.NIGHT_KEY, "night");
     this.night.alpha = 0;
@@ -241,6 +259,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(PlayerEvent.PLAYER_KILLED);
     this.receiver.subscribe(BattlerEvent.BATTLER_KILLED);
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
+    this.receiver.subscribe(BattlerEvent.HIT);
   }
   /**
    * @see Scene.updateScene
@@ -250,16 +269,16 @@ export default class MainHW4Scene extends HW4Scene {
     while (this.receiver.hasNextEvent()) {
       this.handleEvent(this.receiver.getNextEvent());
     }
-  
+
     if (!this.isPaused) {
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
-  
+
       this.elapsedTime += deltaT;
-  
+
       // Update the timer
       this.countDownTimer.update(deltaT);
-  
+
       // Update the timer label
       const remainingTime = Math.max(
         this.countDownTimer.getTotalTime() - this.elapsedTime,
@@ -279,25 +298,23 @@ export default class MainHW4Scene extends HW4Scene {
           console.log(this.emitter.fireEvent(SceneEvent.LEVEL_END, {scene: this}));
         }
       }
-
       if (remainingTime <= 0) {
         console.log("PLAYER: " , this.battlers[0])
         console.log("Time's up!");
         this.isNight = !this.isNight;
-  
-        if(this.isNight !== this.wasNight) {
+
+        if (this.isNight !== this.wasNight) {
           this.wasNight = this.isNight;
-  
+
           if (this.isNight) {
             console.log("It's night time!");
-            
-            this.night.alpha = .7;
+
+            this.night.alpha = 0.7;
             this.lightMask.alpha = 0.7;
-            console.log(this.getLayer("primary"))
-            console.log("LIGHT MASK: ", this.lightMask)
-          }
-          else {
-            console.log("It's day time!")
+            console.log(this.getLayer("primary"));
+            console.log("LIGHT MASK: ", this.lightMask);
+          } else {
+            console.log("It's day time!");
             this.night.alpha = 0;
             this.lightMask.alpha = 0;
           }
@@ -318,42 +335,43 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.lightMask = <LightMask>this.add.lightMask("lightMask");
     this.getLayer("lightMask").addNode(this.lightMask);
-    
+
     this.lightMask.color = Color.fromStringHex("#000000");
     this.lightMask.alpha = 1; // Set initial alpha to 0, it will be updated based on day/night cycle
     this.lightMask.size = new Vec2(100, 100);
     this.lightMask.useCustomShader(SpotlightShader.KEY);
-  
+
     // console.log("LIGHT MASK: ", this.lightMask);
     // console.log("PRIMARY LAYER: ", this.primaryLayer);
   }
-  
-  
 
-    /** Initializes the layers in the scene */
-    protected initLayers(): void {
-      this.addLayer("primary", 10);
-      this.addUILayer("lightMask");
-      this.addUILayer("slots");
-      this.addUILayer("items");
-      this.addUILayer("timer");
-      this.addUILayer("Counters");
-      this.addUILayer("Pause");
-      this.addUILayer("night");
-      this.getLayer("lightMask").setDepth(11);
-      this.getLayer("night").setDepth(1);
-      this.getLayer("Pause").setDepth(2);
-      this.getLayer("timer").setDepth(2);
-      this.getLayer("Counters").setDepth(2);
-      this.getLayer("slots").setDepth(2);
-      this.getLayer("items").setDepth(1);
-    }
+  /** Initializes the layers in the scene */
+  protected initLayers(): void {
+    this.addLayer("primary", 10);
+    this.addUILayer("lightMask");
+    this.addUILayer("slots");
+    this.addUILayer("items");
+    this.addUILayer("timer");
+    this.addUILayer("Counters");
+    this.addUILayer("Pause");
+    this.addUILayer("night");
+    this.getLayer("lightMask").setDepth(11);
+    this.getLayer("night").setDepth(1);
+    this.getLayer("Pause").setDepth(2);
+    this.getLayer("timer").setDepth(2);
+    this.getLayer("Counters").setDepth(2);
+    this.getLayer("slots").setDepth(2);
+    this.getLayer("items").setDepth(1);
+  }
 
-    protected initializeWeaponSystem(): void {
-      this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
-      this.playerWeaponSystem.initializePool(this, "primary");
-    }
-  
+  /*static playerWeaponSystem(): PlayerWeapon {
+    return this.playerWeaponSystem;
+  }*/
+
+  protected initializeWeaponSystem(): void {
+    this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
+    this.playerWeaponSystem.initializePool(this, "primary");
+  }
 
   /**
    * Handle events from the rest of the game
@@ -376,7 +394,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case "showControls": {
-          console.log("SHOW CONTROLS")
+          console.log("SHOW CONTROLS");
           this.handleShowControls();
           break;
         }
@@ -435,12 +453,55 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleEndDayCheat();
           break;
         }
+        case BattlerEvent.HIT: {
+          this.handleParticleHit(event.data.get("node"));
+          break;
+        }
         default: {
           throw new Error(
             `Unhandled event type "${event.type}" caught in HW3Scene event handler`
           );
         }
       }
+    }
+  }
+  protected handleParticleHit(particleId: number): void {
+    let particles = this.playerWeaponSystem.getPool();
+
+    let particle = particles.find((particle) => particle.id === particleId);
+    if (particle !== undefined) {
+      // Get the destructible tilemap
+      let zombies = this.zombies;
+
+      let min = new Vec2(particle.sweptRect.left, particle.sweptRect.top);
+      let max = new Vec2(particle.sweptRect.right, particle.sweptRect.bottom);
+
+      // Loop over all possible tiles the particle could be colliding with
+      for (let zombie of zombies) {
+        if (this.particleHitZombie(zombie, particle)) {
+          zombie.health -= 1;
+          console.log(zombie.id+" hit");
+          particle.age = 0;
+        }
+      }
+    }
+  }
+  protected particleHitZombie(zombie: NPCActor, particle: Particle): boolean {
+    // TODO detect whether a particle hit a tile
+    let zombieAABB = zombie.boundary;
+    let particleAABB = particle.boundary;
+
+    if (
+      particleAABB.right < zombieAABB.left ||
+      particleAABB.left > zombieAABB.right ||
+      particleAABB.bottom < zombieAABB.top ||
+      particleAABB.top > zombieAABB.bottom
+    ) {
+      // the particle and tile do not intersect, so there is no collision
+      return false;
+    } else {
+      // the particle and tile intersect, so there is a collision
+      return true;
     }
   }
   protected handleItemRequest(node: GameNode, inventory: Inventory): void {
@@ -525,9 +586,6 @@ export default class MainHW4Scene extends HW4Scene {
       this.healthbars.get(id).visible = false;
     }
   }
-
-
-  
 
   initializeUI(): void {
     //timer
@@ -680,49 +738,77 @@ export default class MainHW4Scene extends HW4Scene {
     this.endCycleCheat.fontSize = 15;
 
     this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (7*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          7 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[W] - Up",
     });
     this.upLabel.textColor = Color.WHITE;
     this.upLabel.fontSize = 16;
 
     this.downLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (6*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          6 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[S] - Down",
     });
     this.downLabel.textColor = Color.WHITE;
     this.downLabel.fontSize = 16;
 
     this.leftLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (5 * (this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          5 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[A] - Left",
     });
     this.leftLabel.textColor = Color.WHITE;
     this.leftLabel.fontSize = 16;
 
     this.rightLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (4 * (this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          4 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[D] - Right",
     });
     this.rightLabel.textColor = Color.WHITE;
     this.rightLabel.fontSize = 16;
-    
+
     this.shootLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (3 * (this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          3 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[Left Click] - Shoot",
     });
     this.shootLabel.textColor = Color.WHITE;
     this.shootLabel.fontSize = 16;
 
     this.pickupLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          2 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[E] - Pickup",
     });
     this.pickupLabel.textColor = Color.WHITE;
     this.pickupLabel.fontSize = 16;
-    
+
     this.pauseLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (1*(this.viewport.getHalfSize().y / 8))),
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2,
+        this.viewport.getHalfSize().y * 2 -
+          1 * (this.viewport.getHalfSize().y / 8)
+      ),
       text: "[ESC] - Pause",
     });
     this.pauseLabel.textColor = Color.WHITE;
@@ -766,7 +852,7 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   private showControlsUI(): void {
-    this.upLabel.visible = true;  
+    this.upLabel.visible = true;
     this.downLabel.visible = true;
     this.leftLabel.visible = true;
     this.rightLabel.visible = true;
@@ -786,11 +872,14 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   public resetViewportSize(): void {
-    this.viewport.setBounds(0, 0, this.initialViewportSize.x, this.initialViewportSize.y);
+    this.viewport.setBounds(
+      0,
+      0,
+      this.initialViewportSize.x,
+      this.initialViewportSize.y
+    );
     this.viewport.setZoomLevel(1);
   }
-
-
 
   /**
    * Initializes the player in the scene
@@ -835,13 +924,14 @@ export default class MainHW4Scene extends HW4Scene {
   /**
    * Initialize the NPCs
    */
+    // Get the object data for the red enemies
+    //let red = this.load.getObject("red");
   protected initializeNPCs(): void {
     // Get the object data for the red enemies
     //let red = this.load.getObject("red");
 
     // Get the object data for the blue enemies
     let blue = this.load.getObject("blue");
-
     // Initialize the blue enemies
     for (let i = 0; i < blue.enemies.length; i++) {
       let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
@@ -860,35 +950,47 @@ export default class MainHW4Scene extends HW4Scene {
       npc.health = 1;
       npc.maxHealth = 10;
       npc.navkey = "navmesh";
+      npc.battleGroup = 1;
+      npc.speed = 10;
+      npc.health = 1;
+      npc.maxHealth = 10;
+      npc.navkey = "navmesh";
 
       // Give the NPCs their AI
       // npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 10000 });
       // Play the NPCs "IDLE" animation
       npc.animation.play("IDLE");
+      // Give the NPCs their AI
+      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
+      // Play the NPCs "IDLE" animation
+      npc.animation.play("IDLE");
+      npc.setGroup(PhysicsGroups.ZOMBIE);
+      npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
 
       this.battlers.push(npc);
+      this.zombies.push(npc);
     }
 
     // Initialize the blue healers
     /*for (let i = 0; i < blue.healers.length; i++) {
-            
-            let npc = this.add.animatedSprite(NPCActor, "BlueHealer", "primary");
-            npc.position.set(blue.healers[i][0], blue.healers[i][1]);
-            npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
+
+               let npc = this.add.animatedSprite(NPCActor, "BlueHealer", "primary");
+               npc.position.set(blue.healers[i][0], blue.healers[i][1]);
+               npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
 
             npc.battleGroup = 2;
-            npc.speed = 10;
-            npc.health = 1;
-            npc.maxHealth = 10;
-            npc.navkey = "navmesh";
+               npc.speed = 10;
+               npc.health = 1;
+               npc.maxHealth = 10;
+               npc.navkey = "navmesh";
 
-            let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
-            this.healthbars.set(npc.id, healthbar);
+               let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
+               this.healthbars.set(npc.id, healthbar);
 
-            npc.addAI(HealerBehavior);
-            npc.animation.play("IDLE");
-            this.battlers.push(npc);
-        }*/
+               npc.addAI(HealerBehavior);
+               npc.animation.play("IDLE");
+               this.battlers.push(npc);
+           }*/
   }
 
   /**

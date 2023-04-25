@@ -1,5 +1,9 @@
+import { ItemEvent } from "../../../hw4/Events";
+import StateMachineAI from "../../AI/StateMachineAI";
 import Updateable from "../../DataTypes/Interfaces/Updateable";
+import StateMachine from "../../DataTypes/State/StateMachine";
 import Vec2 from "../../DataTypes/Vec2";
+import Emitter from "../../Events/Emitter";
 import { GraphicType } from "../../Nodes/Graphics/GraphicTypes";
 import Particle from "../../Nodes/Graphics/Particle";
 import Scene from "../../Scene/Scene";
@@ -9,6 +13,7 @@ import { EaseFunctionType } from "../../Utils/EaseFunctions";
 import MathUtils from "../../Utils/MathUtils";
 import RandUtils from "../../Utils/RandUtils";
 import ParticleSystemManager from "./ParticleSystemManager";
+import { PhysicsGroups } from "../../../hw4/PhysicsGroups";
 
 export default class ParticleSystem implements Updateable {
     /** Pool for all particles */
@@ -65,6 +70,7 @@ export default class ParticleSystem implements Updateable {
             this.particlePool[i] = <Particle>scene.add.graphic(GraphicType.PARTICLE, layer,
                 { position: this.sourcePoint.clone(), size: this.particleSize.clone(), mass: this.particleMass });
             this.particlePool[i].addPhysics();
+            this.particlePool[i].setGroup(PhysicsGroups.PLAYER_WEAPON);
             this.particlePool[i].isCollidable = false;
             this.particlePool[i].visible = false;
         }
@@ -136,6 +142,7 @@ export default class ParticleSystem implements Updateable {
         else {
             for (let i = 0; i < this.particlesToRender; i++) {
                 let particle = this.particlePool[i];
+                
 
                 // If a particle is in use, decrease it's age and update it's velocity, if it has one
                 if (particle.inUse) {

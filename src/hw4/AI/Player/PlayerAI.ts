@@ -57,7 +57,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
     super.update(deltaT);
 
     if (Input.isMouseJustPressed()) {
-      console.log("shoot")
+      console.log("shoot");
       this.weapon.startSystem(500, 0, this.owner.position);
     }
   }
@@ -74,21 +74,10 @@ export default class PlayerAI extends StateMachineAI implements AI {
         );
         break;
       }
-      case ItemEvent.ZOMBIE_HIT_PLAYER: {
-        this.handleZombieHitEvent(event.data.get("actorId"));
-        break;
-      }
       default: {
         super.handleEvent(event);
         break;
       }
-    }
-  }
-
-  protected handleZombieHitEvent(actorId: number): void {
-    console.log(actorId);
-    if (this.owner.id !== actorId && this.owner.collisionShape !== undefined) {
-      this.owner.health -= 1;
     }
   }
 

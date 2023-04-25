@@ -5,7 +5,7 @@ import GameNode from "../../../Wolfie2D/Nodes/GameNode";
 import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
 import Timer from "../../../Wolfie2D/Timing/Timer";
 import NPCActor from "../../Actors/NPCActor";
-import { ItemEvent } from "../../Events";
+import { BattlerEvent, ItemEvent } from "../../Events";
 import MainHW4Scene from "../../Scenes/Levels/MainHW4Scene";
 import NPCAction from "./NPCActions/NPCAction";
 
@@ -20,7 +20,6 @@ export default abstract class NPCBehavior extends StateMachineGoapAI<NPCAction> 
   public initializeAI(owner: NPCActor, options: Record<string, any>): void {
     this.owner = owner;
     this.receiver.subscribe(ItemEvent.LASERGUN_FIRED);
-    this.receiver.subscribe(ItemEvent.ZOMBIE_HIT_PLAYER);
   }
 
   public activate(options: Record<string, any>): void {}
@@ -44,24 +43,12 @@ export default abstract class NPCBehavior extends StateMachineGoapAI<NPCAction> 
         );
         break;
       }
-      case ItemEvent.ZOMBIE_HIT_PLAYER: {
-        console.log("Catching and handling zombie hit player event!!!");
-        this.handleZombieHit(event.data.get("actorId"));
-        break;
-      }
       default: {
         super.handleEvent(event);
         break;
       }
     }
   }
-  
-  protected handleZombieHit(actorId: number): void {
-    if (actorId !== this.owner.id) {
-      this.owner.health -= 1;
-    }
-  }
-
   protected handleLasergunFired(actorId: number, to: Vec2, from: Vec2): void {
     if (actorId !== this.owner.id) {
       this.owner.health -= this.owner.collisionShape
