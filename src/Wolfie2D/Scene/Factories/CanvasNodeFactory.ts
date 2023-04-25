@@ -16,6 +16,7 @@ import ResourceManager from "../../ResourceManager/ResourceManager";
 import Line from "../../Nodes/Graphics/Line";
 import Particle from "../../Nodes/Graphics/Particle";
 import Spritesheet from "../../DataTypes/Spritesheet";
+import LightMask from "../../../hw4/Custom/LightMask";
 
 // @ignorePage
 
@@ -122,6 +123,9 @@ export default class CanvasNodeFactory {
 		return instance;
 	}
 
+
+
+
 	/**
 	 * Adds a new graphic element to the current Scene
 	 * @param type The type of graphic to add
@@ -147,7 +151,10 @@ export default class CanvasNodeFactory {
 				break;
 			case GraphicType.PARTICLE:
 				instance = this.buildParticle(options);
-				break;				
+				break;	
+			case GraphicType.LIGHT_MASK:
+				instance = new LightMask();
+				break;			
 			default:
 				throw `GraphicType '${type}' does not exist, or is registered incorrectly.`
 		}

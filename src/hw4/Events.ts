@@ -9,7 +9,9 @@ export enum BattlerEvent {
 
 export enum CheatEvent {
     UNLOCK_ALL_LEVELS = "UNLOCK_ALL_LEVELS",
-    
+    INFINITE_HEALTH = "INFINITE_HEALTH",
+    END_DAY = "END_DAY",
+
 }
 
 export enum ItemEvent {

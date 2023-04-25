@@ -809,6 +809,8 @@ export default class ResourceManager {
         paths.key = key;
         paths.vpath = vShaderFilepath;
         paths.fpath = fShaderFilepath;
+        
+        console.log("put " + key + " in queue as shader");
 
         this.loadonly_gl_ShaderLoadingQueue.enqueue(paths);
     }

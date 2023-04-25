@@ -11,6 +11,7 @@ import AnimatedSprite from "../../Nodes/Sprites/AnimatedSprite";
 import Vec2 from "../../DataTypes/Vec2";
 import Layer from "../Layer";
 import Spritesheet from "../../DataTypes/Spritesheet";
+import LightMask from "../../../hw4/Custom/LightMask";
 
 /**
  * The manager of all factories used for adding @reference[GameNode]s to the @reference[Scene].
@@ -79,4 +80,14 @@ export default class FactoryManager {
 	tilemap(key: string, scale?: Vec2): Array<Layer> {
         return this.tilemapFactory.add(key, scale);
     }
+
+    /**
+     * Adds a new LightMask element to the current Scene
+     * @param layerName The layer on which to add the LightMask
+     * @returns A new LightMask
+     */
+    lightMask(layerName: string): LightMask {
+        return this.canvasNodeFactory.addGraphic("LIGHT_MASK", layerName) as LightMask;
+    }
+      
 }

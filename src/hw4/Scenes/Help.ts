@@ -153,8 +153,6 @@ export default class Help extends Scene {
         cheatButtons.onClick = () => {
           if (cheats[i] === "UNLOCK ALL LEVELS") {
             this.emitter.fireEvent("allLevelCheatUnlock");
-            console.log(this.emitter)
-
           }
         };
         cheatButtons.fontSize = 12

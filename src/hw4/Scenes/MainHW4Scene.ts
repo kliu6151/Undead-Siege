@@ -21,7 +21,7 @@ import GuardBehavior from "../AI/NPC/NPCBehavior/GaurdBehavior";
 import HealerBehavior from "../AI/NPC/NPCBehavior/HealerBehavior";
 import ZombieBehavior from "../AI/NPC/NPCBehavior/ZombieBehavior";
 import PlayerAI from "../AI/Player/PlayerAI";
-import { ItemEvent, PlayerEvent, BattlerEvent, InputEvent } from "../Events";
+import { ItemEvent, PlayerEvent, BattlerEvent, InputEvent, CheatEvent } from "../Events";
 import Battler from "../GameSystems/BattleSystem/Battler";
 import BattlerBase from "../GameSystems/BattleSystem/BattlerBase";
 import HealthbarHUD from "../GameSystems/HUD/HealthbarHUD";
@@ -42,8 +42,12 @@ import { UIElementType } from "../../Wolfie2D/Nodes/UIElements/UIElementTypes";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Material from "../GameSystems/ItemSystem/Items/Material";
 import Fuel from "../GameSystems/ItemSystem/Items/Fuel";
+import Graphic from "../../Wolfie2D/Nodes/Graphic";
 import MainMenu from "./MainMenu";
-import GraphUtils from "../../Wolfie2D/Utils/GraphUtils";
+import CanvasNode from "../../Wolfie2D/Nodes/CanvasNode";
+import LightMask from "../Custom/LightMask";
+import SpotlightShader from "../Custom/Shaders/SpotLightShader";
+import CanvasRenderer from "../../Wolfie2D/Rendering/CanvasRenderer";
 
 const BattlerGroups = {
   RED: 1,
@@ -55,6 +59,7 @@ export default class MainHW4Scene extends HW4Scene {
   private pauseLayer: Layer;
   private pauseText: Label;
 
+  private player: PlayerActor;
   /** GameSystems in the HW3 Scene */
   private inventoryHud: InventoryHUD;
 
@@ -93,10 +98,15 @@ export default class MainHW4Scene extends HW4Scene {
   private pauseLabel: Label;
   private pickupLabel: Label;
 
+  private lightMask: LightMask;
+  private lightMaskLayer: Layer;
 
+  private isNight: boolean;
+  private wasNight: boolean;
 
   private initialViewportSize: Vec2;
 
+  private testLabel : Label;
 
   public static MATERIAL_KEY = "MATERIAL";
   public static MATERIAL_PATH = "assets/sprites/loot.png";
@@ -185,6 +195,12 @@ export default class MainHW4Scene extends HW4Scene {
     this.load.image(MainHW4Scene.LOGO_KEY, MainHW4Scene.LOGO_PATH);
     this.load.image(MainHW4Scene.PAUSE_BG_KEY, MainHW4Scene.PAUSE_BG_PATH);
     this.load.image(MainHW4Scene.NIGHT_KEY, MainHW4Scene.NIGHT_PATH);
+
+    this.load.shader(
+      SpotlightShader.KEY,
+      SpotlightShader.VSHADER,
+      SpotlightShader.FSHADER
+    )
   }
   /**
    * @see Scene.startScene
@@ -218,8 +234,19 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.initializeNavmesh();
 
-    // Create the NPCS
-    this.initializeNPCs();
+    this.night = this.add.sprite(MainHW4Scene.NIGHT_KEY, "night");
+    this.night.alpha = 0;
+    this.night.scale.set(2, 2);
+    this.night.position.set(
+      this.viewport.getHalfSize().x,
+      this.viewport.getHalfSize().y
+    );
+
+    //LIGHT MASK
+    this.initializeSpotLight();
+
+    //Initialize the day/night cycle
+    this.isNight = false;
 
     // Subscribe to relevant events
     this.receiver.subscribe("healthpack");
@@ -232,6 +259,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe("unPause");
     this.receiver.subscribe("showCheats");
     this.receiver.subscribe("showControls");
+    this.receiver.subscribe(CheatEvent.INFINITE_HEALTH);
+    this.receiver.subscribe(CheatEvent.END_DAY);
 
     // Add a UI for health
     this.addUILayer("health");
@@ -248,16 +277,16 @@ export default class MainHW4Scene extends HW4Scene {
     while (this.receiver.hasNextEvent()) {
       this.handleEvent(this.receiver.getNextEvent());
     }
-
+  
     if (!this.isPaused) {
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
-
+  
       this.elapsedTime += deltaT;
-
+  
       // Update the timer
       this.countDownTimer.update(deltaT);
-
+  
       // Update the timer label
       const remainingTime = Math.max(
         this.countDownTimer.getTotalTime() - this.elapsedTime,
@@ -269,17 +298,78 @@ export default class MainHW4Scene extends HW4Scene {
         seconds
       ).padStart(2, "0")}`;
       if (remainingTime <= 0) {
-        console.log("DUSK");
-        this.night = this.add.sprite(MainHW4Scene.NIGHT_KEY, "night");
-        this.night.alpha = 0.1;
-        this.night.scale.set(2, 2);
-        this.night.position.set(
-          this.viewport.getHalfSize().x,
-          this.viewport.getHalfSize().y
-        );
+        console.log("PLAYER: " , this.battlers[0])
+        console.log("Time's up!");
+        this.isNight = !this.isNight;
+  
+        if(this.isNight !== this.wasNight) {
+          this.wasNight = this.isNight;
+  
+          if (this.isNight) {
+            console.log("It's night time!");
+            
+            this.night.alpha = 1;
+            this.lightMask.alpha = 0.7;
+            console.log(this.getLayer("primary"))
+            console.log("LIGHT MASK: ", this.lightMask)
+          }
+          else {
+            console.log("It's day time!")
+            this.night.alpha = 0;
+            this.lightMask.alpha = 0;
+          }
+          this.countDownTimer.reset();
+          this.countDownTimer.start();
+          this.elapsedTime = 0;
+        }
+      }
+  
+      if (this.isNight) {
+        const player = this.battlers[0];
+        this.lightMask.position = player.position.clone();
+        this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
       }
     }
   }
+  
+  initializeSpotLight() {    
+    this.testLabel = <Label>this.add.uiElement(UIElementType.LABEL, "lightMask", {position: this.viewport.getCenter(), text: "TESTLJKDHSAJKDHKHASKDHJKASHJKDHJAS"});
+    this.testLabel.textColor = Color.WHITE;
+    this.testLabel.fontSize = 20;
+
+    this.lightMask = <LightMask>this.add.lightMask("lightMask");
+    this.getLayer("lightMask").addNode(this.lightMask);
+    
+    this.lightMask.color = Color.fromStringHex("#000000");
+    this.lightMask.alpha = 1; // Set initial alpha to 0, it will be updated based on day/night cycle
+    this.lightMask.size = new Vec2(100, 100);
+    this.lightMask.useCustomShader(SpotlightShader.KEY);
+  
+    // console.log("LIGHT MASK: ", this.lightMask);
+    // console.log("PRIMARY LAYER: ", this.primaryLayer);
+  }
+  
+  
+
+    /** Initializes the layers in the scene */
+    protected initLayers(): void {
+      this.addLayer("primary", 10);
+      this.addUILayer("lightMask");
+      this.addUILayer("slots");
+      this.addUILayer("items");
+      this.addUILayer("timer");
+      this.addUILayer("Counters");
+      this.addUILayer("Pause");
+      this.addUILayer("night");
+      this.getLayer("lightMask").setDepth(11);
+      this.getLayer("night").setDepth(1);
+      this.getLayer("Pause").setDepth(2);
+      this.getLayer("timer").setDepth(2);
+      this.getLayer("Counters").setDepth(2);
+      this.getLayer("slots").setDepth(2);
+      this.getLayer("items").setDepth(1);
+    }
+  
 
   /**
    * Handle events from the rest of the game
@@ -343,6 +433,14 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleFuelPickedUp();
           break;
         }
+        case CheatEvent.INFINITE_HEALTH: {
+          this.handleInfiniteHealth();
+          break;
+        }
+        case CheatEvent.END_DAY: {
+          this.handleEndDayCheat();
+          break;
+        }
         default: {
           throw new Error(
             `Unhandled event type "${event.type}" caught in HW3Scene event handler`
@@ -373,7 +471,7 @@ export default class MainHW4Scene extends HW4Scene {
       }
     }
   }
-
+  //PICKING UP MATERIALS
   private handleMaterialPickedUp(): void {
     const currentValue = parseInt(this.materialCounter.text);
     this.materialCounter.text = (currentValue + 1).toString();
@@ -384,6 +482,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.fuelCounter.text = (currentValue + 1).toString();
   }
 
+  //PAUSE SCREEN
   private handlePaused(): void {
     this.isPaused = !this.isPaused;
     if (this.isPaused) {
@@ -405,6 +504,20 @@ export default class MainHW4Scene extends HW4Scene {
     this.showControlsUI();
   }
 
+  private handleEndDayCheat(): void {
+    this.elapsedTime = this.countDownTimer.getTotalTime();
+  }
+
+  //handling cheats
+  private handleInfiniteHealth(): void {
+    // console.log("INSIDE INFINITE HEALTH")
+    console.log(this.battlers);
+    this.battlers[0].health = 9999999;
+    this.battlers[0].maxHealth = 9999999;
+    this.healthbars.get(this.battlers[0].id).visible = false;
+    // console.log(this.battlers);
+  }
+
   /**
    * Handles an NPC being killed by unregistering the NPC from the scenes subsystems
    * @param event an NPC-killed event
@@ -418,6 +531,9 @@ export default class MainHW4Scene extends HW4Scene {
       this.healthbars.get(id).visible = false;
     }
   }
+
+
+  
 
   initializeUI(): void {
     //timer
@@ -680,22 +796,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.viewport.setZoomLevel(1);
   }
 
-  /** Initializes the layers in the scene */
-  protected initLayers(): void {
-    this.addLayer("primary", 10);
-    this.addUILayer("slots");
-    this.addUILayer("items");
-    this.addUILayer("timer");
-    this.addUILayer("Counters");
-    this.addUILayer("Pause");
-    this.addUILayer("night");
-    this.getLayer("night").setDepth(0);
-    this.getLayer("Pause").setDepth(1);
-    this.getLayer("timer").setDepth(1);
-    this.getLayer("Counters").setDepth(1);
-    this.getLayer("slots").setDepth(1);
-    this.getLayer("items").setDepth(2);
-  }
+
 
   /**
    * Initializes the player in the scene
@@ -738,61 +839,61 @@ export default class MainHW4Scene extends HW4Scene {
   /**
    * Initialize the NPCs
    */
-  protected initializeNPCs(): void {
-    // Get the object data for the red enemies
-    //let red = this.load.getObject("red");
+  // protected initializeNPCs(): void {
+  //   // Get the object data for the red enemies
+  //   //let red = this.load.getObject("red");
 
-    // Get the object data for the blue enemies
-    let blue = this.load.getObject("blue");
+  //   // Get the object data for the blue enemies
+  //   let blue = this.load.getObject("blue");
 
-    // Initialize the blue enemies
-    for (let i = 0; i < blue.enemies.length; i++) {
-      let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
-      npc.position.set(blue.enemies[i][0], blue.enemies[i][1]);
-      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
+  //   // Initialize the blue enemies
+  //   for (let i = 0; i < blue.enemies.length; i++) {
+  //     let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
+  //     npc.position.set(blue.enemies[i][0], blue.enemies[i][1]);
+  //     npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
 
-      // Give the NPCS their healthbars
-      let healthbar = new HealthbarHUD(this, npc, "primary", {
-        size: npc.size.clone().scaled(2, 1 / 2),
-        offset: npc.size.clone().scaled(0, -1 / 2),
-      });
-      this.healthbars.set(npc.id, healthbar);
+  //     // Give the NPCS their healthbars
+  //     let healthbar = new HealthbarHUD(this, npc, "primary", {
+  //       size: npc.size.clone().scaled(2, 1 / 2),
+  //       offset: npc.size.clone().scaled(0, -1 / 2),
+  //     });
+  //     this.healthbars.set(npc.id, healthbar);
 
-      npc.battleGroup = 1;
-      npc.speed = 10;
-      npc.health = 1;
-      npc.maxHealth = 10;
-      npc.navkey = "navmesh";
+  //     npc.battleGroup = 1;
+  //     npc.speed = 10;
+  //     npc.health = 1;
+  //     npc.maxHealth = 10;
+  //     npc.navkey = "navmesh";
 
-      // Give the NPCs their AI
-      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
-      // Play the NPCs "IDLE" animation
-      npc.animation.play("IDLE");
+  //     // Give the NPCs their AI
+  //     npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
+  //     // Play the NPCs "IDLE" animation
+  //     npc.animation.play("IDLE");
 
-      this.battlers.push(npc);
-    }
+  //     this.battlers.push(npc);
+  //   }
 
-    // Initialize the blue healers
-    /*for (let i = 0; i < blue.healers.length; i++) {
+  //   // Initialize the blue healers
+  //   /*for (let i = 0; i < blue.healers.length; i++) {
             
-            let npc = this.add.animatedSprite(NPCActor, "BlueHealer", "primary");
-            npc.position.set(blue.healers[i][0], blue.healers[i][1]);
-            npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
+  //           let npc = this.add.animatedSprite(NPCActor, "BlueHealer", "primary");
+  //           npc.position.set(blue.healers[i][0], blue.healers[i][1]);
+  //           npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
 
-            npc.battleGroup = 2;
-            npc.speed = 10;
-            npc.health = 1;
-            npc.maxHealth = 10;
-            npc.navkey = "navmesh";
+  //           npc.battleGroup = 2;
+  //           npc.speed = 10;
+  //           npc.health = 1;
+  //           npc.maxHealth = 10;
+  //           npc.navkey = "navmesh";
 
-            let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
-            this.healthbars.set(npc.id, healthbar);
+  //           let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
+  //           this.healthbars.set(npc.id, healthbar);
 
-            npc.addAI(HealerBehavior);
-            npc.animation.play("IDLE");
-            this.battlers.push(npc);
-        }*/
-  }
+  //           npc.addAI(HealerBehavior);
+  //           npc.animation.play("IDLE");
+  //           this.battlers.push(npc);
+  //       }*/
+  // }
 
   /**
    * Initialize the items in the scene (healthpacks and laser guns)

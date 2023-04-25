@@ -51,6 +51,7 @@ export default class CanvasRenderer extends RenderingManager {
         this.uiElementRenderer.setScene(scene);
     }
 
+
     // @override
     initializeCanvas(canvas: HTMLCanvasElement, width: number, height: number): CanvasRenderingContext2D {
         canvas.width = width;
