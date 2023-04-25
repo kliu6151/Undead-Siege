@@ -139,6 +139,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   // The position graph for the navmesh
   private graph: PositionGraph;
+  playerWeaponSystem: PlayerWeapon;
 
   public constructor(
     viewport: Viewport,
@@ -212,7 +213,6 @@ export default class MainHW4Scene extends HW4Scene {
     // Add in the tilemap
     let tilemapLayers = this.add.tilemap("level");
     const tempSize = this.viewport.getCenter();
-    console.log("START OF 4: ", tempSize)
     // Get the wall layer
     this.walls = <OrthogonalTilemap>tilemapLayers[1].getItems()[0];
 
@@ -230,6 +230,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.countDownTimer = new Timer(120 * 1000);
     this.countDownTimer.start();
 
+    this.initializeWeaponSystem();
     // Create the player
     this.initializePlayer();
     this.initializeItems();
@@ -310,7 +311,7 @@ export default class MainHW4Scene extends HW4Scene {
           if (this.isNight) {
             console.log("It's night time!");
             
-            this.night.alpha = 1;
+            this.night.alpha = .7;
             this.lightMask.alpha = 0.7;
             console.log(this.getLayer("primary"))
             console.log("LIGHT MASK: ", this.lightMask)
@@ -370,6 +371,11 @@ export default class MainHW4Scene extends HW4Scene {
       this.getLayer("Counters").setDepth(2);
       this.getLayer("slots").setDepth(2);
       this.getLayer("items").setDepth(1);
+    }
+
+    protected initializeWeaponSystem(): void {
+      this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
+      this.playerWeaponSystem.initializePool(this, "primary");
     }
   
 
@@ -830,7 +836,9 @@ export default class MainHW4Scene extends HW4Scene {
     this.healthbars.set(player.id, healthbar);
 
     // Give the player PlayerAI
-    player.addAI(PlayerAI);
+    player.addAI(PlayerAI, {
+      weaponSystem: this.playerWeaponSystem,
+    });
 
     // Start the player in the "IDLE" animation
     player.animation.play("IDLE");
