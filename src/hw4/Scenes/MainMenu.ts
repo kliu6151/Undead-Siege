@@ -122,6 +122,7 @@ export default class MainMenu extends Scene {
     this.receiver.subscribe("Level Selection");
     this.receiver.subscribe("controls");
     this.receiver.subscribe("help");
+    
   }
 
   public updateScene() {
