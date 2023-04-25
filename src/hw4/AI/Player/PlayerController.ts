@@ -32,7 +32,6 @@ export default class PlayerController {
    * @returns a Vec2 indicating the direction the player should move.
    */
   public get moveDir(): Vec2 {
-    //console.log(Input.isPressed(PlayerInput.ATTACKING))
     let dir: Vec2 = Vec2.ZERO;
     dir.y =
       (Input.isPressed(PlayerInput.MOVE_UP) ? -1 : 0) +

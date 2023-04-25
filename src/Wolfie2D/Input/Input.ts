@@ -92,7 +92,7 @@ export default class Input {
         Input.mousePressed = true;
         Input.mousePressPosition = event.data.get("position");
         Input.mouseButtonPressed = event.data.get("button");
-				console.log(Input.mouseButtonPressed);
+				//console.log(Input.mouseButtonPressed);
       }
 
       if (event.type === GameEventType.MOUSE_UP) {
@@ -109,7 +109,6 @@ export default class Input {
         if (key === " ") {
           key = "space";
         }
-				console.log(Input.keyPressed.get(key));
         if (!Input.keyPressed.get(key)) {
           Input.keyJustPressed.set(key, true);
           Input.keyPressed.set(key, true);

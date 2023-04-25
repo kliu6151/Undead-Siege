@@ -2,12 +2,13 @@ import StateMachineAI from "../../../Wolfie2D/AI/StateMachineAI";
 import AI from "../../../Wolfie2D/DataTypes/Interfaces/AI";
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import GameEvent from "../../../Wolfie2D/Events/GameEvent";
+import Input from "../../../Wolfie2D/Input/Input";
 import PlayerActor from "../../Actors/PlayerActor";
 import { ItemEvent } from "../../Events";
 import Inventory from "../../GameSystems/ItemSystem/Inventory";
 import Item from "../../GameSystems/ItemSystem/Item";
 import MainHW4Scene from "../../Scenes/MainHW4Scene";
-import PlayerController from "./PlayerController";
+import PlayerController, { PlayerInput } from "./PlayerController";
 import {
   Idle,
   Invincible,
@@ -15,6 +16,7 @@ import {
   Dead,
   PlayerStateType,
 } from "./PlayerStates/PlayerState";
+import PlayerWeapon from "./PlayerWeapon";
 
 /**
  * The AI that controls the player. The players AI has been configured as a Finite State Machine (FSM)
@@ -30,9 +32,13 @@ export default class PlayerAI extends StateMachineAI implements AI {
   /** The players held item */
   public item: Item | null;
 
+  protected weapon: PlayerWeapon;
+
   public initializeAI(owner: PlayerActor, opts: Record<string, any>): void {
     this.owner = owner;
     this.controller = new PlayerController(owner);
+
+    this.weapon = opts.weaponSystem;
 
     // Add the players states to it's StateMachine
     this.addState(PlayerStateType.IDLE, new Idle(this, this.owner));
@@ -49,6 +55,11 @@ export default class PlayerAI extends StateMachineAI implements AI {
   public update(deltaT: number): void {
     if ((<MainHW4Scene>this.owner.getScene()).isPaused) return;
     super.update(deltaT);
+
+    if (Input.isMouseJustPressed()) {
+      console.log("shoot")
+      this.weapon.startSystem(500, 0, this.owner.position);
+    }
   }
 
   public destroy(): void {}
@@ -75,7 +86,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
   }
 
   protected handleZombieHitEvent(actorId: number): void {
-    console.log(actorId)
+    console.log(actorId);
     if (this.owner.id !== actorId && this.owner.collisionShape !== undefined) {
       this.owner.health -= 1;
     }
