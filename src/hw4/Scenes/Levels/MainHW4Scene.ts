@@ -93,9 +93,9 @@ export default class MainHW4Scene extends HW4Scene {
   private controls: Label;
   private exit: Label;
   private cheats: Label;
-  private AllLevelsCheat: Button;
-  private unlimitedHealthCheat: Button;
-  private speedBoostCheat: Button;
+  // private AllLevelsCheat: Button;
+  private unlimitedHealthCheat: Label;
+  private endCycleCheat: Label;
 
   //UI control labels
   private upLabel: Label;
@@ -653,30 +653,30 @@ export default class MainHW4Scene extends HW4Scene {
     this.cheats.fontSize = 32;
     this.cheats.onClickEventId = "showCheats";
 
-    this.AllLevelsCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
-      text: "All Levels",
-    });
-    this.AllLevelsCheat.textColor = Color.WHITE;
-    this.AllLevelsCheat.backgroundColor = Color.BLACK;
-    this.AllLevelsCheat.fontSize = 24;
-    this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
+    // this.AllLevelsCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
+    //   position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
+    //   text: "All Levels",
+    // });
+    // this.AllLevelsCheat.textColor = Color.WHITE;
+    // this.AllLevelsCheat.backgroundColor = Color.BLACK;
+    // this.AllLevelsCheat.fontSize = 24;
+    // this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
 
-    this.unlimitedHealthCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
-      text: "Unlimited Health",
+    this.unlimitedHealthCheat = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x / 7 + Text.length, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
+      text: "[9] - Unlimited Health",
     });
     this.unlimitedHealthCheat.textColor = Color.WHITE;
-    this.unlimitedHealthCheat.backgroundColor = Color.BLACK;
-    this.unlimitedHealthCheat.fontSize = 24;
+    // this.unlimitedHealthCheat.backgroundColor = Color.BLACK;
+    this.unlimitedHealthCheat.fontSize = 15;
 
-    this.speedBoostCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
-      text: "Speed Boost",
+    this.endCycleCheat = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x / 7 + Text.length, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
+      text: "[8] - End day/night",
     });
-    this.speedBoostCheat.textColor = Color.WHITE;
-    this.speedBoostCheat.backgroundColor = Color.BLACK;
-    this.speedBoostCheat.fontSize = 24;
+    this.endCycleCheat.textColor = Color.WHITE;
+    // this.endCycleCheat.backgroundColor = Color.BLACK;
+    this.endCycleCheat.fontSize = 15;
 
     this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(this.viewport.getHalfSize().x * 3/2, this.viewport.getHalfSize().y * 2 - (7*(this.viewport.getHalfSize().y / 8))),
@@ -754,14 +754,14 @@ export default class MainHW4Scene extends HW4Scene {
 
   private showCheatsUI(): void {
     this.unlimitedHealthCheat.visible = true;
-    this.AllLevelsCheat.visible = true;
-    this.speedBoostCheat.visible = true;
+    // this.AllLevelsCheat.visible = true;
+    this.endCycleCheat.visible = true;
   }
 
   private hideCheatsUI(): void {
     this.unlimitedHealthCheat.visible = false;
-    this.AllLevelsCheat.visible = false;
-    this.speedBoostCheat.visible = false;
+    // this.AllLevelsCheat.visible = false;
+    this.endCycleCheat.visible = false;
   }
 
   private showControlsUI(): void {

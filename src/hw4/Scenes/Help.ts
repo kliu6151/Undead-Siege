@@ -136,26 +136,21 @@ export default class Help extends Scene {
     });
     cheatLabel.textColor = Color.RED;
 
-    const cheats = ["UNLOCK ALL LEVELS", "INFINITE HEALTH", "SPEED BOOST"];
+    const cheats = ["[0] - Unlock all levels", "[9] - Infinite Health", "[8] - End day/night"];
     for (let i = 0; i < cheats.length; i++) {
-        const cheatButtons = <Button>this.add.uiElement(UIElementType.BUTTON, "Help", {
+        const cheatButtons = <Label>this.add.uiElement(UIElementType.LABEL, "Help", {
             position: new Vec2(
                 center.x - this.viewport.getHalfSize().x + 150,
                 center.y - this.viewport.getHalfSize().y + 150 + text.length * 20 + 100 + i * 40
             ),
             text: cheats[i],
         });
-        cheatButtons.size.set(150, 30);
-        cheatButtons.borderWidth = 2;
-        cheatButtons.borderColor = Color.BLACK
-        cheatButtons.textColor = Color.BLACK; 
-        cheatButtons.backgroundColor = Color.WHITE;
-        cheatButtons.onClick = () => {
-          if (cheats[i] === "UNLOCK ALL LEVELS") {
-            this.emitter.fireEvent("allLevelCheatUnlock");
-          }
-        };
-        cheatButtons.fontSize = 12
+        // cheatButtons.size.set(150, 30);
+        // cheatButtons.borderWidth = 2;
+        // cheatButtons.borderColor = Color.BLACK
+        cheatButtons.textColor = Color.WHITE; 
+        // cheatButtons.backgroundColor = Color.WHITE;
+        cheatButtons.fontSize = 15;
     }
 
     // Subscribe to the button events
