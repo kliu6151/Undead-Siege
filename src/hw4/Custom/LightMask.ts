@@ -2,16 +2,30 @@ import Graphic from "../../Wolfie2D/Nodes/Graphic";
 import Color from "../../Wolfie2D/Utils/Color";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 import CanvasRenderer from "../../Wolfie2D/Rendering/CanvasRenderer";
-
+import Spotlight from "../../Wolfie2D/Nodes/Graphics/Spotlight";
 
 export default class LightMask extends Graphic {
     private playerPosition: Vec2;
     private playerRotation: number;
-  
+    private spotlight: Spotlight; // Add a Spotlight instance to the class
+
+
     constructor() {
       super();
       this.playerPosition = new Vec2(0, 0);
       this.playerRotation = 0;
+
+      // Initialize the Spotlight instance and set its properties
+    this.spotlight = new Spotlight();
+    this.spotlight.position = new Vec2(0, 0);
+    this.spotlight.size = new Vec2(100, 100);
+    // Set other properties like lightPosition, lightColor, etc.
+    this.spotlight.lightPosition = new Vec2(0, 0);
+    this.spotlight.lightColor = new Color(1, 1, 1, 1);
+    this.spotlight.lightRadius = 100;
+    this.spotlight.ambientColor = new Color(0, 0, 0, 1);
+    this.spotlight.gradientStart = 0.5;
+    this.spotlight.gradientEnd = 1;
     }
 
     public updatePlayerInfo(position: Vec2, rotation: number): void {
@@ -27,6 +41,12 @@ export default class LightMask extends Graphic {
         this.scale = scale;
     }
 
+    // Override the setShaderProperties method
+  setShaderProperties(options: Record<string, any>): void {
+    // Get options from the Spotlight instance
+    options = this.spotlight.getOptions();
+  }
+
     addSpotlight(context: CanvasRenderingContext2D, position: Vec2, radius: number): CanvasRenderingContext2D {
         const radialGradient = context.createRadialGradient(
           position.x,
@@ -36,6 +56,10 @@ export default class LightMask extends Graphic {
           position.y,
           radius
         );
+        this.spotlight.position = this.playerPosition;
+        this.spotlight.lightPosition = new Vec2(0, 0); // Set the light position
+        this.spotlight.lightColor = new Color(255, 255, 255); // Set the light color
+        this.spotlight.lightRadius = 200; // Set the light radius
         radialGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
         radialGradient.addColorStop(1, "rgba(255, 255, 255, 1)");
         context.fillStyle = radialGradient;

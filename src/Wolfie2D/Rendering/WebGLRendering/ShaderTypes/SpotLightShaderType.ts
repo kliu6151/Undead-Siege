@@ -66,8 +66,16 @@ export default class SpotlightShaderType extends QuadShaderType {
 		const circle_Color = gl.getUniformLocation(program, "circle_Color");
 		gl.uniform4f(circle_Color, webGL_color[0], webGL_color[1], webGL_color[2], webGL_color[3]);
 
+
+
 		// Draw the quad
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+		const u_GradientStart = gl.getUniformLocation(program, "u_GradientStart");
+        gl.uniform1f(u_GradientStart, options.gradientStart);
+
+        const u_GradientEnd = gl.getUniformLocation(program, "u_GradientEnd");
+        gl.uniform1f(u_GradientEnd, options.gradientEnd);
 
         const u_LightPosition = gl.getUniformLocation(program, "u_LightPosition");
         gl.uniform2f(u_LightPosition, options.lightPosition.x, options.lightPosition.y);
@@ -111,7 +119,9 @@ export default class SpotlightShaderType extends QuadShaderType {
 			lightPosition: spotlight.lightPosition,
 			lightColor: spotlight.lightColor,
 			lightRadius: spotlight.lightRadius,
-			ambientColor: spotlight.ambientColor
+			ambientColor: spotlight.ambientColor,
+            gradientStart: spotlight.gradientStart,
+            gradientEnd: spotlight.gradientEnd
 		}
 
 		return options;

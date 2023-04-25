@@ -312,9 +312,9 @@ export default class MainHW4Scene extends HW4Scene {
   }
   
   initializeSpotLight() {    
-    this.testLabel = <Label>this.add.uiElement(UIElementType.LABEL, "lightMask", {position: this.viewport.getCenter(), text: "TESTLJKDHSAJKDHKHASKDHJKASHJKDHJAS"});
-    this.testLabel.textColor = Color.WHITE;
-    this.testLabel.fontSize = 20;
+    // this.testLabel = <Label>this.add.uiElement(UIElementType.LABEL, "lightMask", {position: this.viewport.getCenter(), text: "TESTLJKDHSAJKDHKHASKDHJKASHJKDHJAS"});
+    // this.testLabel.textColor = Color.WHITE;
+    // this.testLabel.fontSize = 20;
 
     this.lightMask = <LightMask>this.add.lightMask("lightMask");
     this.getLayer("lightMask").addNode(this.lightMask);
