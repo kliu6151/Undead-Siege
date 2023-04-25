@@ -4,30 +4,23 @@ import HW4Scene from "./HW4Scene";
 import RenderingManager from "../../../Wolfie2D/Rendering/RenderingManager";
 import SceneManager from "../../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../../Wolfie2D/SceneGraph/Viewport";
-import Level2 from "./Level2";
 import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
 import MainHW4Scene from "./MainHW4Scene";
+import MainMenu from "../MainMenu";
 import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
-// import HW4Scene from "./HW4Scene";
-
 
 /**
  * The first level for HW4 - should be the one with the grass and the clouds.
  */
-export default class Level1 extends MainHW4Scene {
+export default class Level2 extends MainHW4Scene {
 
-    // public static readonly PLAYER_SPAWN = new Vec2(32, 32);
-
-    //Player
-    public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/player1.json";
 
-    //Tile maps
-    public static readonly TILEMAP_KEY = "LEVEL1";
-    public static readonly TILEMAP_PATH = "assets/tilemaps/Level1Map.json";
+    public static readonly TILEMAP_KEY = "LEVEL2";
+    public static readonly TILEMAP_PATH = "assets/tilemaps/Level2Map.json";
     public static readonly WALLS_LAYER_KEY = "Main";
 
-    //Load the enemy sprites
+
     public static readonly ZOMBIE_KEY = "ZOMBIE";
     public static readonly ZOMBIE_PATH = "assets/spritesheets/BlueEnemy.json";
 
@@ -48,8 +41,6 @@ export default class Level1 extends MainHW4Scene {
     public static readonly FUEL_SPAWNS = "FUEL_SPAWNS";
     public static readonly FUEL_SPAWNS_PATH = "assets/data/items/fuels.json";
 
-   
-
     // public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
     // public static readonly LEVEL_MUSIC_PATH = "hw4_assets/music/hw5_level_music.wav";
 
@@ -68,22 +59,21 @@ export default class Level1 extends MainHW4Scene {
         super(viewport, sceneManager, renderingManager, options);
 
         // Set the keys for the different layers of the tilemap
-        this.levelKey = Level1.TILEMAP_KEY;
-        // this.tilemapScale = Level1.TILEMAP_SCALE;
-        // this.destructibleLayerKey = Level1.DESTRUCTIBLE_LAYER_KEY;
-        this.wallsLayerKey = Level1.WALLS_LAYER_KEY;
-        
+        this.levelKey = Level2.TILEMAP_KEY;
+        // this.tilemapScale = Level2.TILEMAP_SCALE;
+        // this.destructibleLayerKey = Level2.DESTRUCTIBLE_LAYER_KEY;
+        this.wallsLayerKey = Level2.WALLS_LAYER_KEY;
 
         // Set the key for the player's sprite
-        // this.playerSpriteKey = Level1.PLAYER_SPRITE_KEY;
+        // this.playerSpriteKey = Level2.PLAYER_SPRITE_KEY;
         // Set the player's spawn
-        // this.playerSpawn = Level1.PLAYER_SPAWN;
+        // this.playerSpawn = Level2.PLAYER_SPAWN;
 
         // Music and sound
-        // this.levelMusicKey = Level1.LEVEL_MUSIC_KEY
-        // this.jumpAudioKey = Level1.JUMP_AUDIO_KEY;
-        // this.deathAudioKey = Level1.DEATH_AUDIO_KEY;
-        // this.tileDestroyedAudioKey = Level1.TILE_DESTROYED_KEY;
+        // this.levelMusicKey = Level2.LEVEL_MUSIC_KEY
+        // this.jumpAudioKey = Level2.JUMP_AUDIO_KEY;
+        // this.deathAudioKey = Level2.DEATH_AUDIO_KEY;
+        // this.tileDestroyedAudioKey = Level2.TILE_DESTROYED_KEY;
 
         // Level end size and position
         // this.levelEndPosition = new Vec2(128, 232).mult(this.tilemapScale);
@@ -95,25 +85,25 @@ export default class Level1 extends MainHW4Scene {
      */
     public override loadScene() {
         // Load the player and enemy spritesheets
-        this.load.spritesheet("player1", Level1.PLAYER_SPRITE_PATH);
+        this.load.spritesheet("player1", Level2.PLAYER_SPRITE_PATH);
     
         // Load in the enemy sprites
-        this.load.spritesheet("BlueEnemy", Level1.ZOMBIE_PATH);
+        this.load.spritesheet("BlueEnemy", Level2.ZOMBIE_PATH);
 
         // Load the tilemap
-        this.load.tilemap(this.levelKey, Level1.TILEMAP_PATH);
+        this.load.tilemap(this.levelKey, Level2.TILEMAP_PATH);
         // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
     
         // Load the enemy locations
-        this.load.object("blue", Level1.ZOMBIE_SPAWNS_PATH);
+        this.load.object("blue", Level2.ZOMBIE_SPAWNS_PATH);
     
         // Load the healthpack and lasergun loactions
-        this.load.object("healthpacks", Level1.HEALTHPACK_SPAWNS_PATH);
-        this.load.object("laserguns", Level1.LASERGUN_SPAWNS_PATH);
+        this.load.object("healthpacks", Level2.HEALTHPACK_SPAWNS_PATH);
+        this.load.object("laserguns", Level2.LASERGUN_SPAWNS_PATH);
     
         // Load the material and fuel locations
-        this.load.object("materials", Level1.MATERIAL_SPAWNS_PATH);
-        this.load.object("fuels", Level1.FUEL_SPAWNS_PATH);
+        this.load.object("materials", Level2.MATERIAL_SPAWNS_PATH);
+        this.load.object("fuels", Level2.FUEL_SPAWNS_PATH);
     
         // Load the healthpack, inventory slot, and laser gun sprites
         // this.load.image("healthpack", "assets/sprites/healthpack.png");
@@ -145,13 +135,13 @@ export default class Level1 extends MainHW4Scene {
         
         // TODO decide which resources to keep/cull
         // this.unload.tilemap(this.tilemapKey);
-        // this.keepSpriteSheet(this.playerSpriteKey, Level1.PLAYER_SPRITE_PATH);
+        // this.keepSpriteSheet(this.playerSpriteKey, Level2.PLAYER_SPRITE_PATH);
     }
 
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-        this.nextLevel = Level2;
+        this.nextLevel = MainMenu;
     }
 
     /**

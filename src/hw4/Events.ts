@@ -41,3 +41,8 @@ export enum InputEvent {
     SET_TIMEOUT = "SET_TIMEOUT",
     RESUMED = "RESUMED",
 }
+
+export enum SceneEvent {
+    LEVEL_START = "LEVEL_START",
+    LEVEL_END = "LEVEL_END",
+}

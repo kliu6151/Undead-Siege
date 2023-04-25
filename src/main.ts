@@ -2,7 +2,8 @@ import Game from "./Wolfie2D/Loop/Game";
 import MainMenu from "./hw4/Scenes/MainMenu";
 import { PlayerInput } from "./hw4/AI/Player/PlayerController";
 import StartMenu from "./hw4/Scenes/StartMenu";
-
+import RegistryManager from "./Wolfie2D/Registry/RegistryManager";
+import SpotlightShader from "./hw4/Custom/Shaders/SpotLightShader";
 // The main function is your entrypoint into Wolfie2D. Specify your first scene and any options here.
 (function main(){
     // Run any tests
@@ -28,6 +29,12 @@ import StartMenu from "./hw4/Scenes/StartMenu";
     }
 
     // Set up custom registries
+    RegistryManager.shaders.registerAndPreloadItem(
+        SpotlightShader.KEY,   // The key of the shader program
+        SpotlightShader,           // The constructor of the shader program
+        SpotlightShader.VSHADER,   // The path to the vertex shader
+        SpotlightShader.FSHADER);  // the path to the fragment shader*/
+        
 
     // Create a game with the options specified
     const game = new Game(options);

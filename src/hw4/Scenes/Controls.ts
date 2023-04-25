@@ -4,7 +4,7 @@ import Layer from "../../Wolfie2D/Scene/Layer";
 import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
 import Label from "../../Wolfie2D/Nodes/UIElements/Label";
-import MainHW4Scene from "./MainHW4Scene";
+import MainHW4Scene from "./Levels/MainHW4Scene";
 import GameEvent from "../../Wolfie2D/Events/GameEvent";
 
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";

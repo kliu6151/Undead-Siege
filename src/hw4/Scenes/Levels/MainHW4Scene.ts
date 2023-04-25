@@ -1,55 +1,57 @@
-import PositionGraph from "../../Wolfie2D/DataTypes/Graphs/PositionGraph";
-import Actor from "../../Wolfie2D/DataTypes/Interfaces/Actor";
-import AABB from "../../Wolfie2D/DataTypes/Shapes/AABB";
-import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
-import GameEvent from "../../Wolfie2D/Events/GameEvent";
-import GameNode from "../../Wolfie2D/Nodes/GameNode";
-import { GraphicType } from "../../Wolfie2D/Nodes/Graphics/GraphicTypes";
-import Line from "../../Wolfie2D/Nodes/Graphics/Line";
-import OrthogonalTilemap from "../../Wolfie2D/Nodes/Tilemaps/OrthogonalTilemap";
-import Navmesh from "../../Wolfie2D/Pathfinding/Navmesh";
-import DirectStrategy from "../../Wolfie2D/Pathfinding/Strategies/DirectStrategy";
-import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
-import SceneManager from "../../Wolfie2D/Scene/SceneManager";
-import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
-import Timer from "../../Wolfie2D/Timing/Timer";
-import Color from "../../Wolfie2D/Utils/Color";
-import MathUtils from "../../Wolfie2D/Utils/MathUtils";
-import NPCActor from "../Actors/NPCActor";
-import PlayerActor from "../Actors/PlayerActor";
-import GuardBehavior from "../AI/NPC/NPCBehavior/GaurdBehavior";
-import HealerBehavior from "../AI/NPC/NPCBehavior/HealerBehavior";
-import ZombieBehavior from "../AI/NPC/NPCBehavior/ZombieBehavior";
-import PlayerAI from "../AI/Player/PlayerAI";
-import { ItemEvent, PlayerEvent, BattlerEvent, InputEvent, CheatEvent } from "../Events";
-import Battler from "../GameSystems/BattleSystem/Battler";
-import BattlerBase from "../GameSystems/BattleSystem/BattlerBase";
-import HealthbarHUD from "../GameSystems/HUD/HealthbarHUD";
-import InventoryHUD from "../GameSystems/HUD/InventoryHUD";
-import Inventory from "../GameSystems/ItemSystem/Inventory";
-import Item from "../GameSystems/ItemSystem/Item";
-import Healthpack from "../GameSystems/ItemSystem/Items/Healthpack";
-import LaserGun from "../GameSystems/ItemSystem/Items/LaserGun";
-import { ClosestPositioned } from "../GameSystems/Searching/HW4Reducers";
-import BasicTargetable from "../GameSystems/Targeting/BasicTargetable";
-import Position from "../GameSystems/Targeting/Position";
-import AstarStrategy from "../Pathfinding/AstarStrategy";
+import PositionGraph from "../../../Wolfie2D/DataTypes/Graphs/PositionGraph";
+import Actor from "../../../Wolfie2D/DataTypes/Interfaces/Actor";
+import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
+import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
+import GameEvent from "../../../Wolfie2D/Events/GameEvent";
+import GameNode from "../../../Wolfie2D/Nodes/GameNode";
+import { GraphicType } from "../../../Wolfie2D/Nodes/Graphics/GraphicTypes";
+import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
+import OrthogonalTilemap from "../../../Wolfie2D/Nodes/Tilemaps/OrthogonalTilemap";
+import Navmesh from "../../../Wolfie2D/Pathfinding/Navmesh";
+import DirectStrategy from "../../../Wolfie2D/Pathfinding/Strategies/DirectStrategy";
+import RenderingManager from "../../../Wolfie2D/Rendering/RenderingManager";
+import SceneManager from "../../../Wolfie2D/Scene/SceneManager";
+import Viewport from "../../../Wolfie2D/SceneGraph/Viewport";
+import Timer from "../../../Wolfie2D/Timing/Timer";
+import Color from "../../../Wolfie2D/Utils/Color";
+import MathUtils from "../../../Wolfie2D/Utils/MathUtils";
+import NPCActor from "../../Actors/NPCActor";
+import PlayerActor from "../../Actors/PlayerActor";
+import GuardBehavior from "../../AI/NPC/NPCBehavior/GaurdBehavior";
+import HealerBehavior from "../../AI/NPC/NPCBehavior/HealerBehavior";
+import ZombieBehavior from "../../AI/NPC/NPCBehavior/ZombieBehavior";
+import PlayerAI from "../../AI/Player/PlayerAI";
+import { ItemEvent, PlayerEvent, BattlerEvent, InputEvent, CheatEvent, SceneEvent } from "../../Events";
+import Battler from "../../GameSystems/BattleSystem/Battler";
+import BattlerBase from "../../GameSystems/BattleSystem/BattlerBase";
+import HealthbarHUD from "../../GameSystems/HUD/HealthbarHUD";
+import InventoryHUD from "../../GameSystems/HUD/InventoryHUD";
+import Inventory from "../../GameSystems/ItemSystem/Inventory";
+import Item from "../../GameSystems/ItemSystem/Item";
+import Healthpack from "../../GameSystems/ItemSystem/Items/Healthpack";
+import LaserGun from "../../GameSystems/ItemSystem/Items/LaserGun";
+import { ClosestPositioned } from "../../GameSystems/Searching/HW4Reducers";
+import BasicTargetable from "../../GameSystems/Targeting/BasicTargetable";
+import Position from "../../GameSystems/Targeting/Position";
+import AstarStrategy from "../../Pathfinding/AstarStrategy";
 import HW4Scene from "./HW4Scene";
-import Label from "../../Wolfie2D/Nodes/UIElements/Label";
-import Button from "../../Wolfie2D/Nodes/UIElements/Button";
-import Layer from "../../Wolfie2D/Scene/Layer";
-import { UIElementType } from "../../Wolfie2D/Nodes/UIElements/UIElementTypes";
-import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
-import Material from "../GameSystems/ItemSystem/Items/Material";
-import Fuel from "../GameSystems/ItemSystem/Items/Fuel";
-import Graphic from "../../Wolfie2D/Nodes/Graphic";
-import MainMenu from "./MainMenu";
-import CanvasNode from "../../Wolfie2D/Nodes/CanvasNode";
-import LightMask from "../Custom/LightMask";
-import SpotlightShader from "../Custom/Shaders/SpotLightShader";
-import CanvasRenderer from "../../Wolfie2D/Rendering/CanvasRenderer";
-import GraphUtils from "../../Wolfie2D/Utils/GraphUtils";
-import PlayerWeapon from "../AI/Player/PlayerWeapon";
+import Label from "../../../Wolfie2D/Nodes/UIElements/Label";
+import Button from "../../../Wolfie2D/Nodes/UIElements/Button";
+import Layer from "../../../Wolfie2D/Scene/Layer";
+import { UIElementType } from "../../../Wolfie2D/Nodes/UIElements/UIElementTypes";
+import Sprite from "../../../Wolfie2D/Nodes/Sprites/Sprite";
+import Material from "../../GameSystems/ItemSystem/Items/Material";
+import Fuel from "../../GameSystems/ItemSystem/Items/Fuel";
+import Graphic from "../../../Wolfie2D/Nodes/Graphic";
+import MainMenu from "../MainMenu";
+import CanvasNode from "../../../Wolfie2D/Nodes/CanvasNode";
+import LightMask from "../../Custom/LightMask";
+import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
+import CanvasRenderer from "../../../Wolfie2D/Rendering/CanvasRenderer";
+import GraphUtils from "../../../Wolfie2D/Utils/GraphUtils";
+import PlayerWeapon from "../../AI/Player/PlayerWeapon";
+import Input from "../../../Wolfie2D/Input/Input";
+import Scene from "../../../Wolfie2D/Scene/Scene";
 
 const BattlerGroups = {
   RED: 1,
@@ -69,6 +71,10 @@ export default class MainHW4Scene extends HW4Scene {
   private countDownTimer: Timer;
   private timerLabel: Label;
   private elapsedTime: number;
+
+  //Level stuff
+  protected nextLevel: new (...args: any) => Scene;
+
 
   //UI Sprites
   private materialIcon: Sprite;
@@ -141,6 +147,13 @@ export default class MainHW4Scene extends HW4Scene {
   private graph: PositionGraph;
   playerWeaponSystem: PlayerWeapon;
 
+  //Keys for levels
+  protected levelKey: string;
+  protected wallsLayerKey: string;
+  protected playerSpriteKey: string;
+
+  
+
   public constructor(
     viewport: Viewport,
     sceneManager: SceneManager,
@@ -162,57 +175,57 @@ export default class MainHW4Scene extends HW4Scene {
   /**
    * @see Scene.update()
    */
-  public override loadScene() {
-    // Load the player and enemy spritesheets
-    this.load.spritesheet("player1", "assets/spritesheets/player1.json");
+  // public override loadScene() {
+  //   // Load the player and enemy spritesheets
+  //   this.load.spritesheet("player1", "assets/spritesheets/player1.json");
 
-    // Load in the enemy sprites
-    this.load.spritesheet("BlueEnemy", "assets/spritesheets/BlueEnemy.json");
-    this.load.spritesheet("RedEnemy", "assets/spritesheets/RedEnemy.json");
-    this.load.spritesheet("BlueHealer", "assets/spritesheets/BlueHealer.json");
-    this.load.spritesheet("RedHealer", "assets/spritesheets/RedHealer.json");
+  //   // Load in the enemy sprites
+  //   this.load.spritesheet("BlueEnemy", "assets/spritesheets/BlueEnemy.json");
+  //   this.load.spritesheet("RedEnemy", "assets/spritesheets/RedEnemy.json");
+  //   this.load.spritesheet("BlueHealer", "assets/spritesheets/BlueHealer.json");
+  //   this.load.spritesheet("RedHealer", "assets/spritesheets/RedHealer.json");
 
-    // Load the tilemap
-    //this.load.tilemap("level", "assets/tilemaps/Level1Map.json");
-    this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
+  //   // Load the tilemap
+  //   this.load.tilemap("level", "assets/tilemaps/Level1Map.json");
+  //   // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
 
-    // Load the enemy locations
-    this.load.object("red", "assets/data/enemies/red.json");
-    this.load.object("blue", "assets/data/enemies/blue.json");
+  //   // Load the enemy locations
+  //   this.load.object("red", "assets/data/enemies/red.json");
+  //   this.load.object("blue", "assets/data/enemies/blue.json");
 
-    // Load the healthpack and lasergun loactions
-    this.load.object("healthpacks", "assets/data/items/healthpacks.json");
-    this.load.object("laserguns", "assets/data/items/laserguns.json");
+  //   // Load the healthpack and lasergun loactions
+  //   this.load.object("healthpacks", "assets/data/items/healthpacks.json");
+  //   this.load.object("laserguns", "assets/data/items/laserguns.json");
 
-    // Load the material and fuel locations
-    this.load.object("materials", "assets/data/items/materials.json");
-    this.load.object("fuels", "assets/data/items/fuels.json");
+  //   // Load the material and fuel locations
+  //   this.load.object("materials", "assets/data/items/materials.json");
+  //   this.load.object("fuels", "assets/data/items/fuels.json");
 
-    // Load the healthpack, inventory slot, and laser gun sprites
-    // this.load.image("healthpack", "assets/sprites/healthpack.png");
-    this.load.image("inventorySlot", "assets/sprites/inventory.png");
-    // this.load.image("laserGun", "assets/sprites/laserGun.png");
+  //   // Load the healthpack, inventory slot, and laser gun sprites
+  //   // this.load.image("healthpack", "assets/sprites/healthpack.png");
+  //   this.load.image("inventorySlot", "assets/sprites/inventory.png");
+  //   // this.load.image("laserGun", "assets/sprites/laserGun.png");
 
-    this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
-    this.load.image(MainHW4Scene.FUEL_KEY, MainHW4Scene.FUEL_PATH);
-    this.load.image(MainHW4Scene.LOGO_KEY, MainHW4Scene.LOGO_PATH);
-    this.load.image(MainHW4Scene.PAUSE_BG_KEY, MainHW4Scene.PAUSE_BG_PATH);
-    this.load.image(MainHW4Scene.NIGHT_KEY, MainHW4Scene.NIGHT_PATH);
+  //   this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
+  //   this.load.image(MainHW4Scene.FUEL_KEY, MainHW4Scene.FUEL_PATH);
+  //   this.load.image(MainHW4Scene.LOGO_KEY, MainHW4Scene.LOGO_PATH);
+  //   this.load.image(MainHW4Scene.PAUSE_BG_KEY, MainHW4Scene.PAUSE_BG_PATH);
+  //   this.load.image(MainHW4Scene.NIGHT_KEY, MainHW4Scene.NIGHT_PATH);
 
-    this.load.shader(
-      SpotlightShader.KEY,
-      SpotlightShader.VSHADER,
-      SpotlightShader.FSHADER
-    );
-  }
+  //   this.load.shader(
+  //     SpotlightShader.KEY,
+  //     SpotlightShader.VSHADER,
+  //     SpotlightShader.FSHADER
+  //   );
+  // }
+
   /**
    * @see Scene.startScene
    */
   public override startScene() {
     this.initialViewportSize = new Vec2(this.viewport.getHalfSize().x * 2, this.viewport.getHalfSize().y * 2);
     // Add in the tilemap
-    let tilemapLayers = this.add.tilemap("level");
-    const tempSize = this.viewport.getCenter();
+    let tilemapLayers = this.add.tilemap(this.levelKey);
     // Get the wall layer
     this.walls = <OrthogonalTilemap>tilemapLayers[1].getItems()[0];
 
@@ -227,7 +240,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.initPauseUI();
 
     this.elapsedTime = 0;
-    this.countDownTimer = new Timer(120 * 1000);
+    this.countDownTimer = new Timer(2 * 1000);
     this.countDownTimer.start();
 
     this.initializeWeaponSystem();
@@ -264,6 +277,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe("showControls");
     this.receiver.subscribe(CheatEvent.INFINITE_HEALTH);
     this.receiver.subscribe(CheatEvent.END_DAY);
+    this.receiver.subscribe(SceneEvent.LEVEL_END);
+    this.receiver.subscribe(SceneEvent.LEVEL_START);
 
     // Add a UI for health
     this.addUILayer("health");
@@ -300,6 +315,16 @@ export default class MainHW4Scene extends HW4Scene {
       this.timerLabel.text = `${String(minutes).padStart(2, "0")}:${String(
         seconds
       ).padStart(2, "0")}`;
+      if (this.isNight) {
+        const player = this.battlers[0];
+        this.lightMask.position = player.position.clone();
+        this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
+        if (remainingTime <= 0) {
+          console.log("end of night")
+          console.log(this.emitter.fireEvent(SceneEvent.LEVEL_END, {scene: this}));
+        }
+      }
+
       if (remainingTime <= 0) {
         console.log("PLAYER: " , this.battlers[0])
         console.log("Time's up!");
@@ -327,11 +352,7 @@ export default class MainHW4Scene extends HW4Scene {
         }
       }
   
-      if (this.isNight) {
-        const player = this.battlers[0];
-        this.lightMask.position = player.position.clone();
-        this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
-      }
+      
     }
   }
   
@@ -411,6 +432,15 @@ export default class MainHW4Scene extends HW4Scene {
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
+        case SceneEvent.LEVEL_START: {
+          Input.enableInput();
+          break;
+        }
+        case SceneEvent.LEVEL_END: {
+          console.log("LEVEL END")
+          this.sceneManager.changeToScene(this.nextLevel);
+          break;
+        }
         case "allLevelCheatUnlock": {
           this.handleAllLevelCheatUnlock();
           break;

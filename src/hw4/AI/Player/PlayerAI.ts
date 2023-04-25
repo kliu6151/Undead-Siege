@@ -7,7 +7,7 @@ import PlayerActor from "../../Actors/PlayerActor";
 import { ItemEvent } from "../../Events";
 import Inventory from "../../GameSystems/ItemSystem/Inventory";
 import Item from "../../GameSystems/ItemSystem/Item";
-import MainHW4Scene from "../../Scenes/MainHW4Scene";
+import MainHW4Scene from "../../Scenes/Levels/MainHW4Scene";
 import PlayerController, { PlayerInput } from "./PlayerController";
 import {
   Idle,

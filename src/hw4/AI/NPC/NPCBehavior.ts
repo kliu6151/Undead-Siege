@@ -6,7 +6,7 @@ import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
 import Timer from "../../../Wolfie2D/Timing/Timer";
 import NPCActor from "../../Actors/NPCActor";
 import { ItemEvent } from "../../Events";
-import MainHW4Scene from "../../Scenes/MainHW4Scene";
+import MainHW4Scene from "../../Scenes/Levels/MainHW4Scene";
 import NPCAction from "./NPCActions/NPCAction";
 
 

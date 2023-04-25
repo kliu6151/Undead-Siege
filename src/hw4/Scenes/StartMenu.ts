@@ -8,7 +8,7 @@ import GameEvent from "../../Wolfie2D/Events/GameEvent";
 import MainMenu from "./MainMenu";
 import ResourceManager from "../../Wolfie2D/ResourceManager/ResourceManager";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
-import HW4Scene from "./HW4Scene";
+import HW4Scene from "./Levels/HW4Scene";
 
 
 export default class StartMenu extends Scene {

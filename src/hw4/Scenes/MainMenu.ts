@@ -4,13 +4,14 @@ import Layer from "../../Wolfie2D/Scene/Layer";
 import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
 import Label from "../../Wolfie2D/Nodes/UIElements/Label";
-import MainHW4Scene from "./MainHW4Scene";
+import MainHW4Scene from "./Levels/MainHW4Scene";
 import GameEvent from "../../Wolfie2D/Events/GameEvent";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Button from "../../Wolfie2D/Nodes/UIElements/Button";
 import LevelSelectionScene from "./LevelSelectionScene";
 import Controls from "./Controls";
 import Help from "./Help";
+import Level1 from "./Levels/Level1";
 
 export default class MainMenu extends Scene {
   // Layers, for multiple main menu screens
@@ -134,7 +135,7 @@ export default class MainMenu extends Scene {
   public handleEvent(event: GameEvent): void {
     switch (event.type) {
       case "play": {
-        this.sceneManager.changeToScene(MainHW4Scene);
+        this.sceneManager.changeToScene(Level1);
         break;
       }
       case "controls": {
