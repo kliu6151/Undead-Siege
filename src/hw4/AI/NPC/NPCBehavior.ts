@@ -26,6 +26,7 @@ export default abstract class NPCBehavior extends StateMachineGoapAI<NPCAction> 
 
   public update(deltaT: number): void {
     if ((<MainHW4Scene>this.owner.getScene()).isPaused) return;
+    //console.log(this.owner.position.x+","+this.owner.position.y);
     super.update(deltaT);
   }
 

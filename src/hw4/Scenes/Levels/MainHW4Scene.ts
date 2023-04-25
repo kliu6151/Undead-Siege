@@ -220,7 +220,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.initializeNavmesh();
 
-    this.initializeNPCs();
+    //this.initializeNPCs();
 
     this.night = this.add.sprite(MainHW4Scene.NIGHT_KEY, "night");
     this.night.alpha = 0;
@@ -312,6 +312,7 @@ export default class MainHW4Scene extends HW4Scene {
             this.lightMask.alpha = 0.7;
             console.log(this.getLayer("primary"));
             console.log("LIGHT MASK: ", this.lightMask);
+            this.initializeNPCs();
           } else {
             console.log("It's day time!");
             this.night.alpha = 0;
@@ -1075,6 +1076,7 @@ export default class MainHW4Scene extends HW4Scene {
           MathUtils.clamp(rc.y - 1, 0, dim.y - 1)
         )
       ) {
+        //console.log(this.walls.getTileColRow(i).x+","+this.walls.getTileColRow(i));
         // Create edge to the left
         rc = this.walls.getTileColRow(i + 1);
         if ((i + 1) % dim.x !== 0 && !this.walls.isTileCollidable(rc.x, rc.y)) {
