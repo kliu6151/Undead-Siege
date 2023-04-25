@@ -111,7 +111,6 @@ export default class InputHandler implements Updateable {
         if (key === '0') {
             let unlockAllLevels = new GameEvent(CheatEvent.UNLOCK_ALL_LEVELS, {});
             this.eventQueue.addEvent(unlockAllLevels);
-            // console.log(this.eventQueue)
         }
         if (key === '9') {
             let infiniteHealth = new GameEvent(CheatEvent.INFINITE_HEALTH, {});

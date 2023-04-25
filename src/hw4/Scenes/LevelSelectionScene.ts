@@ -70,7 +70,7 @@ export default class LevelSelectionScene extends Scene {
 
      levelButton.size.set(300, 50);
      levelButton.borderWidth = 2;
-     levelButton.backgroundColor = Color.BLACK;
+     levelButton.backgroundColor = Color.BLUE;
      levelButton.borderColor = Color.WHITE;
      levelButton.onClickEventId = `level${i}`;
 
@@ -100,11 +100,11 @@ export default class LevelSelectionScene extends Scene {
     // Subscribe to the button events
     this.receiver.subscribe("return")
     this.receiver.subscribe("level1");
-    this.receiver.subscribe("Level2");
-    this.receiver.subscribe("Level3");
-    this.receiver.subscribe("Level4");
-    this.receiver.subscribe("Level5");
-    this.receiver.subscribe("Level6");
+    this.receiver.subscribe("level2");
+    this.receiver.subscribe("level3");
+    this.receiver.subscribe("level4");
+    this.receiver.subscribe("level5");
+    this.receiver.subscribe("level6");
     this.receiver.subscribe("allLevelCheatUnlock");
     this.receiver.subscribe(CheatEvent.UNLOCK_ALL_LEVELS);
 
@@ -134,15 +134,17 @@ export default class LevelSelectionScene extends Scene {
             break;
         case "level1":
             this.sceneManager.changeToScene(Level1);
-        case "Level2":
+            break;
+        case "level2":
             this.sceneManager.changeToScene(Level2);
-        case "Level3":
+            break;
+        case "level3":
             break
-        case "Level4":
+        case "level4":
             break
-        case "Level5":
+        case "level5":
             break
-        case "Level6":
+        case "level6":
             break
     }   
   }
