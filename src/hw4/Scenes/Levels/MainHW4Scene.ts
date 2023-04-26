@@ -62,8 +62,9 @@ const BattlerGroups = {
 
 export default class MainHW4Scene extends HW4Scene {
   public isPaused: boolean;
-  private pauseLayer: Layer;
-  private pauseText: Label;
+  private darknessCounter : number = 1;
+
+
 
   private player: PlayerActor;
   /** GameSystems in the HW3 Scene */
@@ -107,6 +108,9 @@ export default class MainHW4Scene extends HW4Scene {
   private shootLabel: Label;
   private pauseLabel: Label;
   private pickupLabel: Label;
+
+  private objectiveLabel: Label;
+  private objectDescriptionLabel: Label[] = [];
 
   private lightMask: LightMask;
   private lightMaskLayer: Layer;
@@ -190,6 +194,7 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
+    console.log(this);
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
       this.viewport.getHalfSize().y * 2
@@ -210,12 +215,13 @@ export default class MainHW4Scene extends HW4Scene {
     this.initPauseUI();
 
     this.elapsedTime = 0;
-    this.countDownTimer = new Timer(120 * 1000);
+    this.countDownTimer = new Timer(121 * 1000);
     this.countDownTimer.start();
 
     this.initializeWeaponSystem();
     // Create the player
     this.initializePlayer();
+    
     this.initializeItems();
 
     this.initializeNavmesh();
@@ -259,6 +265,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.BATTLER_KILLED);
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
+    console.log(this);
   }
   /**
    * @see Scene.updateScene
@@ -272,8 +279,11 @@ export default class MainHW4Scene extends HW4Scene {
     if (!this.isPaused) {
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
-
+      if(this.battlers[0].health <= 0) {
+        this.emitter.fireEvent(PlayerEvent.PLAYER_KILLED);
+      }
       this.elapsedTime += deltaT;
+
 
       // Update the timer
       this.countDownTimer.update(deltaT);
@@ -289,13 +299,20 @@ export default class MainHW4Scene extends HW4Scene {
         seconds
       ).padStart(2, "0")}`;
       if (this.isNight) {
-        const player = this.battlers[0];
-        this.lightMask.position = player.position.clone();
-        this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
+        // const player = this.battlers[0];
+        // this.lightMask.position = player.position.clone();
+        // this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
         if (remainingTime <= 0) {
           console.log("end of night")
           console.log(this.emitter.fireEvent(SceneEvent.LEVEL_END, {scene: this}));
         }
+      }
+      if (!this.isNight && this.elapsedTime >= 5 * this.darknessCounter ) {
+        this.darknessCounter++;
+        this.night.alpha += 0.025;
+      }
+      else if (this.isNight && this.elapsedTime % 20 === 0) {
+        this.night.alpha -= 0.05;
       }
       if (remainingTime <= 0) {
         console.log("PLAYER: " , this.battlers[0])
@@ -308,7 +325,7 @@ export default class MainHW4Scene extends HW4Scene {
           if (this.isNight) {
             console.log("It's night time!");
 
-            this.night.alpha = 0.7;
+            this.night.alpha = 0.9;
             this.lightMask.alpha = 0.7;
             console.log(this.getLayer("primary"));
             console.log("LIGHT MASK: ", this.lightMask);
@@ -382,7 +399,6 @@ export default class MainHW4Scene extends HW4Scene {
       switch (event.type) {
         case "exit": {
           this.resetViewportSize();
-          this.sceneManager.changeToScene(MainMenu);
           break;
         }
         case "unPause": {
@@ -405,6 +421,10 @@ export default class MainHW4Scene extends HW4Scene {
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
+        case PlayerEvent.PLAYER_KILLED: {
+          this.handlePlayerKilled();
+          break;
+        }
         case SceneEvent.LEVEL_START: {
           Input.enableInput();
           break;
@@ -465,6 +485,12 @@ export default class MainHW4Scene extends HW4Scene {
       }
     }
   }
+
+  handlePlayerKilled(): void {
+    this.resetViewportSize();
+    this.sceneManager.changeToScene(MainMenu);
+  }
+
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
 
@@ -472,7 +498,6 @@ export default class MainHW4Scene extends HW4Scene {
     if (particle !== undefined) {
       // Get the destructible tilemap
       let zombies = this.zombies;
-
       let min = new Vec2(particle.sweptRect.left, particle.sweptRect.top);
       let max = new Vec2(particle.sweptRect.right, particle.sweptRect.bottom);
 
@@ -720,26 +745,28 @@ export default class MainHW4Scene extends HW4Scene {
     // this.AllLevelsCheat.backgroundColor = Color.BLACK;
     // this.AllLevelsCheat.fontSize = 24;
     // this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
-
+    let Text = " [9] - Unlimited Health ";
     this.unlimitedHealthCheat = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(this.viewport.getHalfSize().x / 7 + Text.length, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
-      text: "[9] - Unlimited Health",
+      text: "   [9] - Unlimited Health   ",
     });
     this.unlimitedHealthCheat.textColor = Color.WHITE;
     // this.unlimitedHealthCheat.backgroundColor = Color.BLACK;
     this.unlimitedHealthCheat.fontSize = 15;
 
+    Text = " [8] - End day/night ";
     this.endCycleCheat = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(this.viewport.getHalfSize().x / 7 + Text.length, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
-      text: "[8] - End day/night",
+      text: "   [8] - End day/night   ",
     });
     this.endCycleCheat.textColor = Color.WHITE;
     // this.endCycleCheat.backgroundColor = Color.BLACK;
     this.endCycleCheat.fontSize = 15;
 
+    Text = " [W] - Up";
     this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        ((this.viewport.getHalfSize().x * 3) / 2) - Text.length,
         this.viewport.getHalfSize().y * 2 -
           7 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -748,9 +775,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.upLabel.textColor = Color.WHITE;
     this.upLabel.fontSize = 16;
 
+    Text = "[S] - Down"
     this.downLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           6 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -759,9 +787,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.downLabel.textColor = Color.WHITE;
     this.downLabel.fontSize = 16;
 
+    Text = "[A] - Left"
     this.leftLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           5 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -770,9 +799,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.leftLabel.textColor = Color.WHITE;
     this.leftLabel.fontSize = 16;
 
+    Text = "[D] - Right"
     this.rightLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           4 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -781,9 +811,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.rightLabel.textColor = Color.WHITE;
     this.rightLabel.fontSize = 16;
 
+    Text = "[Left Click] - Shoot"
     this.shootLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           3 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -792,9 +823,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.shootLabel.textColor = Color.WHITE;
     this.shootLabel.fontSize = 16;
 
+    Text = "[E] - Pickup"
     this.pickupLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           2 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -803,9 +835,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.pickupLabel.textColor = Color.WHITE;
     this.pickupLabel.fontSize = 16;
 
+    Text = "[ESC] - Pause"
     this.pauseLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        (this.viewport.getHalfSize().x * 3) / 2,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           1 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -813,6 +846,40 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.pauseLabel.textColor = Color.WHITE;
     this.pauseLabel.fontSize = 16;
+
+    Text = "Objective"
+    this.objectiveLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(
+        (this.viewport.getHalfSize().x / 3) + Text.length,
+        this.viewport.getHalfSize().y -
+          4 * (this.viewport.getHalfSize().y / 8)
+      ),
+      text: "OBJECTIVE",
+    });
+    this.objectiveLabel.textColor = Color.BLACK;
+    this.objectiveLabel.fontSize = 30;
+
+    const text = [
+      "Gather materials to upgrade your gear",
+      "Gather fuel to keep your helicopter running",
+    ];
+    for (let i = 0; i < text.length; i++) {
+      const objLabel = <Label>this.add.uiElement(
+        UIElementType.LABEL,
+        "Pause",
+        {
+          position: new Vec2(
+            (this.viewport.getHalfSize().x / 3) + text[i].length / 2,
+            this.viewport.getHalfSize().y - 3 * (this.viewport.getHalfSize().y / 8) + i * 20
+          ),
+          text: text[i],
+        }
+      );
+      objLabel.textColor = Color.WHITE;
+      objLabel.fontSize = 16;
+      objLabel.visible = false;
+      this.objectDescriptionLabel.push(objLabel);
+    }
 
     this.hidePauseUI();
   }
@@ -825,6 +892,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.controls.visible = true;
     this.exit.visible = true;
     this.cheats.visible = true;
+    this.objectiveLabel.visible = true;
+    for(let i = 0; i < this.objectDescriptionLabel.length; i++) {
+      this.objectDescriptionLabel[i].visible = true;
+    }
   }
 
   private hidePauseUI(): void {
@@ -835,6 +906,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.controls.visible = false;
     this.exit.visible = false;
     this.cheats.visible = false;
+    this.objectiveLabel.visible = false;
+    for(let i = 0; i < this.objectDescriptionLabel.length; i++) {
+      this.objectDescriptionLabel[i].visible = false;
+    }
     this.hideCheatsUI();
     this.hideControlsUI();
   }
@@ -879,6 +954,8 @@ export default class MainHW4Scene extends HW4Scene {
       this.initialViewportSize.y
     );
     this.viewport.setZoomLevel(1);
+    this.sceneManager.changeToScene(MainMenu);
+
   }
 
   /**
@@ -886,7 +963,7 @@ export default class MainHW4Scene extends HW4Scene {
    */
   protected initializePlayer(): void {
     let player = this.add.animatedSprite(PlayerActor, "player1", "primary");
-    player.position.set(40, 40);
+    player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
     player.battleGroup = 2;
 
     player.health = 10;
