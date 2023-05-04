@@ -32,7 +32,7 @@ export function RangeFilter(positioned: Positioned, target: Positioned, minDistS
         //console.log(distSq)
         //console.log(minDistSq)
         //console.log(maxDistSq)
-        //console.log(distSq > minDistSq && distSq < maxDistSq);
+        console.log(distSq > minDistSq && distSq < maxDistSq);
         return distSq > minDistSq && distSq < maxDistSq;
     }
 }

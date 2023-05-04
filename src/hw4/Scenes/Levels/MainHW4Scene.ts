@@ -963,7 +963,8 @@ export default class MainHW4Scene extends HW4Scene {
    */
   protected initializePlayer(): void {
     let player = this.add.animatedSprite(PlayerActor, "player1", "primary");
-    player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
+    //player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
+    player.position.set(640, 640);
     player.battleGroup = 2;
 
     player.health = 10;
@@ -1043,6 +1044,7 @@ export default class MainHW4Scene extends HW4Scene {
       npc.animation.play("IDLE");
       npc.setGroup(PhysicsGroups.ZOMBIE);
       npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
+      //npc.setTrigger
 
       this.battlers.push(npc);
       this.zombies.push(npc);
