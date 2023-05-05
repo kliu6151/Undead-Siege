@@ -265,6 +265,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.BATTLER_KILLED);
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
+    this.receiver.subscribe(BattlerEvent.OVERLAP);
     console.log(this);
   }
   /**
@@ -477,6 +478,10 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleParticleHit(event.data.get("node"));
           break;
         }
+        case BattlerEvent.OVERLAP: {
+          this.handleZombieRepulsion(event.data.get("node"));
+          break;
+        }
         default: {
           throw new Error(
             `Unhandled event type "${event.type}" caught in HW3Scene event handler`
@@ -491,6 +496,71 @@ export default class MainHW4Scene extends HW4Scene {
     this.sceneManager.changeToScene(MainMenu);
   }
 
+  protected handleZombieRepulsion(zombieId: number): void {
+    let zombies = this.zombies;
+    //console.log(zombies);
+    let thisZombie = zombies.find((zombie) => zombie.id === zombieId);
+    if (thisZombie !== undefined) {
+      for (let zombie of zombies) {
+        if (zombie.id !== zombieId &&
+            this.zombieCollision(thisZombie, zombie)) {
+          //console.log(thisZombie.id+","+zombie.id);
+          /*let dx = thisZombie.boundary.x - zombie.boundary.x;
+          let dy = thisZombie.boundary.y - zombie.boundary.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          let nx = dx / distance;
+          let ny = dy / distance;
+
+          // Calculate the dot product of the velocity and the normal/tangent vectors
+          let dpNorm1 =
+            thisZombie._velocity.x * nx + thisZombie._velocity.y * ny;
+          let dpNorm2 = zombie._velocity.x * nx + zombie._velocity.y * ny;
+
+          // Calculate the new velocity vectors after the collision
+          let m1 =
+            (dpNorm1 * (thisZombie._velocity.mag() - zombie._velocity.mag()) +
+              2 * zombie._velocity.mag() * dpNorm2) /
+            (thisZombie._velocity.mag() + zombie._velocity.mag());
+          let m2 =
+            (dpNorm2 * (zombie._velocity.mag() - thisZombie._velocity.mag()) +
+              2 * thisZombie._velocity.mag() * dpNorm1) /
+            (thisZombie._velocity.mag() + zombie._velocity.mag());
+          //console.log("old"+thisZombie._velocity.x + "," + thisZombie._velocity.y);
+          thisZombie._velocity.x = nx * m1;
+          thisZombie._velocity.y = ny * m1;
+          //console.log(thisZombie._velocity.x+","+thisZombie._velocity.y);
+          zombie._velocity.x = nx * m2;
+          zombie._velocity.y = ny * m2;*/
+          /*let dx = thisZombie. - zombie.x;
+          let dy = thisZombie.y - zombie.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          let nx = dx / distance;
+          let ny = dy / distance;
+
+          // Calculate the new positions of the zombies after the collision
+          let x1 = thisZombie.x;
+          let y1 = thisZombie.y;
+          let x2 = zombie.x;
+          let y2 = zombie.y;
+          let p =
+            (2 * ((x1 - x2) * nx + (y1 - y2) * ny)) /
+            (thisZombie.mass + zombie.mass);
+          let x1New = x1 - p * thisZombie.mass * nx;
+          let y1New = y1 - p * thisZombie.mass * ny;
+          let x2New = x2 + p * zombie.mass * nx;
+          let y2New = y2 + p * zombie.mass * ny;
+
+          // Update the positions of the zombies
+          thisZombie.x = x1New;
+          thisZombie.y = y1New;
+          zombie.x = x2New;
+          zombie.y = y2New;*/
+
+        }
+      }
+    }
+  }
+
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
 
@@ -498,9 +568,6 @@ export default class MainHW4Scene extends HW4Scene {
     if (particle !== undefined) {
       // Get the destructible tilemap
       let zombies = this.zombies;
-      let min = new Vec2(particle.sweptRect.left, particle.sweptRect.top);
-      let max = new Vec2(particle.sweptRect.right, particle.sweptRect.bottom);
-
       // Loop over all possible tiles the particle could be colliding with
       for (let zombie of zombies) {
         if (this.particleHitZombie(zombie, particle)) {
@@ -521,6 +588,23 @@ export default class MainHW4Scene extends HW4Scene {
       particleAABB.left > zombieAABB.right ||
       particleAABB.bottom < zombieAABB.top ||
       particleAABB.top > zombieAABB.bottom
+    ) {
+      // the particle and tile do not intersect, so there is no collision
+      return false;
+    } else {
+      // the particle and tile intersect, so there is a collision
+      return true;
+    }
+  }
+  protected zombieCollision(zombieA: NPCActor, zombieB: NPCActor): boolean {
+    let b1 = zombieA.boundary;
+    let b2 = zombieB.boundary;
+
+    if (
+      b2.right < b1.left ||
+      b2.left > b1.right ||
+      b2.bottom < b1.top ||
+      b2.top > b1.bottom
     ) {
       // the particle and tile do not intersect, so there is no collision
       return false;
@@ -1023,7 +1107,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.healthbars.set(npc.id, healthbar);
 
       npc.battleGroup = 1;
-      npc.speed = 10;
+      npc.speed = 5;
       npc.health = 1;
       npc.maxHealth = 10;
       npc.navkey = "navmesh";
@@ -1042,7 +1126,9 @@ export default class MainHW4Scene extends HW4Scene {
       // Play the NPCs "IDLE" animation
       npc.animation.play("IDLE");
       npc.setGroup(PhysicsGroups.ZOMBIE);
+      npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
       npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
+      
       //npc.setTrigger
 
       this.battlers.push(npc);

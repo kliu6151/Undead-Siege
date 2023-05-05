@@ -3,6 +3,7 @@ import NPCBehavior from "../NPCBehavior";
 import Idle from "../NPCActions/GotoAction";
 import BasicFinder from "../../../GameSystems/Searching/BasicFinder";
 import {
+  AllyFilter,
   BattlerActiveFilter,
   EnemyFilter,
   ItemFilter,
@@ -22,6 +23,7 @@ import GoapState from "../../../../Wolfie2D/AI/Goap/GoapState";
 import Battler from "../../../GameSystems/BattleSystem/Battler";
 import ZombieHitPlayer from "../NPCActions/ZombieHitPlayer";
 import PlayerActor from "../../../Actors/PlayerActor";
+import Repulsion from "../NPCActions/Repulsion";
 
 export default class ZombieBehavior extends NPCBehavior {
   /** The target the guard should guard */
@@ -81,6 +83,20 @@ export default class ZombieBehavior extends NPCBehavior {
       playerAtZombiePosition
     );
 
+    let allyBattlerFinder = new BasicFinder<Battler>(
+      null,
+      BattlerActiveFilter(),
+      AllyFilter(this.owner)
+    );
+    let zombieAtZombiePosition = new TargetExists(
+      scene.getBattlers(),
+      allyBattlerFinder
+    );
+    this.addStatus(
+      ZombieStatuses.ZOMBIE_IN_ZOMBIE_POSITION,
+      zombieAtZombiePosition
+    );
+
     // Add the goal status
     this.addStatus(ZombieStatuses.GOAL, new FalseStatus());
   }
@@ -99,6 +115,17 @@ export default class ZombieBehavior extends NPCBehavior {
     attack.addEffect(ZombieStatuses.GOAL);
     attack.cost = 1;
     this.addState(ZombieActions.ATTACK_PLAYER, attack);
+
+    //let repulse = new Repulsion(this, this.owner);
+    /*repulse.targetFinder = new BasicFinder<Battler>(
+      ClosestPositioned(this.owner),
+      BattlerActiveFilter(),
+      AllyFilter(this.owner)
+    );
+    repulse.addPrecondition(ZombieStatuses.ZOMBIE_IN_ZOMBIE_POSITION);
+    repulse.addEffect(ZombieStatuses.GOAL);
+    repulse.cost = 1;
+    this.addState(ZombieActions.REPULSE, repulse);*/
 
     // An action for moving towards the target
     let moveTowards = new Idle(this, this.owner);
@@ -127,12 +154,14 @@ export type ZombieStatus = (typeof ZombieStatuses)[keyof typeof ZombieStatuses];
 export const ZombieStatuses = {
   ATTACK_PLAYER: "attack-player",
   PLAYER_IN_ZOMBIE_POSITION: "player-at-zombie-position",
+  ZOMBIE_IN_ZOMBIE_POSITION: "zombie-at-zombie-position",
   GOAL: "goal",
 } as const;
 
 export type ZombieAction = (typeof ZombieActions)[keyof typeof ZombieActions];
 export const ZombieActions = {
   ATTACK_PLAYER: "attack-player",
+  REPULSE: "repulse",
   CHASE_PLAYER: "chase-player",
   MOVE_TOWARDS_PLAYER: "move-towards-player",
 } as const;
