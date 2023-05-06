@@ -25,7 +25,7 @@ export function EnemyFilter(battler: Battler): (other: Battler) => boolean {
 }
 
 export function RangeFilter(positioned: Positioned, target: Positioned, minDistSq: number, maxDistSq: number): (t: TargetableEntity) => boolean {
-    return (t: TargetableEntity) => { 
+    return (t: TargetableEntity) => {
         let distSq = target.position.distanceSqTo(positioned.position);
         //console.log("target" + target.position);
         //console.log("this"+positioned.position)
