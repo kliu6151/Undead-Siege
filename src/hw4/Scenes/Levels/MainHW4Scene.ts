@@ -128,6 +128,7 @@ export default class MainHW4Scene extends HW4Scene {
   // private AllLevelsCheat: Button;
   private unlimitedHealthCheat: Label;
   private endCycleCheat: Label;
+  private addMaterialCheat: Label;
 
   //UI control labels
   private upLabel: Label;
@@ -614,7 +615,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.upgradeMaterial.text = ":" + this.materialCounter.text;
     switch (upgradeText) {
       case "Health":
-        // Apply Health upgrade
+        this.player.maxHealth += 10;
         console.log("Health Upgrade");
         break;
       case "Armor":
@@ -727,7 +728,6 @@ export default class MainHW4Scene extends HW4Scene {
 
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
-    console.log("PARTICLES IN POOL: ", particles)
 
     let particle = particles.find((particle) => particle.id === particleId);
     if (particle !== undefined) {
@@ -841,7 +841,6 @@ export default class MainHW4Scene extends HW4Scene {
   //handling cheats
   private handleInfiniteHealth(): void {
     // console.log("INSIDE INFINITE HEALTH")
-    console.log(this.battlers);
     this.battlers[0].health = 9999999;
     this.battlers[0].maxHealth = 9999999;
     this.healthbars.get(this.battlers[0].id).visible = false;
@@ -855,10 +854,11 @@ export default class MainHW4Scene extends HW4Scene {
   protected handleBattlerKilled(event: GameEvent): void {
     let id: number = event.data.get("id");
     let battler = this.battlers.find((b) => b.id === id);
-
+    
     if (battler) {
       battler.battlerActive = false;
       this.healthbars.get(id).visible = false;
+      this.spawnMaterial(battler.position)
     }
   }
 
@@ -1151,7 +1151,7 @@ export default class MainHW4Scene extends HW4Scene {
         position: new Vec2(
           this.viewport.getHalfSize().x / 7 + Text.length,
           this.viewport.getHalfSize().y * 2 -
-            2 * (this.viewport.getHalfSize().y / 8)
+            3 * (this.viewport.getHalfSize().y / 8)
         ),
         text: "   [9] - Unlimited Health   ",
       }
@@ -1167,7 +1167,7 @@ export default class MainHW4Scene extends HW4Scene {
       {
         position: new Vec2(
           this.viewport.getHalfSize().x / 7 + Text.length,
-          this.viewport.getHalfSize().y * 2 - this.viewport.getHalfSize().y / 8
+          this.viewport.getHalfSize().y * 2 - 2 * (this.viewport.getHalfSize().y / 8)
         ),
         text: "   [8] - End day/night   ",
       }
@@ -1175,6 +1175,22 @@ export default class MainHW4Scene extends HW4Scene {
     this.endCycleCheat.textColor = Color.WHITE;
     // this.endCycleCheat.backgroundColor = Color.BLACK;
     this.endCycleCheat.fontSize = 15;
+
+    Text = " [7] - Add Materials ";
+    this.addMaterialCheat = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 7 + Text.length,
+          this.viewport.getHalfSize().y * 2 - this.viewport.getHalfSize().y / 8
+        ),
+        text: "   [7] - Add Materials   ",
+      }
+    );
+    this.addMaterialCheat.textColor = Color.WHITE;
+    // this.endCycleCheat.backgroundColor = Color.BLACK;
+    this.addMaterialCheat.fontSize = 15;
 
     Text = " [W] - Up";
     this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
@@ -1331,14 +1347,14 @@ export default class MainHW4Scene extends HW4Scene {
 
   private showCheatsUI(): void {
     this.unlimitedHealthCheat.visible = true;
-    // this.AllLevelsCheat.visible = true;
     this.endCycleCheat.visible = true;
+    this.addMaterialCheat.visible = true;
   }
 
   private hideCheatsUI(): void {
     this.unlimitedHealthCheat.visible = false;
-    // this.AllLevelsCheat.visible = false;
     this.endCycleCheat.visible = false;
+    this.addMaterialCheat.visible = false;
   }
 
   private showControlsUI(): void {
@@ -1404,6 +1420,14 @@ export default class MainHW4Scene extends HW4Scene {
     this.sceneManager.changeToScene(MainMenu);
   }
 
+  public spawnMaterial(position: Vec2): void {
+    let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
+    sprite.scale.set(0.5, 0.5);
+    let material = new Material(sprite);
+    material.position.set(position.x, position.y);
+    this.materials.push(material);
+  }
+  
   /**
    * Initializes the player in the scene
    */
@@ -1456,6 +1480,7 @@ export default class MainHW4Scene extends HW4Scene {
     // Get the object data for the blue enemies
     let blue = this.load.getObject("blue");
     // Initialize the blue enemies
+    console.log("ZOMBIE AMT: " , blue.enemies.length)
     for (let i = 0; i < blue.enemies.length; i++) {
       let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
       npc.position.set(blue.enemies[i][0], blue.enemies[i][1]);
@@ -1540,7 +1565,7 @@ export default class MainHW4Scene extends HW4Scene {
     const numFuels = 5;
 
     let materials = this.load.getObject("materials");
-    this.materials = new Array<Material>(materials.items.length);
+    this.materials = new Array<Material>(numMaterials);
     for (let i = 0; i < numMaterials; i++) {
       let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
       sprite.scale.set(0.5, 0.5);
@@ -1552,7 +1577,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.materials[i].position.copy(this.getRandomPosition(minX, maxX, minY, maxY));
     }
     let fuels = this.load.getObject("fuels");
-    this.fuels = new Array<Fuel>(fuels.items.length);
+    this.fuels = new Array<Fuel>(numFuels);
     for (let i = 0; i < numFuels; i++) {
       let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
       sprite.scale.set(0.5, 0.5);
@@ -1619,7 +1644,6 @@ export default class MainHW4Scene extends HW4Scene {
           MathUtils.clamp(rc.y - 1, 0, dim.y - 1)
         )
       ) {
-        //console.log(this.walls.getTileColRow(i).x+","+this.walls.getTileColRow(i));
         // Create edge to the left
         rc = this.walls.getTileColRow(i + 1);
         if ((i + 1) % dim.x !== 0 && !this.walls.isTileCollidable(rc.x, rc.y)) {

@@ -136,12 +136,12 @@ export default class Help extends Scene {
     });
     cheatLabel.textColor = Color.RED;
 
-    const cheats = ["[0] - Unlock all levels", "[9] - Infinite Health", "[8] - End day/night"];
+    const cheats = ["[0] - Unlock all levels", "[9] - Infinite Health", "[8] - End day/night", "[7] - Add Material"];
     for (let i = 0; i < cheats.length; i++) {
         const cheatButtons = <Label>this.add.uiElement(UIElementType.LABEL, "Help", {
             position: new Vec2(
                 center.x - this.viewport.getHalfSize().x + 150,
-                center.y - this.viewport.getHalfSize().y + 150 + text.length * 20 + 100 + i * 40
+                center.y - this.viewport.getHalfSize().y + 150 + text.length * 20 + 100 + i * 30
             ),
             text: cheats[i],
         });
