@@ -75,7 +75,25 @@ export default class ParticleSystem implements Updateable {
             this.particlePool[i].visible = false;
         }
     }
+      
 
+    public increasePoolSize(amount: number, scene: Scene, layer: string): void {
+        const newPoolSize = this.particlePool.length + amount;
+        
+        for (let i = this.particlePool.length; i < newPoolSize; i++) {
+          const newParticle = <Particle>scene.add.graphic(GraphicType.PARTICLE, layer,
+            { position: this.sourcePoint.clone(), size: this.particleSize.clone(), mass: this.particleMass });
+          newParticle.addPhysics();
+          newParticle.setGroup(PhysicsGroups.PLAYER_WEAPON);
+          newParticle.isCollidable = false;
+          newParticle.visible = false;
+          this.particlePool.push(newParticle);
+        }
+      }
+      
+      public increaseMaxParticlesPerFrame(amount: number): void {
+        this.particlesPerFrame += amount;
+      }
     /**
      * Start up the particle system to run for a set amount of time
      * @param time Time for the particle systme to run

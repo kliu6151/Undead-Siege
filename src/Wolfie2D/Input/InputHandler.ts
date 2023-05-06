@@ -108,17 +108,21 @@ export default class InputHandler implements Updateable {
             let pauseEvent = new GameEvent(InputEvent.PAUSED, {});
             this.eventQueue.addEvent(pauseEvent);
         }
-        if (key === '0') {
+        else if (key === '0') {
             let unlockAllLevels = new GameEvent(CheatEvent.UNLOCK_ALL_LEVELS, {});
             this.eventQueue.addEvent(unlockAllLevels);
         }
-        if (key === '9') {
+        else if (key === '9') {
             let infiniteHealth = new GameEvent(CheatEvent.INFINITE_HEALTH, {});
             this.eventQueue.addEvent(infiniteHealth);
         }
-        if (key === '8') {
+        else if (key === '8') {
             let endDay = new GameEvent(CheatEvent.END_DAY, {});
             this.eventQueue.addEvent(endDay);
+        }
+        else if (key === '7') {
+            let addMat = new GameEvent(CheatEvent.ADD_MAT, {});
+            this.eventQueue.addEvent(addMat);
         }
     }
 

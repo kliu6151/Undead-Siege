@@ -5,7 +5,9 @@ import ParticleSystem from "../../../Wolfie2D/Rendering/Animations/ParticleSyste
 import Color from "../../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../../Wolfie2D/Utils/EaseFunctions";
 import RandUtils from "../../../Wolfie2D/Utils/RandUtils";
-
+import Scene from "../../../Wolfie2D/Scene/Scene";
+import { GraphicType } from "../../../Wolfie2D/Nodes/Graphics/GraphicTypes";
+import { PhysicsGroups } from "../../PhysicsGroups";
 /**
  * // TODO get the particles to move towards the mouse when the player attacks
  *
@@ -16,6 +18,28 @@ export default class PlayerWeapon extends ParticleSystem {
   public getPool(): Readonly<Array<Particle>> {
     return this.particlePool;
   }
+
+  public increasePoolSize(amount: number, scene: Scene, layer: string): void {
+    const newPoolSize = this.particlePool.length + amount;
+    for (let i = this.particlePool.length; i < newPoolSize; i++) {
+      const particle = <Particle>scene.add.graphic(GraphicType.PARTICLE, layer, {
+        position: this.sourcePoint.clone(),
+        size: this.particleSize.clone(),
+        mass: this.particleMass,
+      });
+  
+      particle.addPhysics();
+      particle.setGroup(PhysicsGroups.PLAYER_WEAPON);
+      particle.isCollidable = false;
+      particle.visible = false;
+      this.particlePool.push(particle);
+    }
+  }
+  
+  public increaseMaxParticlesPerFrame(amount: number): void {
+    this.particlesPerFrame += amount;
+  }
+  
 
   /**
    * @returns true if the particle system is running; false otherwise.

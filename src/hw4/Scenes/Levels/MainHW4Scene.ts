@@ -87,6 +87,9 @@ const upgradeCosts = [
 ]
 
 export default class MainHW4Scene extends HW4Scene {
+  //Upgrade
+
+
   public isPaused: boolean;
   private darknessCounter: number = 1;
   private isUpgrading: boolean;
@@ -292,6 +295,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe("showControls");
     this.receiver.subscribe(CheatEvent.INFINITE_HEALTH);
     this.receiver.subscribe(CheatEvent.END_DAY);
+    this.receiver.subscribe(CheatEvent.ADD_MAT);
     this.receiver.subscribe(SceneEvent.LEVEL_END);
     this.receiver.subscribe(SceneEvent.LEVEL_START);
     this.receiver.subscribe("endUpgrade");
@@ -433,7 +437,7 @@ export default class MainHW4Scene extends HW4Scene {
   }*/
 
   protected initializeWeaponSystem(): void {
-    this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
+    this.playerWeaponSystem = new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1);
     this.playerWeaponSystem.initializePool(this, "primary");
   }
 
@@ -482,7 +486,10 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleUpgradeThree();
           break;
         }
-
+        case CheatEvent.ADD_MAT: {
+          this.handleAddMaterialCheat();
+          break;
+        }
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
@@ -500,10 +507,11 @@ export default class MainHW4Scene extends HW4Scene {
           this.sceneManager.changeToScene(this.nextLevel);
           break;
         }
-        case "allLevelCheatUnlock": {
-          this.handleAllLevelCheatUnlock();
-          break;
-        }
+        // case "allLevelCheatUnlock": {
+        //   this.handleAllLevelCheatUnlock();
+        //   break;
+        // }
+
         case InputEvent.PAUSED: {
           this.handlePaused();
           break;
@@ -532,6 +540,10 @@ export default class MainHW4Scene extends HW4Scene {
         }
         case CheatEvent.INFINITE_HEALTH: {
           this.handleInfiniteHealth();
+          break;
+        }
+        case CheatEvent.ADD_MAT: {
+          this.handleAddMaterialCheat();
           break;
         }
         case CheatEvent.END_DAY: {
@@ -610,7 +622,16 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Armor Upgrade");
         break;
       case "MachineGun":
-        // Apply MachineGun upgrade
+        const increaseAmount = 3;
+        const particleSystem = this.playerWeaponSystem;
+
+        // Increase the pool size and max particles per frame
+        particleSystem.increasePoolSize(increaseAmount, this, "primary");
+        particleSystem.increaseMaxParticlesPerFrame(increaseAmount);
+
+        // this.playerWeaponSystem = new PlayerWeapon(this.spread + 5, Vec2.ZERO, 1000, 3, 0, this.spread + 5);
+        // this.playerWeaponSystem.initializePool(this, "primary");
+
         console.log("MachineGun Upgrade");
         break;
       case "Helicopter Health":
@@ -626,6 +647,12 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Stronger Bullets Upgrade");
         break;
     }
+  }
+
+  private handleAddMaterialCheat(): void {
+    const currentValue = parseInt(this.materialCounter.text);
+    this.materialCounter.text = (currentValue + 10).toString();
+    this.upgradeMaterial.text = ":" + this.materialCounter.text;
   }
 
   handlePlayerKilled(): void {
@@ -700,6 +727,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
+    console.log("PARTICLES IN POOL: ", particles)
 
     let particle = particles.find((particle) => particle.id === particleId);
     if (particle !== undefined) {
@@ -801,9 +829,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.showCheatsUI();
   }
 
-  private handleAllLevelCheatUnlock(): void {
-    this.emitter.fireEvent("allLevelCheatUnlock");
-  }
 
   private handleShowControls(): void {
     this.showControlsUI();
@@ -1498,26 +1523,43 @@ export default class MainHW4Scene extends HW4Scene {
    * Initialize the items in the scene (healthpacks and laser guns)
    */
 
+  private getRandomPosition(minX: number, maxX: number, minY: number, maxY: number): Vec2 {
+    let x = Math.random() * (maxX - minX) + minX;
+    let y = Math.random() * (maxY - minY) + minY;
+    return new Vec2(x, y);
+  }
   //Initialize the items Material and Fuels
   protected initializeItems(): void {
+    const minX = 0;
+    const maxX = 2560;
+    const minY = 0;
+    const maxY = 1280;
+
+    // Number of materials and fuels to spawn
+    const numMaterials = 10;
+    const numFuels = 5;
+
     let materials = this.load.getObject("materials");
     this.materials = new Array<Material>(materials.items.length);
-    for (let i = 0; i < materials.items.length; i++) {
+    for (let i = 0; i < numMaterials; i++) {
       let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
       sprite.scale.set(0.5, 0.5);
       this.materials[i] = new Material(sprite);
-      this.materials[i].position.set(
-        materials.items[i][0],
-        materials.items[i][1]
-      );
+      // this.materials[i].position.set(
+      //   materials.items[i][0],
+      //   materials.items[i][1]
+      // );
+      this.materials[i].position.copy(this.getRandomPosition(minX, maxX, minY, maxY));
     }
     let fuels = this.load.getObject("fuels");
     this.fuels = new Array<Fuel>(fuels.items.length);
-    for (let i = 0; i < fuels.items.length; i++) {
+    for (let i = 0; i < numFuels; i++) {
       let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
       sprite.scale.set(0.5, 0.5);
       this.fuels[i] = new Fuel(sprite);
-      this.fuels[i].position.set(fuels.items[i][0], fuels.items[i][1]);
+      // this.fuels[i].position.set(fuels.items[i][0], fuels.items[i][1]);
+      this.fuels[i].position.copy(this.getRandomPosition(minX, maxX, minY, maxY));
+
     }
   }
   /**

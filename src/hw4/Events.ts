@@ -12,6 +12,7 @@ export enum CheatEvent {
     UNLOCK_ALL_LEVELS = "UNLOCK_ALL_LEVELS",
     INFINITE_HEALTH = "INFINITE_HEALTH",
     END_DAY = "END_DAY",
+    ADD_MAT = "ADD_MAT",
 
 }
 
