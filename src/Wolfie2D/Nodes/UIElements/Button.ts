@@ -18,6 +18,9 @@ export default class Button extends Label {
 	// @override
 	calculateBackgroundColor(): Color {
 		// Change the background color if clicked or hovered
+		if(this.isDisabled) {
+			return this.backgroundColor;
+		}
 		if(this.isEntered && !this.isClicked){
 			return this.backgroundColor.lighten();
 		} else if(this.isClicked){

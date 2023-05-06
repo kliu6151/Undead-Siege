@@ -21,7 +21,14 @@ import GuardBehavior from "../../AI/NPC/NPCBehavior/GaurdBehavior";
 import HealerBehavior from "../../AI/NPC/NPCBehavior/HealerBehavior";
 import ZombieBehavior from "../../AI/NPC/NPCBehavior/ZombieBehavior";
 import PlayerAI from "../../AI/Player/PlayerAI";
-import { ItemEvent, PlayerEvent, BattlerEvent, InputEvent, CheatEvent, SceneEvent } from "../../Events";
+import {
+  ItemEvent,
+  PlayerEvent,
+  BattlerEvent,
+  InputEvent,
+  CheatEvent,
+  SceneEvent,
+} from "../../Events";
 import Battler from "../../GameSystems/BattleSystem/Battler";
 import BattlerBase from "../../GameSystems/BattleSystem/BattlerBase";
 import HealthbarHUD from "../../GameSystems/HUD/HealthbarHUD";
@@ -54,17 +61,35 @@ import { PhysicsGroups } from "../../PhysicsGroups";
 import Particle from "../../../Wolfie2D/Nodes/Graphics/Particle";
 import Input from "../../../Wolfie2D/Input/Input";
 import Scene from "../../../Wolfie2D/Scene/Scene";
+import { EaseFunctionType } from "../../../Wolfie2D/Utils/EaseFunctions";
 
 const BattlerGroups = {
   RED: 1,
   BLUE: 2,
 } as const;
 
+const upgradeOptions = [
+  "Health",
+  "Armor",
+  "MachineGun",
+  "Helicopter Health",
+  "Movement Speed",
+  "Stronger Bullets",
+];
+
+const upgradeCosts = [
+  2,
+  1,
+  10,
+  5,
+  6,
+  9,
+]
+
 export default class MainHW4Scene extends HW4Scene {
   public isPaused: boolean;
-  private darknessCounter : number = 1;
-
-
+  private darknessCounter: number = 1;
+  private isUpgrading: boolean;
 
   private player: PlayerActor;
   /** GameSystems in the HW3 Scene */
@@ -78,20 +103,21 @@ export default class MainHW4Scene extends HW4Scene {
   //Level stuff
   protected nextLevel: new (...args: any) => Scene;
 
-
   //UI Sprites
   private materialIcon: Sprite;
   private fuelIcon: Sprite;
   private pause_background: Sprite;
+  private upgrade_background: Sprite;
   private logo: Sprite;
   private night: Sprite;
+  private upgradeScreenMaterial: Sprite;
 
   //UI Counter Labels
   private materialCounter: Label;
   private fuelCounter: Label;
 
   //UI Pause Label & Buttons
-  private backButton: Button;
+  private pauseBackButton: Button;
   private resume: Label;
   private controls: Label;
   private exit: Label;
@@ -111,6 +137,19 @@ export default class MainHW4Scene extends HW4Scene {
 
   private objectiveLabel: Label;
   private objectDescriptionLabel: Label[] = [];
+
+  //Upgrade Screen UI
+  private upgradeBackButton: Button;
+  private upgradeOne: Button;
+  private upgradeTwo: Button;
+  private upgradeThree: Button;
+  private upgradeMaterial: Label;
+  private upgradeOneCost: Label;
+  private upgradeTwoCost: Label;
+  private upgradeThreeCost: Label;
+  private upgradeOneMat: Sprite;
+  private upgradeTwoMat: Sprite;
+  private upgradeThreeMat: Sprite;
 
   private lightMask: LightMask;
   private lightMaskLayer: Layer;
@@ -159,7 +198,6 @@ export default class MainHW4Scene extends HW4Scene {
   protected wallsLayerKey: string;
   protected playerSpriteKey: string;
   protected tilemapScale: Vec2;
-  
 
   public constructor(
     viewport: Viewport,
@@ -189,12 +227,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.fuels = new Array<Fuel>();
   }
 
-
   /**
    * @see Scene.startScene
    */
   public override startScene() {
-    console.log(this);
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
       this.viewport.getHalfSize().y * 2
@@ -212,6 +248,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.initLayers();
     this.initializeUI();
+    this.initializeUpgradeUI();
     this.initPauseUI();
 
     this.elapsedTime = 0;
@@ -221,7 +258,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeWeaponSystem();
     // Create the player
     this.initializePlayer();
-    
+
     this.initializeItems();
 
     this.initializeNavmesh();
@@ -257,6 +294,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(CheatEvent.END_DAY);
     this.receiver.subscribe(SceneEvent.LEVEL_END);
     this.receiver.subscribe(SceneEvent.LEVEL_START);
+    this.receiver.subscribe("endUpgrade");
+    this.receiver.subscribe("upgradeOneChose");
+    this.receiver.subscribe("upgradeTwoChose");
+    this.receiver.subscribe("upgradeThreeChose");
 
     // Add a UI for health
     this.addUILayer("health");
@@ -279,11 +320,10 @@ export default class MainHW4Scene extends HW4Scene {
     if (!this.isPaused) {
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
-      if(this.battlers[0].health <= 0) {
+      if (this.battlers[0].health <= 0) {
         this.emitter.fireEvent(PlayerEvent.PLAYER_KILLED);
       }
       this.elapsedTime += deltaT;
-
 
       // Update the timer
       this.countDownTimer.update(deltaT);
@@ -303,19 +343,20 @@ export default class MainHW4Scene extends HW4Scene {
         // this.lightMask.position = player.position.clone();
         // this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
         if (remainingTime <= 0) {
-          console.log("end of night")
-          console.log(this.emitter.fireEvent(SceneEvent.LEVEL_END, {scene: this}));
+          console.log("end of night");
+          console.log(
+            this.emitter.fireEvent(SceneEvent.LEVEL_END, { scene: this })
+          );
         }
       }
-      if (!this.isNight && this.elapsedTime >= 5 * this.darknessCounter ) {
+      if (!this.isNight && this.elapsedTime >= 5 * this.darknessCounter) {
         this.darknessCounter++;
         this.night.alpha += 0.025;
-      }
-      else if (this.isNight && this.elapsedTime % 20 === 0) {
+      } else if (this.isNight && this.elapsedTime % 20 === 0) {
         this.night.alpha -= 0.05;
       }
       if (remainingTime <= 0) {
-        console.log("PLAYER: " , this.battlers[0])
+        console.log("PLAYER: ", this.battlers[0]);
         console.log("Time's up!");
         this.isNight = !this.isNight;
 
@@ -323,6 +364,8 @@ export default class MainHW4Scene extends HW4Scene {
           this.wasNight = this.isNight;
 
           if (this.isNight) {
+            //Create the upgrade screen here
+
             console.log("It's night time!");
 
             this.night.alpha = 0.9;
@@ -330,6 +373,9 @@ export default class MainHW4Scene extends HW4Scene {
             console.log(this.getLayer("primary"));
             console.log("LIGHT MASK: ", this.lightMask);
             this.initializeNPCs();
+
+            this.showUpgradesUI();
+            this.isPaused = true;
           } else {
             console.log("It's day time!");
             this.night.alpha = 0;
@@ -340,12 +386,10 @@ export default class MainHW4Scene extends HW4Scene {
           this.elapsedTime = 0;
         }
       }
-  
-      
     }
   }
-  
-  initializeSpotLight() {    
+
+  initializeSpotLight() {
     // this.testLabel = <Label>this.add.uiElement(UIElementType.LABEL, "lightMask", {position: this.viewport.getCenter(), text: "TESTLJKDHSAJKDHKHASKDHJKASHJKDHJAS"});
     // this.testLabel.textColor = Color.WHITE;
     // this.testLabel.fontSize = 20;
@@ -371,10 +415,12 @@ export default class MainHW4Scene extends HW4Scene {
     this.addUILayer("timer");
     this.addUILayer("Counters");
     this.addUILayer("Pause");
+    this.addUILayer("Upgrade");
     this.addUILayer("night");
     this.getLayer("lightMask").setDepth(11);
     this.getLayer("night").setDepth(1);
     this.getLayer("Pause").setDepth(2);
+    this.getLayer("Upgrade").setDepth(3);
     this.getLayer("timer").setDepth(2);
     this.getLayer("Counters").setDepth(2);
     this.getLayer("slots").setDepth(2);
@@ -418,6 +464,24 @@ export default class MainHW4Scene extends HW4Scene {
           this.handlePaused();
           break;
         }
+        case "endUpgrade": {
+          this.isPaused = false;
+          this.hideUpgradesUI();
+          break;
+        }
+        case "upgradeOneChose": {
+          this.handleUpgradeOne();
+          break;
+        }
+        case "upgradeTwoChose": {
+          this.handleUpgradeTwo();
+          break;
+        }
+        case "upgradeThreeChose": {
+          this.handleUpgradeThree();
+          break;
+        }
+
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
@@ -430,7 +494,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case SceneEvent.LEVEL_END: {
-          console.log("LEVEL END")
+          console.log("LEVEL END");
           this.resetViewportSize();
           this.sceneManager.changeToScene(this.nextLevel);
           break;
@@ -486,6 +550,79 @@ export default class MainHW4Scene extends HW4Scene {
     }
   }
 
+  private assignRandomUpgradeText(button: Button, label: Label,  availableOptions: string[], upgradeCost: number[]): void {
+    const randomIndex = Math.floor(Math.random() * availableOptions.length);
+    button.text = availableOptions[randomIndex];
+    label.text = upgradeCost[randomIndex].toString();
+    availableOptions.splice(randomIndex, 1);
+    upgradeCost.splice(randomIndex, 1);
+  }
+
+  private selectedUpgrade(button: Button, label:Label, sprite: Sprite): void {
+    button.visible = false;
+    label.visible = false;
+    sprite.visible = false;
+  }
+
+  private handleUpgradeOne(): void {
+    if(!this.upgradeOne.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeOneCost.text))
+    {
+      this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeOneCost.text)).toString();
+      this.applyUpgrade(this.upgradeOne);
+      this.selectedUpgrade(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
+    }
+  }
+
+  
+  private handleUpgradeTwo(): void {
+    if(!this.upgradeTwo.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeTwoCost.text))
+    {
+      this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeTwoCost.text)).toString();
+      this.applyUpgrade(this.upgradeTwo);
+      this.selectedUpgrade(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
+    }
+  }
+  
+  private handleUpgradeThree(): void {
+    if(!this.upgradeThree.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeThreeCost.text))
+    {
+      this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeThreeCost.text)).toString();
+      this.applyUpgrade(this.upgradeThree);
+      this.selectedUpgrade(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
+    }
+  }
+
+  applyUpgrade(button: Button): void {
+    const upgradeText = button.text;
+    this.upgradeMaterial.text = ":" + this.materialCounter.text;
+    switch (upgradeText) {
+      case "Health":
+        // Apply Health upgrade
+        console.log("Health Upgrade");
+        break;
+      case "Armor":
+        // Apply Armor upgrade
+        console.log("Armor Upgrade");
+        break;
+      case "MachineGun":
+        // Apply MachineGun upgrade
+        console.log("MachineGun Upgrade");
+        break;
+      case "Helicopter Health":
+        // Apply Helicopter Health upgrade
+        console.log("Helicopter Health Upgrade");
+        break;
+      case "Movement Speed":
+        // Apply Movement Speed upgrade
+        console.log("Movement Speed Upgrade");
+        break;
+      case "Stronger Bullets":
+        // Apply Stronger Bullets upgrade
+        console.log("Stronger Bullets Upgrade");
+        break;
+    }
+  }
+
   handlePlayerKilled(): void {
     this.resetViewportSize();
     this.sceneManager.changeToScene(MainMenu);
@@ -505,12 +642,13 @@ export default class MainHW4Scene extends HW4Scene {
       for (let zombie of zombies) {
         if (this.particleHitZombie(zombie, particle)) {
           zombie.health -= 1;
-          console.log(zombie.id+" hit");
+          console.log(zombie.id + " hit");
           particle.age = 0;
         }
       }
     }
   }
+
   protected particleHitZombie(zombie: NPCActor, particle: Particle): boolean {
     // TODO detect whether a particle hit a tile
     let zombieAABB = zombie.boundary;
@@ -529,6 +667,7 @@ export default class MainHW4Scene extends HW4Scene {
       return true;
     }
   }
+
   protected handleItemRequest(node: GameNode, inventory: Inventory): void {
     let items: Item[] = new Array<Item>(
       ...this.materials,
@@ -555,6 +694,7 @@ export default class MainHW4Scene extends HW4Scene {
   private handleMaterialPickedUp(): void {
     const currentValue = parseInt(this.materialCounter.text);
     this.materialCounter.text = (currentValue + 1).toString();
+    this.upgradeMaterial.text = ":" + this.materialCounter.text;
   }
 
   private handleFuelPickedUp(): void {
@@ -565,8 +705,10 @@ export default class MainHW4Scene extends HW4Scene {
   //PAUSE SCREEN
   private handlePaused(): void {
     this.isPaused = !this.isPaused;
-    if (this.isPaused) {
+    if (this.isPaused && !this.isUpgrading) {
       this.showPauseUI();
+    } else if (this.isPaused && this.isUpgrading) {
+      this.showUpgradesUI();
     } else {
       this.hidePauseUI();
     }
@@ -672,6 +814,154 @@ export default class MainHW4Scene extends HW4Scene {
     );
   }
 
+  initializeUpgradeUI(): void {
+    const center = this.viewport.getCenter();
+    const vp = this.viewport.getHalfSize();
+    // Background
+    this.upgrade_background = this.add.sprite(
+      MainHW4Scene.PAUSE_BG_KEY,
+      "Upgrade"
+    );
+    const imageSize = this.upgrade_background.size;
+    const scaleX = (this.viewport.getHalfSize().x * 2) / imageSize.x;
+    const scaleY = (this.viewport.getHalfSize().y * 2) / imageSize.y;
+    this.upgrade_background.scale.set(scaleX, scaleY);
+    this.upgrade_background.position
+      .copy(center)
+      .sub(this.viewport.getOrigin());
+
+    this.upgradeScreenMaterial = this.add.sprite(
+      MainHW4Scene.MATERIAL_KEY,
+      "Upgrade"
+    );
+    this.upgradeScreenMaterial.position
+      .set(center.x - vp.x + 50, center.y - vp.y + 25)
+      .sub(this.viewport.getOrigin());
+    this.upgradeScreenMaterial.scale.set(0.5, 0.5);
+
+    this.upgradeMaterial = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Upgrade",
+      {
+        position: new Vec2(center.x - vp.x + 65, center.y - vp.y + 25).sub(
+          this.viewport.getOrigin()
+        ),
+        text: ":" + 0,
+      }
+    );
+
+    this.upgradeBackButton = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x + vp.x / 10, vp.y + vp.y - vp.y / 10),
+        text: "Continue",
+      }
+    );
+
+    this.upgradeBackButton.size.set(150, 50);
+    this.upgradeBackButton.borderWidth = 2;
+    this.upgradeBackButton.borderColor = Color.WHITE;
+    this.upgradeBackButton.backgroundColor = Color.BLACK;
+    this.upgradeBackButton.onClickEventId = "endUpgrade";
+
+    //Upgrade Icon
+    this.upgradeOne = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x - vp.x / 2 - vp.x / 10, vp.y),
+        text: "ERR"
+      }
+    );
+    this.upgradeOne.size.set(vp.x, vp.y * 2);
+    this.upgradeOne.scale.set(.5,.5)
+    this.upgradeOne.backgroundColor = Color.WHITE;
+    this.upgradeOne.borderColor = Color.BLACK;
+    this.upgradeOne.textColor = Color.BLACK;
+    this.upgradeOne.onClickEventId = "upgradeOneChose";
+
+    //Upgrade cost
+    this.upgradeOneCost = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x - vp.x / 2 - vp.x / 10, vp.y + vp.y / 2.5),
+        text: "0"
+      }
+    );
+
+    this.upgradeOneMat = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Upgrade");
+    this.upgradeOneMat.scale.set(.4,.4);
+    this.upgradeOneMat.position = new Vec2(vp.x - vp.x/2 - vp.x/10 - vp.x/20, vp.y + vp.y/2.5);
+
+    
+
+    this.upgradeTwo = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x, vp.y),
+        text: "ERR"
+      }
+    );
+    this.upgradeTwo.size.set(vp.x, vp.y * 2);
+    this.upgradeTwo.scale.set(.5,.5)
+    this.upgradeTwo.backgroundColor = Color.WHITE;
+    this.upgradeTwo.borderColor = Color.BLACK;
+    this.upgradeTwo.textColor = Color.BLACK;
+    this.upgradeTwo.onClickEventId = "upgradeTwoChose";
+
+    this.upgradeTwoCost = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x, vp.y + vp.y / 2.5),
+        text: "0"
+      }
+    );
+
+    this.upgradeTwoMat = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Upgrade");
+    this.upgradeTwoMat.scale.set(.4,.4);
+    this.upgradeTwoMat.position = new Vec2(vp.x - vp.x/20, vp.y + vp.y/2.5);
+
+    this.upgradeThree = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x + vp.x / 2 + vp.x / 10, vp.y),
+        text: "ERR"
+      }
+    );
+    this.upgradeThree.size.set(vp.x, vp.y * 2);
+    this.upgradeThree.backgroundColor = Color.WHITE;
+    this.upgradeThree.borderColor = Color.BLACK;
+    this.upgradeThree.textColor = Color.BLACK;
+    this.upgradeThree.onClickEventId = "upgradeThreeChose";
+    this.upgradeThree.scale.set(.5,.5)
+
+    this.upgradeThreeCost = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x + vp.x / 2 + vp.x / 10, vp.y + vp.y / 2.5),
+        text: "0"
+      }
+    );
+
+    this.upgradeThreeMat = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Upgrade");
+    this.upgradeThreeMat.scale.set(.4,.4);
+    this.upgradeThreeMat.position = new Vec2(vp.x + vp.x/2 + vp.x/10 - vp.x/20, vp.y + vp.y/2.5);
+
+    const availableOptions = [...upgradeOptions];
+    const upgradeCost = [...upgradeCosts];
+    this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
+    this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
+    this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
+
+    this.hideUpgradesUI();
+  }
+
   private initPauseUI(): void {
     const center = this.viewport.getCenter();
     // Background
@@ -687,7 +977,7 @@ export default class MainHW4Scene extends HW4Scene {
     // this.logo.scale.set(1, 1);
     this.logo.position.set(this.viewport.getHalfSize().x, 70);
 
-    this.backButton = <Button>this.add.uiElement(
+    this.pauseBackButton = <Button>this.add.uiElement(
       UIElementType.BUTTON,
       "Pause",
       {
@@ -699,11 +989,11 @@ export default class MainHW4Scene extends HW4Scene {
       }
     );
 
-    this.backButton.size.set(150, 50);
-    this.backButton.borderWidth = 2;
-    this.backButton.borderColor = Color.WHITE;
-    this.backButton.backgroundColor = Color.BLACK;
-    this.backButton.onClickEventId = "unPause";
+    this.pauseBackButton.size.set(150, 50);
+    this.pauseBackButton.borderWidth = 2;
+    this.pauseBackButton.borderColor = Color.WHITE;
+    this.pauseBackButton.backgroundColor = Color.BLACK;
+    this.pauseBackButton.onClickEventId = "unPause";
 
     this.resume = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(this.viewport.getHalfSize().x, 160),
@@ -746,19 +1036,34 @@ export default class MainHW4Scene extends HW4Scene {
     // this.AllLevelsCheat.fontSize = 24;
     // this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
     let Text = " [9] - Unlimited Health ";
-    this.unlimitedHealthCheat = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7 + Text.length, this.viewport.getHalfSize().y * 2 - (2*(this.viewport.getHalfSize().y / 8))),
-      text: "   [9] - Unlimited Health   ",
-    });
+    this.unlimitedHealthCheat = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 7 + Text.length,
+          this.viewport.getHalfSize().y * 2 -
+            2 * (this.viewport.getHalfSize().y / 8)
+        ),
+        text: "   [9] - Unlimited Health   ",
+      }
+    );
     this.unlimitedHealthCheat.textColor = Color.WHITE;
     // this.unlimitedHealthCheat.backgroundColor = Color.BLACK;
     this.unlimitedHealthCheat.fontSize = 15;
 
     Text = " [8] - End day/night ";
-    this.endCycleCheat = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x / 7 + Text.length, this.viewport.getHalfSize().y * 2 - (this.viewport.getHalfSize().y / 8) ),
-      text: "   [8] - End day/night   ",
-    });
+    this.endCycleCheat = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 7 + Text.length,
+          this.viewport.getHalfSize().y * 2 - this.viewport.getHalfSize().y / 8
+        ),
+        text: "   [8] - End day/night   ",
+      }
+    );
     this.endCycleCheat.textColor = Color.WHITE;
     // this.endCycleCheat.backgroundColor = Color.BLACK;
     this.endCycleCheat.fontSize = 15;
@@ -766,7 +1071,7 @@ export default class MainHW4Scene extends HW4Scene {
     Text = " [W] - Up";
     this.upLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
-        ((this.viewport.getHalfSize().x * 3) / 2) - Text.length,
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
           7 * (this.viewport.getHalfSize().y / 8)
       ),
@@ -775,7 +1080,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.upLabel.textColor = Color.WHITE;
     this.upLabel.fontSize = 16;
 
-    Text = "[S] - Down"
+    Text = "[S] - Down";
     this.downLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
@@ -787,7 +1092,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.downLabel.textColor = Color.WHITE;
     this.downLabel.fontSize = 16;
 
-    Text = "[A] - Left"
+    Text = "[A] - Left";
     this.leftLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
@@ -799,7 +1104,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.leftLabel.textColor = Color.WHITE;
     this.leftLabel.fontSize = 16;
 
-    Text = "[D] - Right"
+    Text = "[D] - Right";
     this.rightLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
@@ -811,7 +1116,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.rightLabel.textColor = Color.WHITE;
     this.rightLabel.fontSize = 16;
 
-    Text = "[Left Click] - Shoot"
+    Text = "[Left Click] - Shoot";
     this.shootLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
@@ -823,7 +1128,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.shootLabel.textColor = Color.WHITE;
     this.shootLabel.fontSize = 16;
 
-    Text = "[E] - Pickup"
+    Text = "[E] - Pickup";
     this.pickupLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
@@ -835,7 +1140,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.pickupLabel.textColor = Color.WHITE;
     this.pickupLabel.fontSize = 16;
 
-    Text = "[ESC] - Pause"
+    Text = "[ESC] - Pause";
     this.pauseLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
@@ -847,15 +1152,19 @@ export default class MainHW4Scene extends HW4Scene {
     this.pauseLabel.textColor = Color.WHITE;
     this.pauseLabel.fontSize = 16;
 
-    Text = "Objective"
-    this.objectiveLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(
-        (this.viewport.getHalfSize().x / 3) + Text.length,
-        this.viewport.getHalfSize().y -
-          4 * (this.viewport.getHalfSize().y / 8)
-      ),
-      text: "OBJECTIVE",
-    });
+    Text = "Objective";
+    this.objectiveLabel = <Label>this.add.uiElement(
+      UIElementType.LABEL,
+      "Pause",
+      {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 3 + Text.length,
+          this.viewport.getHalfSize().y -
+            4 * (this.viewport.getHalfSize().y / 8)
+        ),
+        text: "OBJECTIVE",
+      }
+    );
     this.objectiveLabel.textColor = Color.BLACK;
     this.objectiveLabel.fontSize = 30;
 
@@ -864,17 +1173,15 @@ export default class MainHW4Scene extends HW4Scene {
       "Gather fuel to keep your helicopter running",
     ];
     for (let i = 0; i < text.length; i++) {
-      const objLabel = <Label>this.add.uiElement(
-        UIElementType.LABEL,
-        "Pause",
-        {
-          position: new Vec2(
-            (this.viewport.getHalfSize().x / 3) + text[i].length / 2,
-            this.viewport.getHalfSize().y - 3 * (this.viewport.getHalfSize().y / 8) + i * 20
-          ),
-          text: text[i],
-        }
-      );
+      const objLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+        position: new Vec2(
+          this.viewport.getHalfSize().x / 3 + text[i].length / 2,
+          this.viewport.getHalfSize().y -
+            3 * (this.viewport.getHalfSize().y / 8) +
+            i * 20
+        ),
+        text: text[i],
+      });
       objLabel.textColor = Color.WHITE;
       objLabel.fontSize = 16;
       objLabel.visible = false;
@@ -887,13 +1194,13 @@ export default class MainHW4Scene extends HW4Scene {
   private showPauseUI(): void {
     this.pause_background.visible = true;
     this.logo.visible = true;
-    this.backButton.visible = true;
+    this.pauseBackButton.visible = true;
     this.resume.visible = true;
     this.controls.visible = true;
     this.exit.visible = true;
     this.cheats.visible = true;
     this.objectiveLabel.visible = true;
-    for(let i = 0; i < this.objectDescriptionLabel.length; i++) {
+    for (let i = 0; i < this.objectDescriptionLabel.length; i++) {
       this.objectDescriptionLabel[i].visible = true;
     }
   }
@@ -901,13 +1208,13 @@ export default class MainHW4Scene extends HW4Scene {
   private hidePauseUI(): void {
     this.pause_background.visible = false;
     this.logo.visible = false;
-    this.backButton.visible = false;
+    this.pauseBackButton.visible = false;
     this.resume.visible = false;
     this.controls.visible = false;
     this.exit.visible = false;
     this.cheats.visible = false;
     this.objectiveLabel.visible = false;
-    for(let i = 0; i < this.objectDescriptionLabel.length; i++) {
+    for (let i = 0; i < this.objectDescriptionLabel.length; i++) {
       this.objectDescriptionLabel[i].visible = false;
     }
     this.hideCheatsUI();
@@ -946,6 +1253,38 @@ export default class MainHW4Scene extends HW4Scene {
     this.pickupLabel.visible = false;
   }
 
+  private showUpgradesUI(): void {
+    this.upgradeBackButton.visible = true;
+    this.upgrade_background.visible = true;
+    this.upgradeOne.visible = true;
+    this.upgradeTwo.visible = true;
+    this.upgradeThree.visible = true;
+    this.upgradeMaterial.visible = true;
+    this.upgradeScreenMaterial.visible = true;
+    this.upgradeOneCost.visible = true;
+    this.upgradeTwoCost.visible = true;
+    this.upgradeThreeCost.visible = true;
+    this.upgradeOneMat.visible = true;
+    this.upgradeTwoMat.visible = true;
+    this.upgradeThreeMat.visible = true;
+  }
+
+  private hideUpgradesUI(): void {
+    this.upgradeBackButton.visible = false;
+    this.upgrade_background.visible = false;
+    this.upgradeOne.visible = false;
+    this.upgradeTwo.visible = false;
+    this.upgradeThree.visible = false;
+    this.upgradeMaterial.visible = false;
+    this.upgradeScreenMaterial.visible = false;
+    this.upgradeOneCost.visible = false;
+    this.upgradeTwoCost.visible = false;
+    this.upgradeThreeCost.visible = false;
+    this.upgradeOneMat.visible = false;
+    this.upgradeTwoMat.visible = false;
+    this.upgradeThreeMat.visible = false;
+  }
+
   public resetViewportSize(): void {
     this.viewport.setBounds(
       0,
@@ -955,7 +1294,6 @@ export default class MainHW4Scene extends HW4Scene {
     );
     this.viewport.setZoomLevel(1);
     this.sceneManager.changeToScene(MainMenu);
-
   }
 
   /**
@@ -1001,8 +1339,8 @@ export default class MainHW4Scene extends HW4Scene {
   /**
    * Initialize the NPCs
    */
-    // Get the object data for the red enemies
-    //let red = this.load.getObject("red");
+  // Get the object data for the red enemies
+  //let red = this.load.getObject("red");
   protected initializeNPCs(): void {
     // Get the object data for the red enemies
     //let red = this.load.getObject("red");
