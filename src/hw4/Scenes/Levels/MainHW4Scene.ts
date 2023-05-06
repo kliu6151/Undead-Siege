@@ -154,6 +154,7 @@ export default class MainHW4Scene extends HW4Scene {
   private upgradeOneMat: Sprite;
   private upgradeTwoMat: Sprite;
   private upgradeThreeMat: Sprite;
+  private upgradeRefreshButton: Button;
 
   private lightMask: LightMask;
   private lightMaskLayer: Layer;
@@ -303,6 +304,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe("upgradeOneChose");
     this.receiver.subscribe("upgradeTwoChose");
     this.receiver.subscribe("upgradeThreeChose");
+    this.receiver.subscribe("refreshUpgrade");
 
     // Add a UI for health
     this.addUILayer("health");
@@ -487,6 +489,10 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleUpgradeThree();
           break;
         }
+        case "refreshUpgrade": {
+          this.handleRefreshUpgrade();
+          break;
+        }
         case CheatEvent.ADD_MAT: {
           this.handleAddMaterialCheat();
           break;
@@ -568,6 +574,34 @@ export default class MainHW4Scene extends HW4Scene {
     }
   }
 
+  private refreshUpgrades(button: Button, label:Label, sprite: Sprite): void {
+    button.visible = true;
+    label.visible = true;
+    sprite.visible = true;
+  }
+  private handleRefreshUpgrade(): void {
+    if (this.upgradeRefreshButton.text === "FREE") {
+      this.refreshUpgrades(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
+      this.refreshUpgrades(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
+      this.refreshUpgrades(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
+      const availableOptions = [...upgradeOptions];
+      const upgradeCost = [...upgradeCosts];
+      this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
+      this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
+      this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
+      this.upgradeRefreshButton.text = "Refresh - 4";
+    }
+    if (parseInt(this.materialCounter.text) >= 4) {
+      this.materialCounter.text = (parseInt(this.materialCounter.text) - 4).toString();
+      this.upgradeMaterial.text = this.materialCounter.text;
+      const availableOptions = [...upgradeOptions];
+      const upgradeCost = [...upgradeCosts];
+      this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
+      this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
+      this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
+    }
+  }
+
   private assignRandomUpgradeText(button: Button, label: Label,  availableOptions: string[], upgradeCost: number[]): void {
     const randomIndex = Math.floor(Math.random() * availableOptions.length);
     button.text = availableOptions[randomIndex];
@@ -586,8 +620,8 @@ export default class MainHW4Scene extends HW4Scene {
     if(!this.upgradeOne.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeOneCost.text))
     {
       this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeOneCost.text)).toString();
-      this.applyUpgrade(this.upgradeOne);
       this.selectedUpgrade(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
+      this.applyUpgrade(this.upgradeOne);
     }
   }
 
@@ -596,8 +630,8 @@ export default class MainHW4Scene extends HW4Scene {
     if(!this.upgradeTwo.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeTwoCost.text))
     {
       this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeTwoCost.text)).toString();
-      this.applyUpgrade(this.upgradeTwo);
       this.selectedUpgrade(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
+      this.applyUpgrade(this.upgradeTwo);
     }
   }
   
@@ -605,17 +639,21 @@ export default class MainHW4Scene extends HW4Scene {
     if(!this.upgradeThree.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeThreeCost.text))
     {
       this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeThreeCost.text)).toString();
-      this.applyUpgrade(this.upgradeThree);
       this.selectedUpgrade(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
+      this.applyUpgrade(this.upgradeThree);
     }
   }
 
   applyUpgrade(button: Button): void {
     const upgradeText = button.text;
     this.upgradeMaterial.text = ":" + this.materialCounter.text;
+    if(this.upgradeOne.visible === false && this.upgradeTwo.visible === false && this.upgradeThree.visible === false) {
+      this.upgradeRefreshButton.text = "FREE"
+    }
+    
     switch (upgradeText) {
       case "Health":
-        this.player.maxHealth += 10;
+        this.battlers[0].maxHealth += 10;
         console.log("Health Upgrade");
         break;
       case "Armor":
@@ -640,7 +678,7 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Helicopter Health Upgrade");
         break;
       case "Movement Speed":
-        // Apply Movement Speed upgrade
+        
         console.log("Movement Speed Upgrade");
         break;
       case "Stronger Bullets":
@@ -840,11 +878,9 @@ export default class MainHW4Scene extends HW4Scene {
 
   //handling cheats
   private handleInfiniteHealth(): void {
-    // console.log("INSIDE INFINITE HEALTH")
     this.battlers[0].health = 9999999;
     this.battlers[0].maxHealth = 9999999;
     this.healthbars.get(this.battlers[0].id).visible = false;
-    // console.log(this.battlers);
   }
 
   /**
@@ -962,16 +998,31 @@ export default class MainHW4Scene extends HW4Scene {
       UIElementType.BUTTON,
       "Upgrade",
       {
-        position: new Vec2(vp.x + vp.x / 10, vp.y + vp.y - vp.y / 10),
+        position: new Vec2(vp.x + 2 * (vp.x / 10), vp.y + vp.y - vp.y / 10),
         text: "Continue",
       }
     );
 
-    this.upgradeBackButton.size.set(150, 50);
+    this.upgradeBackButton.size.set(80, 50);
+    this.upgradeBackButton.fontSize = 15;
+    this.upgradeBackButton.scale.set(.75,.5);
     this.upgradeBackButton.borderWidth = 2;
     this.upgradeBackButton.borderColor = Color.WHITE;
     this.upgradeBackButton.backgroundColor = Color.BLACK;
     this.upgradeBackButton.onClickEventId = "endUpgrade";
+
+    this.upgradeRefreshButton = <Button>this.add.uiElement(UIElementType.BUTTON, "Upgrade", 
+    {
+      position: new Vec2(vp.x - 2 * (vp.x / 10), vp.y + vp.y - vp.y / 10),
+      text: "Refresh - 4"
+    })
+    this.upgradeRefreshButton.size.set(80, 50);
+    this.upgradeRefreshButton.scale.set(.75,.5);
+    this.upgradeRefreshButton.fontSize = 15;
+    this.upgradeRefreshButton.borderWidth = 2;
+    this.upgradeRefreshButton.borderColor = Color.WHITE;
+    this.upgradeRefreshButton.backgroundColor = Color.BLACK;
+    this.upgradeRefreshButton.onClickEventId = "refreshUpgrade";
 
     //Upgrade Icon
     this.upgradeOne = <Button>this.add.uiElement(
@@ -1391,6 +1442,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.upgradeOneMat.visible = true;
     this.upgradeTwoMat.visible = true;
     this.upgradeThreeMat.visible = true;
+    this.upgradeRefreshButton.visible = true;
   }
 
   private hideUpgradesUI(): void {
@@ -1407,6 +1459,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.upgradeOneMat.visible = false;
     this.upgradeTwoMat.visible = false;
     this.upgradeThreeMat.visible = false;
+    this.upgradeRefreshButton.visible = false;
   }
 
   public resetViewportSize(): void {
