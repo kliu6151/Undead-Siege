@@ -73,12 +73,13 @@ const controlsLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Controls",
 //   movementLabel.underline = true;
 
   // WASD buttons
-  const wasdKeys = ["W", "A", "S", "D"];
+  const wasdKeys = ["W", "A", "S", "D", "R"];
   const wasdOffsets = [
     new Vec2(0, -75),
     new Vec2(-75, 0),
     new Vec2(0, 0),
     new Vec2(75, 0),
+    new Vec2(150, -75),
   ];
 
   for (let i = 0; i < wasdKeys.length; i++) {
@@ -94,13 +95,15 @@ const controlsLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Controls",
     keyButton.disable();
   }
 
+
   // Direction labels
-    const directions = ["Up", "Left", "Down", "Right"];
+    const directions = ["Up", "Left", "Down", "Right", "Roll"];
     const directionOffsets = [
       new Vec2(0, -50),
       new Vec2(-50, 0),
       new Vec2(0, 50),
       new Vec2(50, 0),
+      new Vec2(50, 0)
     ];
 
     for (let i = 0; i < directions.length; i++) {
@@ -146,10 +149,10 @@ const controlsLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Controls",
     // Spacebar Button
     const spacebarButton = <Button>this.add.uiElement(UIElementType.BUTTON, "Controls", {
       position: new Vec2(center.x - 300, center.y + 200),
-      text: "Space",
+      text: "E",
     });
 
-    spacebarButton.size.set(200, 50);
+    spacebarButton.size.set(50, 50);
     spacebarButton.borderWidth = 2;
     spacebarButton.borderColor = Color.WHITE;
     spacebarButton.backgroundColor = Color.BLACK;
