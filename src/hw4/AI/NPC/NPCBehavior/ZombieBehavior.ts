@@ -34,9 +34,6 @@ export default class ZombieBehavior extends NPCBehavior {
   /** The range the guard should be from the target they're guarding to be considered guarding the target */
   protected range: number;
 
-  /** A timer for updating the target position */
-  protected updateTimer: number;
-  protected updateInterval: number;
 
   /** Initialize the NPC AI */
   public initializeAI(owner: NPCActor, options: ZombieOptions): void {
@@ -46,8 +43,6 @@ export default class ZombieBehavior extends NPCBehavior {
     this.target = options.target;
     this.range = options.range;
 
-    this.updateTimer = 0;
-    this.updateInterval = 10;
 
     // Initialize zombie statuses
     this.initializeStatuses();
@@ -69,7 +64,7 @@ export default class ZombieBehavior extends NPCBehavior {
 
   private avoidZombies(deltaT: number): void {
     const avoidDistance = 1000; // Set a distance to avoid other zombies (squared to avoid using square root)
-    const weight = 1; // Set a weight for the avoidance force
+    const weight = 5; // Set a weight for the avoidance force
     const dampingWeight = 0.9;
     let avoidanceForce = new Vec2(0, 0);
     // Loop through all the zombies
@@ -98,16 +93,7 @@ export default class ZombieBehavior extends NPCBehavior {
   }
   
   public update(deltaT: number): void {
-    this.updateTimer += deltaT;
-    // If the timer exceeds the update interval, update the target position
-    if (this.updateTimer >= this.updateInterval) {
-      // Set the target position for the zombie
-      const player = this.owner.getScene().getBattlers().find(battler => battler instanceof PlayerActor);
-      if (player) {
-        this.target.position = player.position;
-      }      // Reset the timer
-      this.updateTimer = 0;
-    }
+    
     this.avoidZombies(deltaT);
     super.update(deltaT);
     // this.applyRepulsionForce(deltaT);

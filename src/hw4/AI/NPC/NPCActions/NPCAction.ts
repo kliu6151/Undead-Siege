@@ -44,7 +44,7 @@ export default abstract class NPCAction extends GoapAction {
         this.target = null;
         this.path = null;
         this.updateCounter = 0;
-        this.updateInterval = 3;
+        this.updateInterval = 1;
     }
 
     public onEnter(options: Record<string, any>): void {
@@ -69,10 +69,9 @@ export default abstract class NPCAction extends GoapAction {
         if (player) {
             const targetPosition = player.position;
             const distanceMoved = targetPosition.distanceTo(this.actor.position);
-            console.log("Distance moved:", distanceMoved); // For debugging purposes
             this.updateCounter += deltaT;
             // Update target position and path if the player has moved enough or if the path is null
-            if ((distanceMoved > 50 || this.path === null) && this.updateCounter >= this.updateInterval) {
+            if ((distanceMoved > 10 || this.path === null) && this.updateCounter >= this.updateInterval) {
                 this.target.position = targetPosition.clone();
                 this.path = this.actor.getPath(this.actor.position, this.target.position);
                 this.updateCounter = 0;
