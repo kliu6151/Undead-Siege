@@ -6,6 +6,7 @@ export enum BattlerEvent {
     CONSUME = "CONSUME",
     HIT = "HIT",
     OVERLAP = "OVERLAP",
+    ROLL = "ROLL",
 }
 
 export enum CheatEvent {

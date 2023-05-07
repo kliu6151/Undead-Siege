@@ -26,7 +26,7 @@ export default class ZombieHitPlayer extends NPCAction {
     this.timer.isStopped()
       ? console.log("Zombie Attack cooling down!")
       : console.log("Zombie Attack ready!");
-    if (this.timer.isStopped()) {
+    if (this.timer.isStopped() && target.invincible !== true) {
       // Send a laser fired event
       target.health -= 1;
 

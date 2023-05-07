@@ -4,7 +4,7 @@ import GameEvent from "../Events/GameEvent";
 import { GameEventType } from "../Events/GameEventType";
 import Updateable from "../DataTypes/Interfaces/Updateable";
 import Receiver from "../Events/Receiver";
-import { CheatEvent, InputEvent } from "../../hw4/Events";
+import { BattlerEvent, CheatEvent, InputEvent } from "../../hw4/Events";
 
 export enum InputHandlers {
     MOUSE_DOWN = 0,
@@ -123,6 +123,10 @@ export default class InputHandler implements Updateable {
         else if (key === '7') {
             let addMat = new GameEvent(CheatEvent.ADD_MAT, {});
             this.eventQueue.addEvent(addMat);
+        }
+        else if (key === 'R') {
+            let roll = new GameEvent(BattlerEvent.ROLL, {});
+            this.eventQueue.addEvent(roll);
         }
     }
 

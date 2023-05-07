@@ -1,6 +1,7 @@
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import Input from "../../../Wolfie2D/Input/Input";
 import AnimatedSprite from "../../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
+import Timer from "../../../Wolfie2D/Timing/Timer";
 
 /**
  * Strings used in the key binding for the player
@@ -12,7 +13,8 @@ export enum PlayerInput {
     MOVE_RIGHT = "MOVE_RIGHT",
     ATTACKING = "ATTACKING",
     PICKUP_ITEM = "PICKUP_ITEM",
-    DROP_ITEM = "DROP_ITEM"
+    DROP_ITEM = "DROP_ITEM",
+    ROLL = "ROLL"
 }
 
 /**
@@ -22,7 +24,7 @@ export enum PlayerInput {
 export default class PlayerController {
   /** The GameNode that owns the AI */
   protected owner: AnimatedSprite;
-
+  
   constructor(owner: AnimatedSprite) {
     this.owner = owner;
   }
@@ -53,16 +55,9 @@ export default class PlayerController {
   }
 
   public update(deltaT: number): void {
-    console.log("yay")
-    /*super.update(deltaT);
 
-    // If the player hits the attack button and the weapon system isn't running, restart the system and fire!
-    if (Input.isPressed(HW3Controls.ATTACK) && !this.weapon.isSystemRunning()) {
-      // Start the particle system at the player's current position
-      this.weapon.startSystem(500, 0, this.owner.position);
-      this.changeState(PlayerStates.ATTACKING);
-    }*/
   }
+  
 
   /**
    * Gets the rotation of the players sprite based on the direction the player
@@ -96,4 +91,10 @@ export default class PlayerController {
   public get dropping(): boolean {
     return Input.isJustPressed(PlayerInput.DROP_ITEM);
   }
+
+  public get rolling(): boolean{
+    return Input.isJustPressed(PlayerInput.ROLL);
+  }
+
+  
 }

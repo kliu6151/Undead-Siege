@@ -14,7 +14,8 @@ import HW4Scene from "../Scenes/Levels/HW4Scene";
 export default class PlayerActor extends AnimatedSprite implements Battler {
 
     /** Override the type of the scene to be the HW3 scene */
-    protected scene: HW4Scene
+    protected scene: HW4Scene;
+    public isInvicible: boolean;
 
     /** Give the player a battler compoonent */
     protected battler: Battler;
@@ -74,5 +75,12 @@ export default class PlayerActor extends AnimatedSprite implements Battler {
     }
     get inventory(): Inventory {
         return this.battler.inventory;
+    }
+
+    get invincible(): boolean {
+        return this.battler.invincible;
+    }
+    set invincible(value: boolean) {
+        this.battler.invincible = value;
     }
 }

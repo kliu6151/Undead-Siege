@@ -22,6 +22,7 @@ export default abstract class PlayerState extends State {
 
     protected parent: PlayerAI;
     protected owner: PlayerActor;
+    protected isInvincible: boolean;
 
     public constructor(parent: PlayerAI, owner: PlayerActor) {
         super(parent);
@@ -37,6 +38,9 @@ export default abstract class PlayerState extends State {
         // Move the player
         this.parent.owner.move(this.parent.controller.moveDir);
 
+        if (this.parent.controller.rolling) {
+            this.emitter.fireEvent(BattlerEvent.ROLL);
+        }
         // Handle the player trying to pick up an item
         if (this.parent.controller.pickingUp) {
             // Request an item from the scene

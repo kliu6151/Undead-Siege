@@ -95,6 +95,8 @@ export default class MainHW4Scene extends HW4Scene {
   private isUpgrading: boolean;
 
   private player: PlayerActor;
+  protected invincibilityTimer: Timer | null = null;
+
   /** GameSystems in the HW3 Scene */
   private inventoryHud: InventoryHUD;
 
@@ -330,6 +332,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
     this.receiver.subscribe(BattlerEvent.OVERLAP);
+    this.receiver.subscribe(BattlerEvent.ROLL);
   }
   /**
    * @see Scene.updateScene
@@ -341,6 +344,17 @@ export default class MainHW4Scene extends HW4Scene {
     }
 
     if (!this.isPaused) {
+      console.log("PLAYER SPEED: ", this.player.speed);
+      // console.log("ZOMBIE SPEED: ", this.battlers[1].speed);
+      if (this.invincibilityTimer) {
+        this.invincibilityTimer.update(deltaT);
+        if (this.invincibilityTimer.isStopped()) {
+          // Reset the player's scale
+          this.player.scale.set(1, 1);
+          this.player.invincible = false;
+          this.invincibilityTimer = null;
+        }
+      }
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
       if (this.battlers[0].health <= 0) {
@@ -528,6 +542,10 @@ export default class MainHW4Scene extends HW4Scene {
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
+        case BattlerEvent.ROLL: {
+          this.handleRoll(2000);
+          break;
+        }
         case PlayerEvent.PLAYER_KILLED: {
           this.handlePlayerKilled();
           break;
@@ -537,16 +555,11 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case SceneEvent.LEVEL_END: {
-          console.log("LEVEL END");
           this.resetViewportSize();
           let playerData = this.sceneManager.playerData;
           this.sceneManager.changeToScene(this.nextLevel, {}, playerData);
           break;
         }
-        // case "allLevelCheatUnlock": {
-        //   this.handleAllLevelCheatUnlock();
-        //   break;
-        // }
 
         case InputEvent.PAUSED: {
           this.handlePaused();
@@ -600,6 +613,15 @@ export default class MainHW4Scene extends HW4Scene {
           );
         }
       }
+    }
+  }
+
+  private handleRoll(duration: number): void {
+    if (!this.invincibilityTimer) {
+      this.player.scale.set(.5,.5)
+      this.invincibilityTimer = new Timer(duration);
+      this.invincibilityTimer.start();
+      this.player.invincible = true;
     }
   }
 
@@ -1518,22 +1540,21 @@ export default class MainHW4Scene extends HW4Scene {
    * Initializes the player in the scene
    */
   protected initializePlayer(): void {
-    let player = this.add.animatedSprite(PlayerActor, "player1", "primary");
-    player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
-    player.battleGroup = 2;
+    this.player = this.add.animatedSprite(PlayerActor, "player1", "primary");
+    this.player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
+    this.player.battleGroup = 2;
     if(this.playerData) {
       if (this.playerData.maxHealth) {
-        player.maxHealth = this.playerData.maxHealth;
+        this.player.maxHealth = this.playerData.maxHealth;
       }
       if (this.playerData.health) {
-        player.health = this.playerData.health;
+        this.player.health = this.playerData.health;
       }
     }
     else {
-      player.maxHealth = 10;
-      player.health = 10;
+      this.player.maxHealth = 10;
+      this.player.health = 10;
     }
-
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),
@@ -1543,25 +1564,25 @@ export default class MainHW4Scene extends HW4Scene {
     // });
 
     // Give the player physics
-    player.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+    this.player.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
 
     // Give the player a healthbar
-    let healthbar = new HealthbarHUD(this, player, "primary", {
-      size: player.size.clone().scaled(2, 1 / 2),
-      offset: player.size.clone().scaled(0, -1 / 2),
+    let healthbar = new HealthbarHUD(this, this.player, "primary", {
+      size: this.player.size.clone().scaled(2, 1 / 2),
+      offset: this.player.size.clone().scaled(0, -1 / 2),
     });
-    this.healthbars.set(player.id, healthbar);
+    this.healthbars.set(this.player.id, healthbar);
 
     // Give the player PlayerAI
-    player.addAI(PlayerAI, {
+    this.player.addAI(PlayerAI, {
       weaponSystem: this.playerWeaponSystem,
     });
 
     // Start the player in the "IDLE" animation
-    player.animation.play("IDLE");
+    this.player.animation.play("IDLE");
 
-    this.battlers.push(player);
-    this.viewport.follow(player);
+    this.battlers.push(this.player);
+    this.viewport.follow(this.player);
   }
   /**
    * Initialize the NPCs
