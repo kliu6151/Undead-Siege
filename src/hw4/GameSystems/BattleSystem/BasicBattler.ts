@@ -19,6 +19,7 @@ export default class BasicBattler implements Battler {
     protected _speed: number;
     protected _active: boolean;
     protected _invincible: boolean;
+    protected _armor: number;
 
     public constructor(owner: Unique & Positioned) {
         this._owner = owner;
@@ -30,6 +31,7 @@ export default class BasicBattler implements Battler {
         this.battleGroup = 0;
         this.speed = 0;
         this.battlerActive = true;
+        this.armor = 0;
     }
     
     public get id(): number { return this._owner.id; }
@@ -58,6 +60,9 @@ export default class BasicBattler implements Battler {
 
     public get invincible(): boolean { return this._invincible; }
     public set invincible(invincible: boolean) { this._invincible = invincible; }
+
+    public get armor(): number {return this._armor; }
+    public set armor(armor: number) { this._armor = armor; }
 
     public get battlerActive(): boolean { return this._active; }
     public set battlerActive(value: boolean) { this._active = value; }

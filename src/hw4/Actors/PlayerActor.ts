@@ -84,4 +84,12 @@ export default class PlayerActor extends AnimatedSprite implements Battler {
     set invincible(value: boolean) {
         this.battler.invincible = value;
     }
+
+    get armor(): number {
+        return this.battler.armor;
+    }
+
+    set armor(value: number) {
+        this.battler.armor = value;
+    }
 }

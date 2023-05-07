@@ -248,10 +248,12 @@ export default class MainHW4Scene extends HW4Scene {
     } else {
       // Set default playerData if not available
       this.playerData = {
-        maxHealth: 10,
-        health: 10,
+        maxHealth: 100,
+        health: 100,
         weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1),
         speed: 1,
+        armor: 0,
+        bulletDamage: 10,
       };
     }
     console.log(this.sceneManager)
@@ -433,6 +435,8 @@ export default class MainHW4Scene extends HW4Scene {
         health: this.playerData.health,
         weapon: this.playerData.weapon,
         speed: this.playerData.speed,
+        armor: this.playerData.armor,
+        bulletDamage: this.playerData.bulletDamage
       };
     }
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
@@ -713,12 +717,13 @@ export default class MainHW4Scene extends HW4Scene {
     
     switch (upgradeText) {
       case "Health":
-        this.battlers[0].maxHealth += 10;
+        this.player.maxHealth += 10;
         this.playerData.maxHealth += 10;
         console.log("Health Upgrade");
         break;
       case "Armor":
-        // Apply Armor upgrade
+        this.player.armor += 1
+        this.playerData.armor += 1
         console.log("Armor Upgrade");
         break;
       case "MachineGun":
@@ -739,11 +744,12 @@ export default class MainHW4Scene extends HW4Scene {
         break;
       case "Movement Speed":
         this.player.speed *= 1.1;
+        this.playerData.speed = this.player.speed;
         console.log("Movement Speed Upgrade");
         break;
       case "Stronger Bullets":
-        this.player.bulletDamage += 1;
-        
+        this.player.bulletDamage += 5;
+        this.playerData.bulletDamage += 5;
         console.log("Stronger Bullets Upgrade");
         break;
     }
@@ -1587,12 +1593,21 @@ export default class MainHW4Scene extends HW4Scene {
       if (this.playerData.speed) {
         this.player.speed = this.playerData.speed;
       }
+      if(this.playerData.armor) {
+        this.player.armor = this.playerData.armor;
+      }
+      if(this.playerData.bulletDamage) {
+        this.player.bulletDamage = this.playerData.bulletDamage;
+      }
     }
     else {
-      this.player.maxHealth = 10;
-      this.player.health = 10;
+      this.player.maxHealth = 100;
+      this.player.health = 100;
       this.player.speed = 1;
+      this.player.armor = 0;
+      this.player.bulletDamage = 10;
     }
+    console.log("PLAYER INIT: ", this.player)
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),
@@ -1651,12 +1666,13 @@ export default class MainHW4Scene extends HW4Scene {
 
       npc.battleGroup = 1;
       // npc.speed = 5;
-      npc.health = 3;
-      npc.maxHealth = 10;
+      npc.health = 100;
+      npc.maxHealth = 100;
       npc.navkey = "navmesh";
       npc.isCollidable = true;
       // npc.battleGroup = 1;
       npc.speed = 8;
+      npc.armor = 0;
       // npc.health = 1;
       // npc.maxHealth = 10;
       // npc.navkey = "navmesh";

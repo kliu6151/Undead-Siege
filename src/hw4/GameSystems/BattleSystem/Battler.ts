@@ -39,4 +39,7 @@ export default interface Battler extends TargetableEntity, Unique {
     get invincible(): boolean;
     set invincible(value: boolean);
 
+    get armor(): number;
+    set armor(value: number);
+
 }
