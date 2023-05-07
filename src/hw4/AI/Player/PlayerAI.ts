@@ -58,6 +58,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
 
     if (Input.isMouseJustPressed()) {
       console.log("shoot");
+      // this.emitter.fireEvent(ItemEvent.LASERGUN_FIRED)
       this.weapon.startSystem(500, 0, this.owner.position);
     }
   }
@@ -88,7 +89,8 @@ export default class PlayerAI extends StateMachineAI implements AI {
           .getBoundingRect()
           .intersectSegment(to, from.clone().sub(to)) !== null
       ) {
-        this.owner.health -= 1;
+        console.log("THE THINGS HP?: ", this.owner.health)
+        this.owner.health -= this.owner.bulletDamage;
       }
     }
   }

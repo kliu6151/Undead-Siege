@@ -192,5 +192,6 @@ export default class ParticleSystem implements Updateable {
             this.particlesToRender = MathUtils.clamp(this.particlesToRender+this.particlesPerFrame, 0, this.particlePool.length);
         }
     }
+    
 
 }

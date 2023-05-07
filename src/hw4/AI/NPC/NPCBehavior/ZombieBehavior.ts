@@ -24,12 +24,18 @@ import Battler from "../../../GameSystems/BattleSystem/Battler";
 import ZombieHitPlayer from "../NPCActions/ZombieHitPlayer";
 import PlayerActor from "../../../Actors/PlayerActor";
 import Repulsion from "../NPCActions/Repulsion";
+import { PhysicsGroups } from "../../../PhysicsGroups";
+import Vec2 from "../../../../Wolfie2D/DataTypes/Vec2";
 
 export default class ZombieBehavior extends NPCBehavior {
   /** The target the guard should guard */
   protected target: TargetableEntity;
   /** The range the guard should be from the target they're guarding to be considered guarding the target */
   protected range: number;
+
+  /** A timer for updating the target position */
+  protected updateTimer: number;
+  protected updateInterval: number;
 
   /** Initialize the NPC AI */
   public initializeAI(owner: NPCActor, options: ZombieOptions): void {
@@ -38,6 +44,9 @@ export default class ZombieBehavior extends NPCBehavior {
     // Initialize the targetable entity the guard should try to protect and the range to the target
     this.target = options.target;
     this.range = options.range;
+
+    this.updateTimer = 0;
+    this.updateInterval = 1000;
 
     // Initialize zombie statuses
     this.initializeStatuses();
@@ -57,11 +66,48 @@ export default class ZombieBehavior extends NPCBehavior {
     }
   }
 
-  public update(deltaT: number): void {
-    //console.log(this.currentStatus());
-    if (!this.currentState) {
+  private avoidZombies(deltaT: number): void {
+    const avoidDistance = 5000; // Set a distance to avoid other zombies (squared to avoid using square root)
+    const weight = 5; // Set a weight for the avoidance force
+    const dampingWeight = 0.9;
+    let avoidanceForce = new Vec2(0, 0);
+    // Loop through all the zombies
+    console.log(this.owner.getScene().getBattlers().slice(1))
+    for (let zombie of this.owner.getScene().getBattlers().slice(1)) {
+
+        if (zombie === this.owner) continue; // Skip self
+        // Calculate the distance between the current zombie and the other zombie
+        let distanceVec = this.owner.position.clone().sub(zombie.position);
+        let distance = distanceVec.x * distanceVec.x + distanceVec.y * distanceVec.y;
+        // If the distance is less than the avoid distance, apply an avoidance force
+        if (distance < avoidDistance) {
+            let force = distanceVec
+                .normalize()
+                .scale(((avoidDistance - distance) * weight) / distance);
+            avoidanceForce.add(force);
+        }
     }
+
+    let dampingForce = this.owner._velocity.clone().scale(-dampingWeight);
+    let combinedForce = avoidanceForce.add(dampingForce);
+
+
+    // Apply the avoidance force to the current zombie
+    this.owner.move(combinedForce.scale(deltaT));
+  }
+  
+  public update(deltaT: number): void {
+    this.updateTimer += deltaT;
+    // If the timer exceeds the update interval, update the target position
+    if (this.updateTimer >= this.updateInterval) {
+      // Set the target position for the zombie
+      this.target.position = this.owner.getScene().getBattlers()[0].position;
+      // Reset the timer
+      this.updateTimer = 0;
+    }
+    this.avoidZombies(deltaT);
     super.update(deltaT);
+    // this.applyRepulsionForce(deltaT);
   }
 
   protected initializeStatuses(): void {

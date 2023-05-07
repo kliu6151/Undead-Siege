@@ -347,8 +347,6 @@ export default class MainHW4Scene extends HW4Scene {
 
     if (!this.isPaused) {
 
-    
-      // console.log("ZOMBIE SPEED: ", this.battlers[1].speed);
       if (this.invincibilityTimer) {
         this.invincibilityTimer.update(deltaT);
         if (this.invincibilityTimer.isStopped()) {
@@ -462,6 +460,7 @@ export default class MainHW4Scene extends HW4Scene {
   /** Initializes the layers in the scene */
   protected initLayers(): void {
     this.addLayer("primary", 10);
+    this.addLayer("graph", 50);
     this.addUILayer("lightMask");
     this.addUILayer("slots");
     this.addUILayer("items");
@@ -743,7 +742,8 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Movement Speed Upgrade");
         break;
       case "Stronger Bullets":
-        // Apply Stronger Bullets upgrade
+        this.player.bulletDamage += 1;
+        
         console.log("Stronger Bullets Upgrade");
         break;
     }
@@ -827,17 +827,23 @@ export default class MainHW4Scene extends HW4Scene {
 
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
-
+    console.log(particles);
     let particle = particles.find((particle) => particle.id === particleId);
     if (particle !== undefined) {
       // Get the destructible tilemap
       let zombies = this.zombies;
+      if(particle.age > 0){
       // Loop over all possible tiles the particle could be colliding with
-      for (let zombie of zombies) {
-        if (this.particleHitZombie(zombie, particle)) {
-          zombie.health -= 1;
-          console.log(zombie.id + " hit");
-          particle.age = 0;
+        for (let zombie of zombies) {
+          if (this.particleHitZombie(zombie, particle)) {
+            zombie.health -= this.player.bulletDamage;
+            particle.setParticleInactive();
+            // console.log("BULLETO DAMAGE: ", this.player.bulletDamage);
+            // console.log("ZOMB HEALTH: ", zombie.health)
+            // console.log(zombie.id + " hit");
+            particle.age = 0;
+            particle.visible = false;
+          }
         }
       }
     }
@@ -1643,14 +1649,15 @@ export default class MainHW4Scene extends HW4Scene {
 
       npc.battleGroup = 1;
       // npc.speed = 5;
-      npc.health = 1;
+      npc.health = 3;
       npc.maxHealth = 10;
       npc.navkey = "navmesh";
-      npc.battleGroup = 1;
+      npc.isCollidable = true;
+      // npc.battleGroup = 1;
       npc.speed = 8;
-      npc.health = 1;
-      npc.maxHealth = 10;
-      npc.navkey = "navmesh";
+      // npc.health = 1;
+      // npc.maxHealth = 10;
+      // npc.navkey = "navmesh";
 
       // Give the NPCs their AI
       // npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 10000 });
