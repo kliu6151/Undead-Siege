@@ -59,6 +59,19 @@ export default class PlayerActor extends AnimatedSprite implements Battler {
     set maxHealth(value: number) {
         this.battler.maxHealth = value;
     }
+    get energy(): number {
+        return this.battler.energy;
+    }
+    set energy(value: number) {
+        this.battler.energy = value;
+    };
+
+    get maxEnergy(): number {
+        return this.battler.maxEnergy;
+    }
+    set maxEnergy(value: number) {
+        this.battler.maxEnergy = value;
+    }
     get health(): number {
         return this.battler.health;
     }

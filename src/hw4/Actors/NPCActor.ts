@@ -83,6 +83,16 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
         }
     }
 
+    public get energy(): number{ return this.battler.energy; }
+    public set energy(energy: number) {
+        this.battler.energy = energy;
+    }
+
+    public get maxEnergy(): number { return this.battler.maxEnergy; }
+    public set maxEnergy(maxEnergy: number) {
+        this.battler.maxEnergy = maxEnergy;
+    }
+
     public get invincible(): boolean {return this.battler.invincible}
     public set invincible(invincible: boolean) {this.battler.invincible = invincible; }
     

@@ -20,6 +20,8 @@ export default class BasicBattler implements Battler {
     protected _active: boolean;
     protected _invincible: boolean;
     protected _armor: number;
+    protected _energy: number;
+    protected _maxEnergy: number;
 
     public constructor(owner: Unique & Positioned) {
         this._owner = owner;
@@ -32,6 +34,8 @@ export default class BasicBattler implements Battler {
         this.speed = 0;
         this.battlerActive = true;
         this.armor = 0;
+        this.energy = 0;
+        this.maxEnergy = 0;
     }
     
     public get id(): number { return this._owner.id; }
@@ -51,6 +55,12 @@ export default class BasicBattler implements Battler {
 
     public get health(): number { return this._health; }
     public set health(health: number) { this._health = health; }
+
+    public get maxEnergy(): number {return this._maxEnergy}
+    public set maxEnergy(maxEnergy: number) {this._maxEnergy = maxEnergy}
+
+    public get energy(): number {return this._energy}
+    public set energy(energy: number) {this._energy = energy}
 
     public get speed(): number { return this._speed; }
     public set speed(speed: number) { this._speed = speed; }

@@ -32,6 +32,7 @@ import {
 import Battler from "../../GameSystems/BattleSystem/Battler";
 import BattlerBase from "../../GameSystems/BattleSystem/BattlerBase";
 import HealthbarHUD from "../../GameSystems/HUD/HealthbarHUD";
+import EnergybarHUD from "../../GameSystems/HUD/EnergybarHUD";
 import InventoryHUD from "../../GameSystems/HUD/InventoryHUD";
 import Inventory from "../../GameSystems/ItemSystem/Inventory";
 import Item from "../../GameSystems/ItemSystem/Item";
@@ -185,6 +186,7 @@ export default class MainHW4Scene extends HW4Scene {
   private zombies: NPCActor[];
   /** Healthbars for the battlers */
   private healthbars: Map<number, HealthbarHUD>;
+  private energybars: Map<number, EnergybarHUD>;
 
   private bases: BattlerBase[];
 
@@ -229,6 +231,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.battlers = new Array<Battler & Actor>();
     this.healthbars = new Map<number, HealthbarHUD>();
+    this.energybars = new Map<number, EnergybarHUD>();
     this.zombies = new Array<NPCActor>();
 
     this.laserguns = new Array<LaserGun>();
@@ -255,6 +258,8 @@ export default class MainHW4Scene extends HW4Scene {
         armor: 0,
         bulletDamage: 10,
         materialAmt: 0,
+        energy: 100,
+        maxEnergy: 100,
       };
     }
     console.log(this.sceneManager)
@@ -351,6 +356,8 @@ export default class MainHW4Scene extends HW4Scene {
     if (!this.isPaused) {
 
       if (this.invincibilityTimer) {
+        this.player.energy -= this.player.maxEnergy * (deltaT * 2);
+        this.player.energy = Math.max(this.player.energy, 0);
         this.invincibilityTimer.update(deltaT);
         if (this.invincibilityTimer.isStopped()) {
           // Reset the player's scale
@@ -360,11 +367,18 @@ export default class MainHW4Scene extends HW4Scene {
           this.invincibilityTimer = null;
         }
       }
+      else {
+        // Recharge energy over 5 seconds (5000ms)
+        this.player.energy += this.player.maxEnergy * (deltaT / 3);
+        this.player.energy = Math.min(this.player.energy, this.player.maxEnergy);
+      }
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
       if (this.battlers[0].health <= 0) {
         this.emitter.fireEvent(PlayerEvent.PLAYER_KILLED);
       }
+      this.energybars.forEach((energybar) => energybar.update(deltaT));
+
       this.elapsedTime += deltaT;
 
       // Update the timer
@@ -381,11 +395,7 @@ export default class MainHW4Scene extends HW4Scene {
         seconds
       ).padStart(2, "0")}`;
       if (this.isNight) {
-        // const player = this.battlers[0];
-        // this.lightMask.position = player.position.clone();
-        // this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
         if (remainingTime <= 0) {
-          console.log("ENDENDEND")
           this.levelEnd();
         }
       }
@@ -397,7 +407,6 @@ export default class MainHW4Scene extends HW4Scene {
       }
       if (remainingTime <= 0) {
         // console.log("PLAYER: ", this.battlers[0]);
-        console.log("Time's up!");
         this.isNight = !this.isNight;
 
         if (this.isNight !== this.wasNight) {
@@ -405,19 +414,12 @@ export default class MainHW4Scene extends HW4Scene {
 
           if (this.isNight) {
             //Create the upgrade screen here
-
-            console.log("It's night time!");
-
             this.night.alpha = 0.9;
             this.lightMask.alpha = 0.7;
-            console.log(this.getLayer("primary"));
-            console.log("LIGHT MASK: ", this.lightMask);
             this.initializeNPCs();
-
             this.showUpgradesUI();
             this.isPaused = true;
           } else {
-            console.log("It's day time!");
             this.night.alpha = 0;
             this.lightMask.alpha = 0;
           }
@@ -439,6 +441,8 @@ export default class MainHW4Scene extends HW4Scene {
         armor: this.playerData.armor,
         bulletDamage: this.playerData.bulletDamage,
         materialAmt: parseInt(this.materialCounter.text),
+        energy: 100,
+        maxEnergy: 100,
       };
     }
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
@@ -553,7 +557,9 @@ export default class MainHW4Scene extends HW4Scene {
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
         case BattlerEvent.ROLL: {
-          this.handleRoll(1000);
+          if(this.player.energy === this.player.maxEnergy) {
+            this.handleRoll(1000);
+          }
           break;
         }
         case PlayerEvent.PLAYER_KILLED: {
@@ -633,6 +639,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.invincibilityTimer.start();
       this.player.speed = 3;
       this.player.invincible = true;
+      
     }
   }
 
@@ -1601,6 +1608,12 @@ export default class MainHW4Scene extends HW4Scene {
       if(this.playerData.bulletDamage) {
         this.player.bulletDamage = this.playerData.bulletDamage;
       }
+      if(this.playerData.energy) {
+        this.player.energy = this.playerData.energy;
+      }
+      if(this.playerData.maxEnergy) {
+        this.player.maxEnergy = this.playerData.maxEnergy;
+      }
     }
     else {
       this.player.maxHealth = 100;
@@ -1608,6 +1621,8 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.speed = 1;
       this.player.armor = 0;
       this.player.bulletDamage = 10;
+      this.player.energy = 100;
+      this.player.maxEnergy = 100;
     }
     console.log("PLAYER INIT: ", this.player)
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
@@ -1626,8 +1641,13 @@ export default class MainHW4Scene extends HW4Scene {
       size: this.player.size.clone().scaled(2, 1 / 2),
       offset: this.player.size.clone().scaled(0, -1 / 2),
     });
-    this.healthbars.set(this.player.id, healthbar);
 
+    let energybar = new EnergybarHUD(this, this.player, "primary", {
+      size: this.player.size.clone().scaled(2, 1/2),
+      offset: (this.player.size.clone().scaled(0, -3 / 4)),
+    });
+    this.healthbars.set(this.player.id, healthbar);
+    this.energybars.set(this.player.id, energybar);
     // Give the player PlayerAI
     this.player.addAI(PlayerAI, {
       weaponSystem: this.playerWeaponSystem,
@@ -1675,6 +1695,8 @@ export default class MainHW4Scene extends HW4Scene {
       // npc.battleGroup = 1;
       npc.speed = 8;
       npc.armor = 0;
+      npc.energy = 100;
+      npc.maxEnergy = 100;
       // npc.health = 1;
       // npc.maxHealth = 10;
       // npc.navkey = "navmesh";
