@@ -1065,7 +1065,7 @@ export default class MainHW4Scene extends HW4Scene {
         position: new Vec2(center.x - vp.x + 65, center.y - vp.y + 25).sub(
           this.viewport.getOrigin()
         ),
-        text: ":" + 0,
+        text: ":" + this.materialCounter.text,
       }
     );
 
