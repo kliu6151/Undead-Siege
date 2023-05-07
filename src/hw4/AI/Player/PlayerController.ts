@@ -24,7 +24,7 @@ export enum PlayerInput {
 export default class PlayerController {
   /** The GameNode that owns the AI */
   protected owner: AnimatedSprite;
-  
+  protected speed: number = 1;
   constructor(owner: AnimatedSprite) {
     this.owner = owner;
   }

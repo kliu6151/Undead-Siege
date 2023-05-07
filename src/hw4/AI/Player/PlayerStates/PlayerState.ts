@@ -36,7 +36,7 @@ export default abstract class PlayerState extends State {
         // Adjust the angle the player is facing 
         this.parent.owner.rotation = this.parent.controller.rotation;
         // Move the player
-        this.parent.owner.move(this.parent.controller.moveDir);
+        this.parent.owner.move(this.parent.controller.moveDir.scale(this.owner.speed));
 
         if (this.parent.controller.rolling) {
             this.emitter.fireEvent(BattlerEvent.ROLL);

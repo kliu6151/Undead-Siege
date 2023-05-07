@@ -16,6 +16,7 @@ export default class PlayerActor extends AnimatedSprite implements Battler {
     /** Override the type of the scene to be the HW3 scene */
     protected scene: HW4Scene;
     public isInvicible: boolean;
+    
 
     /** Give the player a battler compoonent */
     protected battler: Battler;

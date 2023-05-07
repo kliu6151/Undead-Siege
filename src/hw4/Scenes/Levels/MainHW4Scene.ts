@@ -344,13 +344,15 @@ export default class MainHW4Scene extends HW4Scene {
     }
 
     if (!this.isPaused) {
-      console.log("PLAYER SPEED: ", this.player.speed);
+
+    
       // console.log("ZOMBIE SPEED: ", this.battlers[1].speed);
       if (this.invincibilityTimer) {
         this.invincibilityTimer.update(deltaT);
         if (this.invincibilityTimer.isStopped()) {
           // Reset the player's scale
           this.player.scale.set(1, 1);
+          this.player.speed = 1;
           this.player.invincible = false;
           this.invincibilityTimer = null;
         }
@@ -543,7 +545,7 @@ export default class MainHW4Scene extends HW4Scene {
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
         case BattlerEvent.ROLL: {
-          this.handleRoll(2000);
+          this.handleRoll(1000);
           break;
         }
         case PlayerEvent.PLAYER_KILLED: {
@@ -621,6 +623,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.scale.set(.5,.5)
       this.invincibilityTimer = new Timer(duration);
       this.invincibilityTimer.start();
+      this.player.speed = 3;
       this.player.invincible = true;
     }
   }
@@ -1555,6 +1558,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.maxHealth = 10;
       this.player.health = 10;
     }
+    this.player.speed = 1;
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),
@@ -1610,12 +1614,12 @@ export default class MainHW4Scene extends HW4Scene {
       this.healthbars.set(npc.id, healthbar);
 
       npc.battleGroup = 1;
-      npc.speed = 5;
+      // npc.speed = 5;
       npc.health = 1;
       npc.maxHealth = 10;
       npc.navkey = "navmesh";
       npc.battleGroup = 1;
-      npc.speed = 10;
+      npc.speed = 8;
       npc.health = 1;
       npc.maxHealth = 10;
       npc.navkey = "navmesh";
