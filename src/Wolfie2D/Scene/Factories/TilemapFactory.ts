@@ -80,7 +80,6 @@ export default class TilemapFactory {
         let collectionTiles = new Array<TiledCollectionTile>();
 
         for(let tileset of tilemapData.tilesets){
-            console.log(tileset.image)
             if(tileset.image){
                 // If this is a standard tileset and not a collection, create a tileset for it.
                 // TODO - We are ignoring collection tilesets for now. This is likely not a great idea in practice,

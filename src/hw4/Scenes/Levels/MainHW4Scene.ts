@@ -247,8 +247,10 @@ export default class MainHW4Scene extends HW4Scene {
       this.playerData = {
         maxHealth: 10,
         health: 10,
+        weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1)
       };
     }
+    console.log(this.sceneManager)
 
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
@@ -328,7 +330,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
     this.receiver.subscribe(BattlerEvent.OVERLAP);
-    console.log(this);
   }
   /**
    * @see Scene.updateScene
@@ -376,7 +377,7 @@ export default class MainHW4Scene extends HW4Scene {
         this.night.alpha -= 0.05;
       }
       if (remainingTime <= 0) {
-        console.log("PLAYER: ", this.battlers[0]);
+        // console.log("PLAYER: ", this.battlers[0]);
         console.log("Time's up!");
         this.isNight = !this.isNight;
 
@@ -414,6 +415,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.sceneManager.playerData = {
         maxHealth: this.playerData.maxHealth,
         health: this.playerData.health,
+        weapon: this.playerData.weapon,
       };
     }
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
@@ -464,8 +466,11 @@ export default class MainHW4Scene extends HW4Scene {
   }*/
 
   protected initializeWeaponSystem(): void {
-    this.playerWeaponSystem = new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1);
-    this.playerWeaponSystem.initializePool(this, "primary");
+
+    if(this.playerData) {
+      this.playerWeaponSystem = this.playerData.weapon;
+      this.playerWeaponSystem.initializePool(this, "primary");
+    }
   }
 
   /**
@@ -696,7 +701,6 @@ export default class MainHW4Scene extends HW4Scene {
         // Increase the pool size and max particles per frame
         particleSystem.increasePoolSize(increaseAmount, this, "primary");
         particleSystem.increaseMaxParticlesPerFrame(increaseAmount);
-
         // this.playerWeaponSystem = new PlayerWeapon(this.spread + 5, Vec2.ZERO, 1000, 3, 0, this.spread + 5);
         // this.playerWeaponSystem.initializePool(this, "primary");
 
@@ -1530,7 +1534,6 @@ export default class MainHW4Scene extends HW4Scene {
       player.health = 10;
     }
 
-    console.log("PLAYER INIT: ", player);
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),
