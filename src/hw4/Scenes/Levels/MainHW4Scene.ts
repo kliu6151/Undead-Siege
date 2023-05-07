@@ -140,6 +140,7 @@ export default class MainHW4Scene extends HW4Scene {
   private shootLabel: Label;
   private pauseLabel: Label;
   private pickupLabel: Label;
+  private rollLabel: Label;
 
   private objectiveLabel: Label;
   private objectDescriptionLabel: Label[] = [];
@@ -1219,6 +1220,8 @@ export default class MainHW4Scene extends HW4Scene {
       text: "Resume",
     });
     this.resume.textColor = Color.RED;
+    this.resume.sizeToText();
+    this.resume.scale.set(.5,.5);
     this.resume.fontSize = 32;
     this.resume.onClickEventId = "unPause";
 
@@ -1227,6 +1230,8 @@ export default class MainHW4Scene extends HW4Scene {
       text: "Controls",
     });
     this.controls.textColor = Color.WHITE;
+    this.controls.sizeToText();
+    this.controls.scale.set(.5,.5);
     this.controls.fontSize = 32;
     this.controls.onClickEventId = "showControls";
 
@@ -1235,6 +1240,8 @@ export default class MainHW4Scene extends HW4Scene {
       text: "Exit",
     });
     this.exit.textColor = Color.RED;
+    this.exit.sizeToText();
+    this.exit.scale.set(.5,.5);
     this.exit.fontSize = 32;
     this.exit.onClickEventId = "exit";
 
@@ -1243,6 +1250,8 @@ export default class MainHW4Scene extends HW4Scene {
       text: "Cheats",
     });
     this.cheats.textColor = Color.WHITE;
+    this.cheats.scale.set(.5,.5);
+    this.cheats.sizeToText();
     this.cheats.fontSize = 32;
     this.cheats.onClickEventId = "showCheats";
 
@@ -1308,7 +1317,7 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          7 * (this.viewport.getHalfSize().y / 8)
+          8 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[W] - Up",
     });
@@ -1320,7 +1329,7 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          6 * (this.viewport.getHalfSize().y / 8)
+          7 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[S] - Down",
     });
@@ -1332,7 +1341,7 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          5 * (this.viewport.getHalfSize().y / 8)
+          6 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[A] - Left",
     });
@@ -1344,7 +1353,7 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          4 * (this.viewport.getHalfSize().y / 8)
+          5 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[D] - Right",
     });
@@ -1356,7 +1365,7 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          3 * (this.viewport.getHalfSize().y / 8)
+          4 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[Left Click] - Shoot",
     });
@@ -1368,7 +1377,7 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          2 * (this.viewport.getHalfSize().y / 8)
+          3 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[E] - Pickup",
     });
@@ -1380,12 +1389,24 @@ export default class MainHW4Scene extends HW4Scene {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-          1 * (this.viewport.getHalfSize().y / 8)
+          2 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[ESC] - Pause",
     });
     this.pauseLabel.textColor = Color.WHITE;
     this.pauseLabel.fontSize = 16;
+    
+    Text = "[R] - Roll";
+    this.rollLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(
+        (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
+        this.viewport.getHalfSize().y * 2 -
+        1 * (this.viewport.getHalfSize().y / 8)
+      ),
+      text: "[R] - Roll",
+    });
+    this.rollLabel.textColor = Color.WHITE;
+    this.rollLabel.fontSize = 16;
 
     Text = "Objective";
     this.objectiveLabel = <Label>this.add.uiElement(
@@ -1476,6 +1497,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.shootLabel.visible = true;
     this.pauseLabel.visible = true;
     this.pickupLabel.visible = true;
+    this.rollLabel.visible = true;
   }
 
   private hideControlsUI(): void {
@@ -1486,6 +1508,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.shootLabel.visible = false;
     this.pauseLabel.visible = false;
     this.pickupLabel.visible = false;
+    this.rollLabel.visible = false;
   }
 
   private showUpgradesUI(): void {
