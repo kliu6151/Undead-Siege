@@ -249,7 +249,8 @@ export default class MainHW4Scene extends HW4Scene {
       this.playerData = {
         maxHealth: 10,
         health: 10,
-        weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1)
+        weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1),
+        speed: 1,
       };
     }
     console.log(this.sceneManager)
@@ -432,6 +433,7 @@ export default class MainHW4Scene extends HW4Scene {
         maxHealth: this.playerData.maxHealth,
         health: this.playerData.health,
         weapon: this.playerData.weapon,
+        speed: this.playerData.speed,
       };
     }
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
@@ -736,7 +738,7 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Helicopter Health Upgrade");
         break;
       case "Movement Speed":
-        this.battlers[0].speed += 1
+        this.player.speed *= 1.1;
         console.log("Movement Speed Upgrade");
         break;
       case "Stronger Bullets":
@@ -1553,12 +1555,15 @@ export default class MainHW4Scene extends HW4Scene {
       if (this.playerData.health) {
         this.player.health = this.playerData.health;
       }
+      if (this.playerData.speed) {
+        this.player.speed = this.playerData.speed;
+      }
     }
     else {
       this.player.maxHealth = 10;
       this.player.health = 10;
+      this.player.speed = 1;
     }
-    this.player.speed = 1;
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),
