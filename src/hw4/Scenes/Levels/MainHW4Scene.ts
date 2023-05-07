@@ -1622,6 +1622,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.battlers.push(this.player);
     this.viewport.follow(this.player);
   }
+
+  
   /**
    * Initialize the NPCs
    */

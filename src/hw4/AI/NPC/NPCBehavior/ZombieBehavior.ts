@@ -26,6 +26,7 @@ import PlayerActor from "../../../Actors/PlayerActor";
 import Repulsion from "../NPCActions/Repulsion";
 import { PhysicsGroups } from "../../../PhysicsGroups";
 import Vec2 from "../../../../Wolfie2D/DataTypes/Vec2";
+// import MoveTowardsPlayer from "../NPCActions/MoveTowardsPlayer";
 
 export default class ZombieBehavior extends NPCBehavior {
   /** The target the guard should guard */
@@ -46,7 +47,7 @@ export default class ZombieBehavior extends NPCBehavior {
     this.range = options.range;
 
     this.updateTimer = 0;
-    this.updateInterval = 1000;
+    this.updateInterval = 10;
 
     // Initialize zombie statuses
     this.initializeStatuses();
@@ -67,12 +68,12 @@ export default class ZombieBehavior extends NPCBehavior {
   }
 
   private avoidZombies(deltaT: number): void {
-    const avoidDistance = 5000; // Set a distance to avoid other zombies (squared to avoid using square root)
-    const weight = 5; // Set a weight for the avoidance force
+    const avoidDistance = 1000; // Set a distance to avoid other zombies (squared to avoid using square root)
+    const weight = 1; // Set a weight for the avoidance force
     const dampingWeight = 0.9;
     let avoidanceForce = new Vec2(0, 0);
     // Loop through all the zombies
-    console.log(this.owner.getScene().getBattlers().slice(1))
+    // console.log(this.owner.getScene().getBattlers().slice(1))
     for (let zombie of this.owner.getScene().getBattlers().slice(1)) {
 
         if (zombie === this.owner) continue; // Skip self
@@ -101,8 +102,10 @@ export default class ZombieBehavior extends NPCBehavior {
     // If the timer exceeds the update interval, update the target position
     if (this.updateTimer >= this.updateInterval) {
       // Set the target position for the zombie
-      this.target.position = this.owner.getScene().getBattlers()[0].position;
-      // Reset the timer
+      const player = this.owner.getScene().getBattlers().find(battler => battler instanceof PlayerActor);
+      if (player) {
+        this.target.position = player.position;
+      }      // Reset the timer
       this.updateTimer = 0;
     }
     this.avoidZombies(deltaT);

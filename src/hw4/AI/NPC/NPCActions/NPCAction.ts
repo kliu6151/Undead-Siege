@@ -7,6 +7,7 @@ import Finder from "../../../GameSystems/Searching/Finder";
 import { TargetableEntity } from "../../../GameSystems/Targeting/TargetableEntity";
 import BasicFinder from "../../../GameSystems/Searching/BasicFinder";
 import NavigationPath from "../../../../Wolfie2D/Pathfinding/NavigationPath";
+import PlayerActor from "../../../Actors/PlayerActor";
 
 /**
  * An abstract GoapAction for an NPC. All NPC actions consist of doing three things:
@@ -24,6 +25,9 @@ export default abstract class NPCAction extends GoapAction {
     protected parent: NPCBehavior;
     protected actor: NPCActor;
 
+    protected updateCounter: number;
+    protected updateInterval: number;
+
     // The targeting strategy used for this GotoAction - determines how the target is selected basically
     protected _targetFinder: Finder<TargetableEntity>;
     // The targets or Targetable entities 
@@ -39,32 +43,55 @@ export default abstract class NPCAction extends GoapAction {
         this.targets = [];
         this.target = null;
         this.path = null;
+        this.updateCounter = 0;
+        this.updateInterval = 3;
     }
 
     public onEnter(options: Record<string, any>): void {
         // Select the target location where the NPC should perform the action
         this.target = this.targetFinder.find(this.targets);
-
+    
         // If we found a target, set the NPCs target to the target and find a path to the target
         if (this.target !== null) {
             // Set the actors current target to be the target for this action
             this.actor.setTarget(this.target);
+            // Update the target's position
+            this.target.position = this.actor.getTarget().position;
             // Construct a path from the actor to the target
             this.path = this.actor.getPath(this.actor.position, this.target.position);
         }
     }
+    
+
 
     public update(deltaT: number): void {
+        const player = this.actor.getScene().getBattlers().find(battler => battler instanceof PlayerActor);
+        if (player) {
+            const targetPosition = player.position;
+            const distanceMoved = targetPosition.distanceTo(this.actor.position);
+            console.log("Distance moved:", distanceMoved); // For debugging purposes
+            this.updateCounter += deltaT;
+            // Update target position and path if the player has moved enough or if the path is null
+            if ((distanceMoved > 50 || this.path === null) && this.updateCounter >= this.updateInterval) {
+                this.target.position = targetPosition.clone();
+                this.path = this.actor.getPath(this.actor.position, this.target.position);
+                this.updateCounter = 0;
+            }
+        }
+    
         if (this.target !== null && this.path !== null && !this.path.isDone()) {
             if (this.actor.atTarget()) {
                 this.performAction(this.target);
             } else {
-                this.actor.moveOnPath(this.actor.speed*deltaT*10, this.path)
+                this.actor.moveOnPath(this.actor.speed * deltaT * 10, this.path);
             }
         } else {
             this.finished();
         }
     }
+    
+
+    
 
     public abstract performAction(target: TargetableEntity): void;
 
