@@ -254,6 +254,7 @@ export default class MainHW4Scene extends HW4Scene {
         speed: 1,
         armor: 0,
         bulletDamage: 10,
+        materialAmt: 0,
       };
     }
     console.log(this.sceneManager)
@@ -436,7 +437,8 @@ export default class MainHW4Scene extends HW4Scene {
         weapon: this.playerData.weapon,
         speed: this.playerData.speed,
         armor: this.playerData.armor,
-        bulletDamage: this.playerData.bulletDamage
+        bulletDamage: this.playerData.bulletDamage,
+        materialAmt: parseInt(this.materialCounter.text),
       };
     }
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
@@ -1005,7 +1007,7 @@ export default class MainHW4Scene extends HW4Scene {
             20,
           15
         ),
-        text: "0",
+        text: this.playerData.materialAmt.toString()
       }
     );
     //Fuel Icon
