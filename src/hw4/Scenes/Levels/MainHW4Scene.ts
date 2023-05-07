@@ -203,12 +203,13 @@ export default class MainHW4Scene extends HW4Scene {
   protected wallsLayerKey: string;
   protected playerSpriteKey: string;
   protected tilemapScale: Vec2;
+  protected playerData: Record<string, any>;
 
   public constructor(
     viewport: Viewport,
     sceneManager: SceneManager,
     renderingManager: RenderingManager,
-    options: Record<string, any>
+    options: Record<string, any>,
   ) {
     super(viewport, sceneManager, renderingManager, {
       ...options,
@@ -220,6 +221,8 @@ export default class MainHW4Scene extends HW4Scene {
         ],
       },
     });
+
+
 
     this.battlers = new Array<Battler & Actor>();
     this.healthbars = new Map<number, HealthbarHUD>();
@@ -236,6 +239,17 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
+    console.log("MAIN SCENEEEEE: ", this.sceneManager)
+    if (this.sceneManager.playerData) {
+      this.playerData = this.sceneManager.playerData;
+    } else {
+      // Set default playerData if not available
+      this.playerData = {
+        maxHealth: 10,
+        health: 10,
+      };
+    }
+
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
       this.viewport.getHalfSize().y * 2
@@ -351,10 +365,8 @@ export default class MainHW4Scene extends HW4Scene {
         // this.lightMask.position = player.position.clone();
         // this.lightMask.updatePlayerInfo(this.battlers[0].position, 100);
         if (remainingTime <= 0) {
-          console.log("end of night");
-          console.log(
-            this.emitter.fireEvent(SceneEvent.LEVEL_END, { scene: this })
-          );
+          console.log("ENDENDEND")
+          this.levelEnd();
         }
       }
       if (!this.isNight && this.elapsedTime >= 5 * this.darknessCounter) {
@@ -396,6 +408,18 @@ export default class MainHW4Scene extends HW4Scene {
       }
     }
   }
+
+  protected levelEnd(): void {
+    if(this.playerData) {
+      this.sceneManager.playerData = {
+        maxHealth: this.playerData.maxHealth,
+        health: this.playerData.health,
+      };
+    }
+    this.emitter.fireEvent(SceneEvent.LEVEL_END, {
+      scene: this,
+      init: { playerData: this.playerData },
+    });  }
 
   initializeSpotLight() {
     // this.testLabel = <Label>this.add.uiElement(UIElementType.LABEL, "lightMask", {position: this.viewport.getCenter(), text: "TESTLJKDHSAJKDHKHASKDHJKASHJKDHJAS"});
@@ -464,7 +488,6 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case "showControls": {
-          console.log("SHOW CONTROLS");
           this.handleShowControls();
           break;
         }
@@ -511,7 +534,8 @@ export default class MainHW4Scene extends HW4Scene {
         case SceneEvent.LEVEL_END: {
           console.log("LEVEL END");
           this.resetViewportSize();
-          this.sceneManager.changeToScene(this.nextLevel);
+          let playerData = this.sceneManager.playerData;
+          this.sceneManager.changeToScene(this.nextLevel, {}, playerData);
           break;
         }
         // case "allLevelCheatUnlock": {
@@ -591,7 +615,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
       this.upgradeRefreshButton.text = "Refresh - 4";
     }
-    if (parseInt(this.materialCounter.text) >= 4) {
+    else if (parseInt(this.materialCounter.text) >= 4) {
       this.materialCounter.text = (parseInt(this.materialCounter.text) - 4).toString();
       this.upgradeMaterial.text = this.materialCounter.text;
       const availableOptions = [...upgradeOptions];
@@ -599,6 +623,10 @@ export default class MainHW4Scene extends HW4Scene {
       this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
       this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
       this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
+      this.refreshUpgrades(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
+      this.refreshUpgrades(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
+      this.refreshUpgrades(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
+
     }
   }
 
@@ -654,6 +682,7 @@ export default class MainHW4Scene extends HW4Scene {
     switch (upgradeText) {
       case "Health":
         this.battlers[0].maxHealth += 10;
+        this.playerData.maxHealth += 10;
         console.log("Health Upgrade");
         break;
       case "Armor":
@@ -678,7 +707,7 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Helicopter Health Upgrade");
         break;
       case "Movement Speed":
-        
+        this.battlers[0].speed += 1
         console.log("Movement Speed Upgrade");
         break;
       case "Stronger Bullets":
@@ -1488,10 +1517,20 @@ export default class MainHW4Scene extends HW4Scene {
     let player = this.add.animatedSprite(PlayerActor, "player1", "primary");
     player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
     player.battleGroup = 2;
+    if(this.playerData) {
+      if (this.playerData.maxHealth) {
+        player.maxHealth = this.playerData.maxHealth;
+      }
+      if (this.playerData.health) {
+        player.health = this.playerData.health;
+      }
+    }
+    else {
+      player.maxHealth = 10;
+      player.health = 10;
+    }
 
-    player.health = 10;
-    player.maxHealth = 10;
-
+    console.log("PLAYER INIT: ", player);
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),

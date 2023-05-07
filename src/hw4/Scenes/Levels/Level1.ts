@@ -152,6 +152,7 @@ export default class Level1 extends MainHW4Scene {
 
     public startScene(): void {
         super.startScene();
+        
         // Set the next level to be Level2
         this.nextLevel = Level2;
     }

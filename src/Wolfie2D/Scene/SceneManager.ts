@@ -32,6 +32,8 @@ export default class SceneManager {
 
 	protected receiver: Receiver;
 
+	playerData: any;
+
 	/**
 	 * Creates a new SceneManager
 	 * @param viewport The Viewport of the game
@@ -123,7 +125,7 @@ export default class SceneManager {
 	public update(deltaT: number){
 		while (this.receiver.hasNextEvent()) {
 			let ev = this.receiver.getNextEvent();
-			if (ev.type === GameEventType.CHANGE_SCENE) this.changeToScene(ev.data.get("scene"), ev.data.get("init"));
+			if (ev.type === GameEventType.CHANGE_SCENE) this.changeToScene(ev.data.get("scene"), ev.data.get("init"), ev.data.get("playerData"));
 		}
 
 		if(this.pendingScene !== null){
