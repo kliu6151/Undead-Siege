@@ -118,5 +118,15 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
 
     protected get battler(): Battler { return this._battler; }
     protected get targeting(): TargetingEntity { return this._targeting; }
+
+    public get faceDir(): Vec2 {
+        return this.position.dirTo(this.getTarget().position);
+      }
+
+
+    
+      
+      
+      
     
 }
