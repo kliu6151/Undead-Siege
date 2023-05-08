@@ -57,7 +57,6 @@ export default class PlayerAI extends StateMachineAI implements AI {
     super.update(deltaT);
 
     if (Input.isMouseJustPressed()) {
-      console.log("WHERE AM I? :" , this.owner.position);
       let particles = this.weapon.getPool();
       for (let i = 0; i < particles.length; i++) {
         particles[i].active = true;

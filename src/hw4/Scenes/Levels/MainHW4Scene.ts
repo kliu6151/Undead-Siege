@@ -259,7 +259,7 @@ export default class MainHW4Scene extends HW4Scene {
         maxHealth: 100,
         health: 100,
         weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1),
-        speed: 20,
+        speed: 1,
         armor: 0,
         bulletDamage: 10,
         materialAmt: 0,
@@ -1711,6 +1711,14 @@ export default class MainHW4Scene extends HW4Scene {
           break;
       }
 
+        
+        npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
+        let healthbar = new HealthbarHUD(this, npc, "primary", {
+          size: npc.size.clone().scaled(2, 1 / 2),
+          offset: npc.size.clone().scaled(0, -1 / 2),
+        });
+        this.healthbars.set(npc.id, healthbar);
+
         npc.health = multipliedStats.health;
         npc.maxHealth = multipliedStats.maxHealth;
         npc.speed = multipliedStats.speed;
@@ -1721,12 +1729,8 @@ export default class MainHW4Scene extends HW4Scene {
         npc.energy = 100;
         npc.maxEnergy = 100;
         npc.position.set(randomPos.x, randomPos.y);
-        npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
-        let healthbar = new HealthbarHUD(this, npc, "primary", {
-          size: npc.size.clone().scaled(2, 1 / 2),
-          offset: npc.size.clone().scaled(0, -1 / 2),
-        });
-        this.healthbars.set(npc.id, healthbar);
+        console.log("I AM ZOMBIE: ", npc)
+        
         npc.animation.play("IDLE");
         npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
         npc.setGroup(PhysicsGroups.ZOMBIE);
