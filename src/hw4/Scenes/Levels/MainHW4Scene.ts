@@ -69,6 +69,12 @@ const BattlerGroups = {
   BLUE: 2,
 } as const;
 
+enum ZombieType {
+  Basic,
+  Fast,
+  Strong
+}
+
 const upgradeOptions = [
   "Health",
   "Armor",
@@ -853,7 +859,7 @@ export default class MainHW4Scene extends HW4Scene {
       // Loop over all possible tiles the particle could be colliding with
         for (let zombie of zombies) {
           if (this.particleHitZombie(zombie, particle)) {
-            zombie.health -= this.player.bulletDamage;
+            zombie.health -= this.player.bulletDamage - zombie.armor;
             particle.setParticleInactive();
             // console.log("BULLETO DAMAGE: ", this.player.bulletDamage);
             // console.log("ZOMB HEALTH: ", zombie.health)
@@ -1683,12 +1689,46 @@ export default class MainHW4Scene extends HW4Scene {
     // Get the object data for the blue enemies
     // Initialize the blue enemies
     for (let i = 0; i < zombieAmt; i++) {
+
       // console.log("ZOMBIES")
       const randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
       const tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y)
       if(!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
-        // console.log("SPAWN IT")
-        let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
+        const zombieType = Math.floor(Math.random() * Object.keys(ZombieType).length / 2);
+        console.log("ZOMB TYPE: ", zombieType)
+        let npc: NPCActor;
+
+        switch (zombieType) {
+          case ZombieType.Basic:
+            console.log("BASIC ZOMBIE");
+            npc = this.add.animatedSprite(NPCActor, "BasicEnemy", "primary");
+            npc.health = 100;
+            npc.maxHealth = 100;
+            npc.speed = 8;
+            npc.armor = 0;
+            break;
+          case ZombieType.Fast:
+            console.log("FAST ZOMBIE");
+            npc = this.add.animatedSprite(NPCActor, "FastEnemy", "primary");
+            npc.health = 60;
+            npc.maxHealth = 60;
+            npc.speed = 12;
+            npc.armor = 0;
+            break;
+          case ZombieType.Strong:
+            console.log("STRONG ZOMBIE");
+            npc = this.add.animatedSprite(NPCActor, "StrongEnemy", "primary");
+            npc.health = 150;
+            npc.maxHealth = 150;
+            npc.speed = 4;
+            npc.armor = 2;
+            break;
+        }
+        npc.battleGroup = 1;
+        npc.navkey = "navmesh";
+        npc.isCollidable = true;
+        npc.energy = 100;
+        npc.maxEnergy = 100;
         npc.position.set(randomPos.x, randomPos.y);
         npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
         let healthbar = new HealthbarHUD(this, npc, "primary", {
@@ -1696,41 +1736,16 @@ export default class MainHW4Scene extends HW4Scene {
           offset: npc.size.clone().scaled(0, -1 / 2),
         });
         this.healthbars.set(npc.id, healthbar);
-  
-        npc.battleGroup = 1;
-        // npc.speed = 5;
-        npc.health = 100;
-        npc.maxHealth = 100;
-        npc.navkey = "navmesh";
-        npc.isCollidable = true;
-        // npc.battleGroup = 1;
-        npc.speed = 8;
-        npc.armor = 0;
-        npc.energy = 100;
-        npc.maxEnergy = 100;
-        // npc.health = 1;
-        // npc.maxHealth = 10;
-        // npc.navkey = "navmesh";
-  
-        // Give the NPCs their AI
-        // npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 10000 });
-        // Play the NPCs "IDLE" animation
         npc.animation.play("IDLE");
-        // Give the NPCs their AI
         npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
-        // Play the NPCs "IDLE" animation
-        npc.animation.play("IDLE");
         npc.setGroup(PhysicsGroups.ZOMBIE);
         npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
         npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
-        
-        //npc.setTrigger
-  
+
         this.battlers.push(npc);
         this.zombies.push(npc);
       }
       else {
-        console.log("ELSELSLELSE");
         i--;
       }
     
