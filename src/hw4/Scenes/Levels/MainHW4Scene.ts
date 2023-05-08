@@ -63,15 +63,17 @@ import Particle from "../../../Wolfie2D/Nodes/Graphics/Particle";
 import Input from "../../../Wolfie2D/Input/Input";
 import Scene from "../../../Wolfie2D/Scene/Scene";
 import { LevelConfig, levelConfigs } from "./levelConfig";
-import { ZombieStats, baseZombieStats, applyMultiplier , ZombieType} from './zombieStats';
-
+import {
+  ZombieStats,
+  baseZombieStats,
+  applyMultiplier,
+  ZombieType,
+} from "./zombieStats";
 
 const BattlerGroups = {
   RED: 1,
   BLUE: 2,
 } as const;
-
-
 
 const upgradeOptions = [
   "Health",
@@ -82,19 +84,11 @@ const upgradeOptions = [
   "Stronger Bullets",
 ];
 
-const upgradeCosts = [
-  2,
-  1,
-  10,
-  5,
-  6,
-  9,
-]
+const upgradeCosts = [2, 1, 10, 5, 6, 9];
 
 export default class MainHW4Scene extends HW4Scene {
   //Upgrade
-
-
+  private onScreenZombies: number;
   public isPaused: boolean;
   private darknessCounter: number = 1;
   private isUpgrading: boolean;
@@ -219,7 +213,7 @@ export default class MainHW4Scene extends HW4Scene {
     viewport: Viewport,
     sceneManager: SceneManager,
     renderingManager: RenderingManager,
-    options: Record<string, any>,
+    options: Record<string, any>
   ) {
     super(viewport, sceneManager, renderingManager, {
       ...options,
@@ -231,8 +225,6 @@ export default class MainHW4Scene extends HW4Scene {
         ],
       },
     });
-
-
 
     this.battlers = new Array<Battler & Actor>();
     this.healthbars = new Map<number, HealthbarHUD>();
@@ -250,7 +242,7 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-    console.log("MAIN SCENEEEEE: ", this.sceneManager)
+    console.log("MAIN SCENEEEEE: ", this.sceneManager);
     if (this.sceneManager.playerData) {
       this.playerData = this.sceneManager.playerData;
     } else {
@@ -267,10 +259,10 @@ export default class MainHW4Scene extends HW4Scene {
         maxEnergy: 100,
       };
     }
-
+    this.onScreenZombies = 0;
     this.currentLevelConfig = levelConfigs[this.levelKey];
 
-    console.log(this.levelKey)
+    console.log(this.levelKey);
 
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
@@ -362,7 +354,6 @@ export default class MainHW4Scene extends HW4Scene {
     }
 
     if (!this.isPaused) {
-
       if (this.invincibilityTimer) {
         this.player.energy -= this.player.maxEnergy * (deltaT * 2);
         this.player.energy = Math.max(this.player.energy, 0);
@@ -374,11 +365,13 @@ export default class MainHW4Scene extends HW4Scene {
           this.player.invincible = false;
           this.invincibilityTimer = null;
         }
-      }
-      else {
+      } else {
         // Recharge energy over 5 seconds (5000ms)
         this.player.energy += this.player.maxEnergy * (deltaT / 3);
-        this.player.energy = Math.min(this.player.energy, this.player.maxEnergy);
+        this.player.energy = Math.min(
+          this.player.energy,
+          this.player.maxEnergy
+        );
       }
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
@@ -440,7 +433,7 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   protected levelEnd(): void {
-    if(this.playerData) {
+    if (this.playerData) {
       this.sceneManager.playerData = {
         maxHealth: this.playerData.maxHealth,
         health: this.playerData.health,
@@ -456,7 +449,8 @@ export default class MainHW4Scene extends HW4Scene {
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
       scene: this,
       init: { playerData: this.playerData },
-    });  }
+    });
+  }
 
   initializeSpotLight() {
     // this.testLabel = <Label>this.add.uiElement(UIElementType.LABEL, "lightMask", {position: this.viewport.getCenter(), text: "TESTLJKDHSAJKDHKHASKDHJKASHJKDHJAS"});
@@ -502,8 +496,7 @@ export default class MainHW4Scene extends HW4Scene {
   }*/
 
   protected initializeWeaponSystem(): void {
-
-    if(this.playerData) {
+    if (this.playerData) {
       this.playerWeaponSystem = this.playerData.weapon;
       this.playerWeaponSystem.initializePool(this, "primary");
     }
@@ -565,7 +558,7 @@ export default class MainHW4Scene extends HW4Scene {
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
         case BattlerEvent.ROLL: {
-          if(this.player.energy === this.player.maxEnergy) {
+          if (this.player.energy === this.player.maxEnergy) {
             this.handleRoll(1000);
           }
           break;
@@ -642,48 +635,106 @@ export default class MainHW4Scene extends HW4Scene {
 
   private handleRoll(duration: number): void {
     if (!this.invincibilityTimer) {
-      this.player.scale.set(.5,.5)
+      this.player.scale.set(0.5, 0.5);
       this.invincibilityTimer = new Timer(duration);
       this.invincibilityTimer.start();
       this.player.speed = 3;
       this.player.invincible = true;
-      
     }
   }
 
-  private refreshUpgrades(button: Button, label:Label, sprite: Sprite): void {
+  private refreshUpgrades(button: Button, label: Label, sprite: Sprite): void {
     button.visible = true;
     label.visible = true;
     sprite.visible = true;
   }
   private handleRefreshUpgrade(): void {
     if (this.upgradeRefreshButton.text === "FREE") {
-      this.refreshUpgrades(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
-      this.refreshUpgrades(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
-      this.refreshUpgrades(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
+      this.refreshUpgrades(
+        this.upgradeOne,
+        this.upgradeOneCost,
+        this.upgradeOneMat
+      );
+      this.refreshUpgrades(
+        this.upgradeTwo,
+        this.upgradeTwoCost,
+        this.upgradeTwoMat
+      );
+      this.refreshUpgrades(
+        this.upgradeThree,
+        this.upgradeThreeCost,
+        this.upgradeThreeMat
+      );
       const availableOptions = [...upgradeOptions];
       const upgradeCost = [...upgradeCosts];
-      this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
-      this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
-      this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
+      this.assignRandomUpgradeText(
+        this.upgradeOne,
+        this.upgradeOneCost,
+        availableOptions,
+        upgradeCost
+      );
+      this.assignRandomUpgradeText(
+        this.upgradeTwo,
+        this.upgradeTwoCost,
+        availableOptions,
+        upgradeCost
+      );
+      this.assignRandomUpgradeText(
+        this.upgradeThree,
+        this.upgradeThreeCost,
+        availableOptions,
+        upgradeCost
+      );
       this.upgradeRefreshButton.text = "Refresh - 4";
-    }
-    else if (parseInt(this.materialCounter.text) >= 4) {
-      this.materialCounter.text = (parseInt(this.materialCounter.text) - 4).toString();
+    } else if (parseInt(this.materialCounter.text) >= 4) {
+      this.materialCounter.text = (
+        parseInt(this.materialCounter.text) - 4
+      ).toString();
       this.upgradeMaterial.text = this.materialCounter.text;
       const availableOptions = [...upgradeOptions];
       const upgradeCost = [...upgradeCosts];
-      this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
-      this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
-      this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
-      this.refreshUpgrades(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
-      this.refreshUpgrades(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
-      this.refreshUpgrades(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
-
+      this.assignRandomUpgradeText(
+        this.upgradeOne,
+        this.upgradeOneCost,
+        availableOptions,
+        upgradeCost
+      );
+      this.assignRandomUpgradeText(
+        this.upgradeTwo,
+        this.upgradeTwoCost,
+        availableOptions,
+        upgradeCost
+      );
+      this.assignRandomUpgradeText(
+        this.upgradeThree,
+        this.upgradeThreeCost,
+        availableOptions,
+        upgradeCost
+      );
+      this.refreshUpgrades(
+        this.upgradeOne,
+        this.upgradeOneCost,
+        this.upgradeOneMat
+      );
+      this.refreshUpgrades(
+        this.upgradeTwo,
+        this.upgradeTwoCost,
+        this.upgradeTwoMat
+      );
+      this.refreshUpgrades(
+        this.upgradeThree,
+        this.upgradeThreeCost,
+        this.upgradeThreeMat
+      );
     }
   }
 
-  private assignRandomUpgradeText(button: Button, label: Label,  availableOptions: string[], upgradeCost: number[]): void {
+  private assignRandomUpgradeText(
+    button: Button,
+    label: Label,
+    availableOptions: string[],
+    upgradeCost: number[]
+  ): void {
     const randomIndex = Math.floor(Math.random() * availableOptions.length);
     button.text = availableOptions[randomIndex];
     label.text = upgradeCost[randomIndex].toString();
@@ -691,36 +742,61 @@ export default class MainHW4Scene extends HW4Scene {
     upgradeCost.splice(randomIndex, 1);
   }
 
-  private selectedUpgrade(button: Button, label:Label, sprite: Sprite): void {
+  private selectedUpgrade(button: Button, label: Label, sprite: Sprite): void {
     button.visible = false;
     label.visible = false;
     sprite.visible = false;
   }
 
   private handleUpgradeOne(): void {
-    if(!this.upgradeOne.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeOneCost.text))
-    {
-      this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeOneCost.text)).toString();
-      this.selectedUpgrade(this.upgradeOne, this.upgradeOneCost, this.upgradeOneMat);
+    if (
+      !this.upgradeOne.isDisabled &&
+      parseInt(this.materialCounter.text) >= parseInt(this.upgradeOneCost.text)
+    ) {
+      this.materialCounter.text = (
+        parseInt(this.materialCounter.text) - parseInt(this.upgradeOneCost.text)
+      ).toString();
+      this.selectedUpgrade(
+        this.upgradeOne,
+        this.upgradeOneCost,
+        this.upgradeOneMat
+      );
       this.applyUpgrade(this.upgradeOne);
     }
   }
 
-  
   private handleUpgradeTwo(): void {
-    if(!this.upgradeTwo.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeTwoCost.text))
-    {
-      this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeTwoCost.text)).toString();
-      this.selectedUpgrade(this.upgradeTwo, this.upgradeTwoCost, this.upgradeTwoMat);
+    if (
+      !this.upgradeTwo.isDisabled &&
+      parseInt(this.materialCounter.text) >= parseInt(this.upgradeTwoCost.text)
+    ) {
+      this.materialCounter.text = (
+        parseInt(this.materialCounter.text) - parseInt(this.upgradeTwoCost.text)
+      ).toString();
+      this.selectedUpgrade(
+        this.upgradeTwo,
+        this.upgradeTwoCost,
+        this.upgradeTwoMat
+      );
       this.applyUpgrade(this.upgradeTwo);
     }
   }
-  
+
   private handleUpgradeThree(): void {
-    if(!this.upgradeThree.isDisabled && parseInt(this.materialCounter.text) >= parseInt(this.upgradeThreeCost.text))
-    {
-      this.materialCounter.text = (parseInt(this.materialCounter.text) - parseInt(this.upgradeThreeCost.text)).toString();
-      this.selectedUpgrade(this.upgradeThree, this.upgradeThreeCost, this.upgradeThreeMat);
+    if (
+      !this.upgradeThree.isDisabled &&
+      parseInt(this.materialCounter.text) >=
+        parseInt(this.upgradeThreeCost.text)
+    ) {
+      this.materialCounter.text = (
+        parseInt(this.materialCounter.text) -
+        parseInt(this.upgradeThreeCost.text)
+      ).toString();
+      this.selectedUpgrade(
+        this.upgradeThree,
+        this.upgradeThreeCost,
+        this.upgradeThreeMat
+      );
       this.applyUpgrade(this.upgradeThree);
     }
   }
@@ -728,10 +804,14 @@ export default class MainHW4Scene extends HW4Scene {
   applyUpgrade(button: Button): void {
     const upgradeText = button.text;
     this.upgradeMaterial.text = ":" + this.materialCounter.text;
-    if(this.upgradeOne.visible === false && this.upgradeTwo.visible === false && this.upgradeThree.visible === false) {
-      this.upgradeRefreshButton.text = "FREE"
+    if (
+      this.upgradeOne.visible === false &&
+      this.upgradeTwo.visible === false &&
+      this.upgradeThree.visible === false
+    ) {
+      this.upgradeRefreshButton.text = "FREE";
     }
-    
+
     switch (upgradeText) {
       case "Health":
         this.player.maxHealth += 10;
@@ -739,8 +819,8 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("Health Upgrade");
         break;
       case "Armor":
-        this.player.armor += 1
-        this.playerData.armor += 1
+        this.player.armor += 1;
+        this.playerData.armor += 1;
         console.log("Armor Upgrade");
         break;
       case "MachineGun":
@@ -789,8 +869,10 @@ export default class MainHW4Scene extends HW4Scene {
     let thisZombie = zombies.find((zombie) => zombie.id === zombieId);
     if (thisZombie !== undefined) {
       for (let zombie of zombies) {
-        if (zombie.id !== zombieId &&
-            this.zombieCollision(thisZombie, zombie)) {
+        if (
+          zombie.id !== zombieId &&
+          this.zombieCollision(thisZombie, zombie)
+        ) {
           //console.log(thisZombie.id+","+zombie.id);
           /*let dx = thisZombie.boundary.x - zombie.boundary.x;
           let dy = thisZombie.boundary.y - zombie.boundary.y;
@@ -842,7 +924,6 @@ export default class MainHW4Scene extends HW4Scene {
           thisZombie.y = y1New;
           zombie.x = x2New;
           zombie.y = y2New;*/
-
         }
       }
     }
@@ -855,10 +936,10 @@ export default class MainHW4Scene extends HW4Scene {
     if (particle !== undefined) {
       // Get the destructible tilemap
       let zombies = this.zombies;
-      if(particle.age > 0){
+      if (particle.age > 0) {
         particle.active = true;
         particle.visible = true;
-      // Loop over all possible tiles the particle could be colliding with
+        // Loop over all possible tiles the particle could be colliding with
         for (let zombie of zombies) {
           if (this.particleHitZombie(zombie, particle)) {
             zombie.health -= this.player.bulletDamage - zombie.armor;
@@ -961,7 +1042,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.showCheatsUI();
   }
 
-
   private handleShowControls(): void {
     this.showControlsUI();
   }
@@ -984,11 +1064,12 @@ export default class MainHW4Scene extends HW4Scene {
   protected handleBattlerKilled(event: GameEvent): void {
     let id: number = event.data.get("id");
     let battler = this.battlers.find((b) => b.id === id);
-    
+
     if (battler) {
+      this.onScreenZombies -= 1;
       battler.battlerActive = false;
       this.healthbars.get(id).visible = false;
-      this.spawnMaterial(battler.position)
+      this.spawnMaterial(battler.position);
     }
   }
 
@@ -1026,7 +1107,7 @@ export default class MainHW4Scene extends HW4Scene {
             20,
           15
         ),
-        text: this.playerData.materialAmt.toString()
+        text: this.playerData.materialAmt.toString(),
       }
     );
     //Fuel Icon
@@ -1099,19 +1180,22 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.upgradeBackButton.size.set(80, 50);
     this.upgradeBackButton.fontSize = 15;
-    this.upgradeBackButton.scale.set(.75,.5);
+    this.upgradeBackButton.scale.set(0.75, 0.5);
     this.upgradeBackButton.borderWidth = 2;
     this.upgradeBackButton.borderColor = Color.WHITE;
     this.upgradeBackButton.backgroundColor = Color.BLACK;
     this.upgradeBackButton.onClickEventId = "endUpgrade";
 
-    this.upgradeRefreshButton = <Button>this.add.uiElement(UIElementType.BUTTON, "Upgrade", 
-    {
-      position: new Vec2(vp.x - 2 * (vp.x / 10), vp.y + vp.y - vp.y / 10),
-      text: "Refresh - 4"
-    })
+    this.upgradeRefreshButton = <Button>this.add.uiElement(
+      UIElementType.BUTTON,
+      "Upgrade",
+      {
+        position: new Vec2(vp.x - 2 * (vp.x / 10), vp.y + vp.y - vp.y / 10),
+        text: "Refresh - 4",
+      }
+    );
     this.upgradeRefreshButton.size.set(80, 50);
-    this.upgradeRefreshButton.scale.set(.75,.5);
+    this.upgradeRefreshButton.scale.set(0.75, 0.5);
     this.upgradeRefreshButton.fontSize = 15;
     this.upgradeRefreshButton.borderWidth = 2;
     this.upgradeRefreshButton.borderColor = Color.WHITE;
@@ -1124,11 +1208,11 @@ export default class MainHW4Scene extends HW4Scene {
       "Upgrade",
       {
         position: new Vec2(vp.x - vp.x / 2 - vp.x / 10, vp.y),
-        text: "ERR"
+        text: "ERR",
       }
     );
     this.upgradeOne.size.set(vp.x, vp.y * 2);
-    this.upgradeOne.scale.set(.5,.5)
+    this.upgradeOne.scale.set(0.5, 0.5);
     this.upgradeOne.backgroundColor = Color.WHITE;
     this.upgradeOne.borderColor = Color.BLACK;
     this.upgradeOne.textColor = Color.BLACK;
@@ -1140,26 +1224,27 @@ export default class MainHW4Scene extends HW4Scene {
       "Upgrade",
       {
         position: new Vec2(vp.x - vp.x / 2 - vp.x / 10, vp.y + vp.y / 2.5),
-        text: "0"
+        text: "0",
       }
     );
 
     this.upgradeOneMat = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Upgrade");
-    this.upgradeOneMat.scale.set(.4,.4);
-    this.upgradeOneMat.position = new Vec2(vp.x - vp.x/2 - vp.x/10 - vp.x/20, vp.y + vp.y/2.5);
-
-    
+    this.upgradeOneMat.scale.set(0.4, 0.4);
+    this.upgradeOneMat.position = new Vec2(
+      vp.x - vp.x / 2 - vp.x / 10 - vp.x / 20,
+      vp.y + vp.y / 2.5
+    );
 
     this.upgradeTwo = <Button>this.add.uiElement(
       UIElementType.BUTTON,
       "Upgrade",
       {
         position: new Vec2(vp.x, vp.y),
-        text: "ERR"
+        text: "ERR",
       }
     );
     this.upgradeTwo.size.set(vp.x, vp.y * 2);
-    this.upgradeTwo.scale.set(.5,.5)
+    this.upgradeTwo.scale.set(0.5, 0.5);
     this.upgradeTwo.backgroundColor = Color.WHITE;
     this.upgradeTwo.borderColor = Color.BLACK;
     this.upgradeTwo.textColor = Color.BLACK;
@@ -1170,20 +1255,20 @@ export default class MainHW4Scene extends HW4Scene {
       "Upgrade",
       {
         position: new Vec2(vp.x, vp.y + vp.y / 2.5),
-        text: "0"
+        text: "0",
       }
     );
 
     this.upgradeTwoMat = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Upgrade");
-    this.upgradeTwoMat.scale.set(.4,.4);
-    this.upgradeTwoMat.position = new Vec2(vp.x - vp.x/20, vp.y + vp.y/2.5);
+    this.upgradeTwoMat.scale.set(0.4, 0.4);
+    this.upgradeTwoMat.position = new Vec2(vp.x - vp.x / 20, vp.y + vp.y / 2.5);
 
     this.upgradeThree = <Button>this.add.uiElement(
       UIElementType.BUTTON,
       "Upgrade",
       {
         position: new Vec2(vp.x + vp.x / 2 + vp.x / 10, vp.y),
-        text: "ERR"
+        text: "ERR",
       }
     );
     this.upgradeThree.size.set(vp.x, vp.y * 2);
@@ -1191,26 +1276,47 @@ export default class MainHW4Scene extends HW4Scene {
     this.upgradeThree.borderColor = Color.BLACK;
     this.upgradeThree.textColor = Color.BLACK;
     this.upgradeThree.onClickEventId = "upgradeThreeChose";
-    this.upgradeThree.scale.set(.5,.5)
+    this.upgradeThree.scale.set(0.5, 0.5);
 
     this.upgradeThreeCost = <Label>this.add.uiElement(
       UIElementType.LABEL,
       "Upgrade",
       {
         position: new Vec2(vp.x + vp.x / 2 + vp.x / 10, vp.y + vp.y / 2.5),
-        text: "0"
+        text: "0",
       }
     );
 
-    this.upgradeThreeMat = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "Upgrade");
-    this.upgradeThreeMat.scale.set(.4,.4);
-    this.upgradeThreeMat.position = new Vec2(vp.x + vp.x/2 + vp.x/10 - vp.x/20, vp.y + vp.y/2.5);
+    this.upgradeThreeMat = this.add.sprite(
+      MainHW4Scene.MATERIAL_KEY,
+      "Upgrade"
+    );
+    this.upgradeThreeMat.scale.set(0.4, 0.4);
+    this.upgradeThreeMat.position = new Vec2(
+      vp.x + vp.x / 2 + vp.x / 10 - vp.x / 20,
+      vp.y + vp.y / 2.5
+    );
 
     const availableOptions = [...upgradeOptions];
     const upgradeCost = [...upgradeCosts];
-    this.assignRandomUpgradeText(this.upgradeOne, this.upgradeOneCost, availableOptions, upgradeCost);
-    this.assignRandomUpgradeText(this.upgradeTwo, this.upgradeTwoCost, availableOptions, upgradeCost);
-    this.assignRandomUpgradeText(this.upgradeThree, this.upgradeThreeCost, availableOptions, upgradeCost);
+    this.assignRandomUpgradeText(
+      this.upgradeOne,
+      this.upgradeOneCost,
+      availableOptions,
+      upgradeCost
+    );
+    this.assignRandomUpgradeText(
+      this.upgradeTwo,
+      this.upgradeTwoCost,
+      availableOptions,
+      upgradeCost
+    );
+    this.assignRandomUpgradeText(
+      this.upgradeThree,
+      this.upgradeThreeCost,
+      availableOptions,
+      upgradeCost
+    );
 
     this.hideUpgradesUI();
   }
@@ -1254,7 +1360,7 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.resume.textColor = Color.RED;
     this.resume.sizeToText();
-    this.resume.scale.set(.5,.5);
+    this.resume.scale.set(0.5, 0.5);
     this.resume.fontSize = 32;
     this.resume.onClickEventId = "unPause";
 
@@ -1264,7 +1370,7 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.controls.textColor = Color.WHITE;
     this.controls.sizeToText();
-    this.controls.scale.set(.5,.5);
+    this.controls.scale.set(0.5, 0.5);
     this.controls.fontSize = 32;
     this.controls.onClickEventId = "showControls";
 
@@ -1274,7 +1380,7 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.exit.textColor = Color.RED;
     this.exit.sizeToText();
-    this.exit.scale.set(.5,.5);
+    this.exit.scale.set(0.5, 0.5);
     this.exit.fontSize = 32;
     this.exit.onClickEventId = "exit";
 
@@ -1283,7 +1389,7 @@ export default class MainHW4Scene extends HW4Scene {
       text: "Cheats",
     });
     this.cheats.textColor = Color.WHITE;
-    this.cheats.scale.set(.5,.5);
+    this.cheats.scale.set(0.5, 0.5);
     this.cheats.sizeToText();
     this.cheats.fontSize = 32;
     this.cheats.onClickEventId = "showCheats";
@@ -1320,7 +1426,8 @@ export default class MainHW4Scene extends HW4Scene {
       {
         position: new Vec2(
           this.viewport.getHalfSize().x / 7 + Text.length,
-          this.viewport.getHalfSize().y * 2 - 2 * (this.viewport.getHalfSize().y / 8)
+          this.viewport.getHalfSize().y * 2 -
+            2 * (this.viewport.getHalfSize().y / 8)
         ),
         text: "   [8] - End day/night   ",
       }
@@ -1428,13 +1535,13 @@ export default class MainHW4Scene extends HW4Scene {
     });
     this.pauseLabel.textColor = Color.WHITE;
     this.pauseLabel.fontSize = 16;
-    
+
     Text = "[R] - Roll";
     this.rollLabel = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
       position: new Vec2(
         (this.viewport.getHalfSize().x * 3) / 2 - Text.length,
         this.viewport.getHalfSize().y * 2 -
-        1 * (this.viewport.getHalfSize().y / 8)
+          1 * (this.viewport.getHalfSize().y / 8)
       ),
       text: "[R] - Roll",
     });
@@ -1586,7 +1693,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.initialViewportSize.y
     );
     this.viewport.setZoomLevel(1);
-    this.player.position.set(0,0);
+    this.player.position.set(0, 0);
   }
 
   public spawnMaterial(position: Vec2): void {
@@ -1596,7 +1703,7 @@ export default class MainHW4Scene extends HW4Scene {
     material.position.set(position.x, position.y);
     this.materials.push(material);
   }
-  
+
   /**
    * Initializes the player in the scene
    */
@@ -1604,7 +1711,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.player = this.add.animatedSprite(PlayerActor, "player1", "primary");
     this.player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
     this.player.battleGroup = 2;
-    if(this.playerData) {
+    if (this.playerData) {
       if (this.playerData.maxHealth) {
         this.player.maxHealth = this.playerData.maxHealth;
       }
@@ -1614,20 +1721,19 @@ export default class MainHW4Scene extends HW4Scene {
       if (this.playerData.speed) {
         this.player.speed = this.playerData.speed;
       }
-      if(this.playerData.armor) {
+      if (this.playerData.armor) {
         this.player.armor = this.playerData.armor;
       }
-      if(this.playerData.bulletDamage) {
+      if (this.playerData.bulletDamage) {
         this.player.bulletDamage = this.playerData.bulletDamage;
       }
-      if(this.playerData.energy) {
+      if (this.playerData.energy) {
         this.player.energy = this.playerData.energy;
       }
-      if(this.playerData.maxEnergy) {
+      if (this.playerData.maxEnergy) {
         this.player.maxEnergy = this.playerData.maxEnergy;
       }
-    }
-    else {
+    } else {
       this.player.maxHealth = 100;
       this.player.health = 100;
       this.player.speed = 1;
@@ -1654,8 +1760,8 @@ export default class MainHW4Scene extends HW4Scene {
     });
 
     let energybar = new EnergybarHUD(this, this.player, "primary", {
-      size: this.player.size.clone().scaled(2, 1/2),
-      offset: (this.player.size.clone().scaled(0, -3 / 4)),
+      size: this.player.size.clone().scaled(2, 1 / 2),
+      offset: this.player.size.clone().scaled(0, -3 / 4),
     });
     this.healthbars.set(this.player.id, healthbar);
     this.energybars.set(this.player.id, energybar);
@@ -1671,28 +1777,29 @@ export default class MainHW4Scene extends HW4Scene {
     this.viewport.follow(this.player);
   }
 
-  
   /**
    * Initialize the NPCs
    */
   // Get the object data for the red enemies
   //let red = this.load.getObject("red");
-  protected initializeNPCs(): void {
+  protected spawnZombie(): void {
     const minX = 0;
     const maxX = 1256;
     const minY = 0;
     const maxY = 1240;
+    let randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
+    let tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
 
-    console.log("zombie amt: ", this.currentLevelConfig.zombieCount);
-    for (let i = 0; i < this.currentLevelConfig.zombieCount; i++) {
-
-      // console.log("ZOMBIES")
-      const randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
-      const tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y)
-      if(!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
-        const zombieTypeIndex = Math.floor(Math.random() * this.currentLevelConfig.zombieTypes.length);
-        const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
-        const lvlMultiplier = this.currentLevelConfig.statMultiplier;
+    while (this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
+      randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
+      tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
+    }
+    if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
+      const zombieTypeIndex = Math.floor(
+        Math.random() * this.currentLevelConfig.zombieTypes.length
+      );
+      const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
+      const lvlMultiplier = this.currentLevelConfig.statMultiplier;
 
       let npc: NPCActor;
 
@@ -1711,46 +1818,63 @@ export default class MainHW4Scene extends HW4Scene {
           break;
       }
 
-        
-        npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
-        let healthbar = new HealthbarHUD(this, npc, "primary", {
-          size: npc.size.clone().scaled(2, 1 / 2),
-          offset: npc.size.clone().scaled(0, -1 / 2),
-        });
-        this.healthbars.set(npc.id, healthbar);
+      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
+      let healthbar = new HealthbarHUD(this, npc, "primary", {
+        size: npc.size.clone().scaled(2, 1 / 2),
+        offset: npc.size.clone().scaled(0, -1 / 2),
+      });
+      this.healthbars.set(npc.id, healthbar);
 
-        npc.health = multipliedStats.health;
-        npc.maxHealth = multipliedStats.maxHealth;
-        npc.speed = multipliedStats.speed;
-        npc.armor = multipliedStats.armor;
-        npc.battleGroup = 1;
-        npc.navkey = "navmesh";
-        npc.isCollidable = true;
-        npc.energy = 100;
-        npc.maxEnergy = 100;
-        npc.position.set(randomPos.x, randomPos.y);
-        console.log("I AM ZOMBIE: ", npc)
-        
-        npc.animation.play("IDLE");
-        npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
-        npc.setGroup(PhysicsGroups.ZOMBIE);
-        npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
-        npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
+      npc.health = multipliedStats.health;
+      npc.maxHealth = multipliedStats.maxHealth;
+      npc.speed = multipliedStats.speed;
+      npc.armor = multipliedStats.armor;
+      npc.battleGroup = 1;
+      npc.navkey = "navmesh";
+      npc.isCollidable = true;
+      npc.energy = 100;
+      npc.maxEnergy = 100;
+      npc.position.set(randomPos.x, randomPos.y);
 
-        this.battlers.push(npc);
-        this.zombies.push(npc);
-      }
-      else {
-        i--;
-      }
+      npc.animation.play("IDLE");
+      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
+      npc.setGroup(PhysicsGroups.ZOMBIE);
+      npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
+      npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
+
+      this.battlers.push(npc);
+      this.zombies.push(npc);
+      this.currentLevelConfig.zombieCount -= 1;
+      this.onScreenZombies += 1;
+      console.log("I AM BORN: ", npc);
     }
+  }
+
+  protected spawnZombiesInterval(): void {
+    if (this.currentLevelConfig.zombieCount > 0) {
+      if (!this.isPaused && this.onScreenZombies < this.currentLevelConfig.maxAmount) {
+        this.spawnZombie();
+      }
+        setTimeout(() => {
+          this.spawnZombiesInterval();
+        }, 1000); // Change 1000 to the desired interval in milliseconds between each zombie spawn.
+    }
+  }
+
+  protected initializeNPCs(): void {
+    this.spawnZombiesInterval();
   }
 
   /**
    * Initialize the items in the scene (healthpacks and laser guns)
    */
 
-  private getRandomPosition(minX: number, maxX: number, minY: number, maxY: number): Vec2 {
+  private getRandomPosition(
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number
+  ): Vec2 {
     let x = Math.random() * (maxX - minX) + minX;
     let y = Math.random() * (maxY - minY) + minY;
     return new Vec2(x, y);
@@ -1776,7 +1900,9 @@ export default class MainHW4Scene extends HW4Scene {
       //   materials.items[i][0],
       //   materials.items[i][1]
       // );
-      this.materials[i].position.copy(this.getRandomPosition(minX, maxX, minY, maxY));
+      this.materials[i].position.copy(
+        this.getRandomPosition(minX, maxX, minY, maxY)
+      );
     }
     // let fuels = this.load.getObject("fuels");
     this.fuels = new Array<Fuel>(numFuels);
@@ -1785,8 +1911,9 @@ export default class MainHW4Scene extends HW4Scene {
       sprite.scale.set(0.5, 0.5);
       this.fuels[i] = new Fuel(sprite);
       // this.fuels[i].position.set(fuels.items[i][0], fuels.items[i][1]);
-      this.fuels[i].position.copy(this.getRandomPosition(minX, maxX, minY, maxY));
-
+      this.fuels[i].position.copy(
+        this.getRandomPosition(minX, maxX, minY, maxY)
+      );
     }
   }
   /**
