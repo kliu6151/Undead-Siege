@@ -34,11 +34,10 @@ export default class MainMenu extends Scene {
   }
 
   public startScene() {
+    console.log(this);
     const center = this.viewport.getCenter();
-    console.log(center);
 
     const size = this.viewport.getHalfSize();
-    console.log(size.x, size.y);
     this.addLayer("BACKGROUND", 0);
     this.initBackground();
 

@@ -1578,7 +1578,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.initialViewportSize.y
     );
     this.viewport.setZoomLevel(1);
-    this.sceneManager.changeToScene(MainMenu);
+    this.player.position.set(0,0);
   }
 
   public spawnMaterial(position: Vec2): void {
@@ -1730,6 +1730,7 @@ export default class MainHW4Scene extends HW4Scene {
         this.zombies.push(npc);
       }
       else {
+        console.log("ELSELSLELSE");
         i--;
       }
     
@@ -1784,7 +1785,7 @@ export default class MainHW4Scene extends HW4Scene {
     const numMaterials = 10;
     const numFuels = 5;
 
-    let materials = this.load.getObject("materials");
+    // let materials = this.load.getObject("materials");
     this.materials = new Array<Material>(numMaterials);
     for (let i = 0; i < numMaterials; i++) {
       let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
@@ -1796,7 +1797,7 @@ export default class MainHW4Scene extends HW4Scene {
       // );
       this.materials[i].position.copy(this.getRandomPosition(minX, maxX, minY, maxY));
     }
-    let fuels = this.load.getObject("fuels");
+    // let fuels = this.load.getObject("fuels");
     this.fuels = new Array<Fuel>(numFuels);
     for (let i = 0; i < numFuels; i++) {
       let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
