@@ -118,4 +118,5 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
 
     protected get battler(): Battler { return this._battler; }
     protected get targeting(): TargetingEntity { return this._targeting; }
+    
 }

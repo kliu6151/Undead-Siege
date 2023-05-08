@@ -28,6 +28,14 @@ import { PhysicsGroups } from "../../../PhysicsGroups";
 import Vec2 from "../../../../Wolfie2D/DataTypes/Vec2";
 // import MoveTowardsPlayer from "../NPCActions/MoveTowardsPlayer";
 
+export enum ZombieAnimationType {
+  IDLE = "IDLE",
+  WALK = "WALK",
+  ATTACK = "ATTACK",
+  TAKING_DAMAGE = "TAKING_DAMAGE",
+  DYING = "DYING"
+}
+
 export default class ZombieBehavior extends NPCBehavior {
   /** The target the guard should guard */
   protected target: TargetableEntity;

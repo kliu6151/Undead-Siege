@@ -12,6 +12,7 @@ import { ItemEvent } from "../../../Events";
 import Timer from "../../../../Wolfie2D/Timing/Timer";
 import PlayerActor from "../../../Actors/PlayerActor";
 import Battler from "../../../GameSystems/BattleSystem/Battler";
+import { ZombieAnimationType } from "../NPCBehavior/ZombieBehavior";
 
 export default class ZombieHitPlayer extends NPCAction {
   protected timer: Timer;
@@ -23,9 +24,7 @@ export default class ZombieHitPlayer extends NPCAction {
   }
 
   public performAction(target: Battler): void {
-    // this.timer.isStopped()
-    //   ? console.log("Zombie Attack cooling down!")
-    //   : console.log("Zombie Attack ready!");
+    this.actor.animation.playIfNotAlready("ATTACK", true)
     if (this.timer.isStopped() && target.invincible !== true) {
       // Send a laser fired event
       let targetArmor = target.armor;
