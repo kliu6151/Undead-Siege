@@ -2,7 +2,8 @@
 export enum ZombieType {
     Basic,
     Fast,
-    Strong
+    Strong,
+    Boss
 }
 
 export interface ZombieStats {
@@ -31,6 +32,12 @@ export const baseZombieStats: Record<ZombieType, ZombieStats> = {
     speed: 4,
     armor: 2,
   },
+  [ZombieType.Boss]: {
+    health: 500,
+    maxHealth: 500,
+    speed: 4,
+    armor: 2,
+  }
 };
 
 export function applyMultiplier(

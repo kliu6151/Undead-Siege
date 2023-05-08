@@ -93,6 +93,7 @@ export default class MainHW4Scene extends HW4Scene {
   private darknessCounter: number = 1;
   private isUpgrading: boolean;
 
+  private bossSpawned: boolean;
   private player: PlayerActor;
   protected invincibilityTimer: Timer | null = null;
 
@@ -103,6 +104,7 @@ export default class MainHW4Scene extends HW4Scene {
   private countDownTimer: Timer;
   private timerLabel: Label;
   private elapsedTime: number;
+  private remainingTime: number;
 
   //Level stuff
   protected nextLevel: new (...args: any) => Scene;
@@ -285,6 +287,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.initPauseUI();
 
     this.elapsedTime = 0;
+    this.remainingTime = 121 * 1000;
     this.countDownTimer = new Timer(121 * 1000);
     this.countDownTimer.start();
 
@@ -386,17 +389,17 @@ export default class MainHW4Scene extends HW4Scene {
       this.countDownTimer.update(deltaT);
 
       // Update the timer label
-      const remainingTime = Math.max(
+      this.remainingTime = Math.max(
         this.countDownTimer.getTotalTime() - this.elapsedTime,
         0
       );
-      const minutes = Math.floor(remainingTime / 60);
-      const seconds = Math.floor(remainingTime % 60);
+      const minutes = Math.floor(this.remainingTime / 60);
+      const seconds = Math.floor(this.remainingTime % 60);
       this.timerLabel.text = `${String(minutes).padStart(2, "0")}:${String(
         seconds
       ).padStart(2, "0")}`;
       if (this.isNight) {
-        if (remainingTime <= 0) {
+        if (this.remainingTime <= 0) {
           this.levelEnd();
         }
       }
@@ -406,7 +409,7 @@ export default class MainHW4Scene extends HW4Scene {
       } else if (this.isNight && this.elapsedTime % 20 === 0) {
         this.night.alpha -= 0.05;
       }
-      if (remainingTime <= 0) {
+      if (this.remainingTime <= 0) {
         // console.log("PLAYER: ", this.battlers[0]);
         this.isNight = !this.isNight;
 
@@ -417,6 +420,11 @@ export default class MainHW4Scene extends HW4Scene {
             //Create the upgrade screen here
             this.night.alpha = 0.9;
             this.lightMask.alpha = 0.7;
+            this.elapsedTime = 0;
+            this.remainingTime = Math.max(
+              this.countDownTimer.getTotalTime() - this.elapsedTime,
+            0
+            );
             this.initializeNPCs();
             this.showUpgradesUI();
             this.isPaused = true;
@@ -426,7 +434,7 @@ export default class MainHW4Scene extends HW4Scene {
           }
           this.countDownTimer.reset();
           this.countDownTimer.start();
-          this.elapsedTime = 0;
+          
         }
       }
     }
@@ -1782,7 +1790,7 @@ export default class MainHW4Scene extends HW4Scene {
    */
   // Get the object data for the red enemies
   //let red = this.load.getObject("red");
-  protected spawnZombie(): void {
+  protected spawnZombie(specialSpawn: ZombieType | null = null): void {
     const minX = 0;
     const maxX = 1256;
     const minY = 0;
@@ -1795,17 +1803,26 @@ export default class MainHW4Scene extends HW4Scene {
       tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
     }
     if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
-      const zombieTypeIndex = Math.floor(
-        Math.random() * this.currentLevelConfig.zombieTypes.length
-      );
+      
+      let zombieTypeIndex = 0;
+      if (this.levelKey === "LEVEL3" || this.levelKey === "LEVEL6") {
+        zombieTypeIndex = Math.floor(
+          Math.random() * (this.currentLevelConfig.zombieTypes.length - 1)
+        );
+      } else {
+        zombieTypeIndex = Math.floor(
+          Math.random() * this.currentLevelConfig.zombieTypes.length
+        );
+      }
+      if(specialSpawn !== null) {
+        zombieTypeIndex = specialSpawn; 
+      }
       const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
       const lvlMultiplier = this.currentLevelConfig.statMultiplier;
-
       let npc: NPCActor;
 
       const baseStats = baseZombieStats[zombieType];
       const multipliedStats = applyMultiplier(baseStats, lvlMultiplier);
-
       switch (zombieType) {
         case ZombieType.Basic:
           npc = this.add.animatedSprite(NPCActor, "BasicEnemy", "primary");
@@ -1815,6 +1832,9 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         case ZombieType.Strong:
           npc = this.add.animatedSprite(NPCActor, "StrongEnemy", "primary");
+          break;
+        case ZombieType.Boss:
+          npc = this.add.animatedSprite(NPCActor, "BossEnemy", "primary");
           break;
       }
 
@@ -1846,18 +1866,30 @@ export default class MainHW4Scene extends HW4Scene {
       this.zombies.push(npc);
       this.currentLevelConfig.zombieCount -= 1;
       this.onScreenZombies += 1;
-      console.log("I AM BORN: ", npc);
     }
   }
 
   protected spawnZombiesInterval(): void {
     if (this.currentLevelConfig.zombieCount > 0) {
-      if (!this.isPaused && this.onScreenZombies < this.currentLevelConfig.maxAmount) {
-        this.spawnZombie();
+      if (
+        !this.isPaused &&
+        this.onScreenZombies < this.currentLevelConfig.maxAmount
+      ) {
+        if (
+          (this.levelKey === "LEVEL3" || this.levelKey === "LEVEL6") &&
+          this.remainingTime <= 60 &&
+          !this.bossSpawned &&
+          this.isNight
+        ) {
+          this.spawnZombie(ZombieType.Boss);
+          this.bossSpawned = true;
+        } else {
+          this.spawnZombie();
+        }
       }
-        setTimeout(() => {
-          this.spawnZombiesInterval();
-        }, 1000); // Change 1000 to the desired interval in milliseconds between each zombie spawn.
+      setTimeout(() => {
+        this.spawnZombiesInterval();
+      }, 1000); // Change 1000 to the desired interval in milliseconds between each zombie spawn.
     }
   }
 
