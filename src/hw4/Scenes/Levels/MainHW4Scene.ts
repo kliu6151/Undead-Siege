@@ -62,18 +62,16 @@ import { PhysicsGroups } from "../../PhysicsGroups";
 import Particle from "../../../Wolfie2D/Nodes/Graphics/Particle";
 import Input from "../../../Wolfie2D/Input/Input";
 import Scene from "../../../Wolfie2D/Scene/Scene";
-import { EaseFunctionType } from "../../../Wolfie2D/Utils/EaseFunctions";
+import { LevelConfig, levelConfigs } from "./levelConfig";
+import { ZombieStats, baseZombieStats, applyMultiplier , ZombieType} from './zombieStats';
+
 
 const BattlerGroups = {
   RED: 1,
   BLUE: 2,
 } as const;
 
-enum ZombieType {
-  Basic,
-  Fast,
-  Strong
-}
+
 
 const upgradeOptions = [
   "Health",
@@ -215,6 +213,7 @@ export default class MainHW4Scene extends HW4Scene {
   protected playerSpriteKey: string;
   protected tilemapScale: Vec2;
   protected playerData: Record<string, any>;
+  protected currentLevelConfig: LevelConfig;
 
   public constructor(
     viewport: Viewport,
@@ -268,7 +267,10 @@ export default class MainHW4Scene extends HW4Scene {
         maxEnergy: 100,
       };
     }
-    console.log(this.sceneManager)
+
+    this.currentLevelConfig = levelConfigs[this.levelKey];
+
+    console.log(this.levelKey)
 
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
@@ -1634,7 +1636,6 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.energy = 100;
       this.player.maxEnergy = 100;
     }
-    console.log("PLAYER INIT: ", this.player)
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
     //     start: new Vec2(232, 24),
@@ -1677,53 +1678,43 @@ export default class MainHW4Scene extends HW4Scene {
   // Get the object data for the red enemies
   //let red = this.load.getObject("red");
   protected initializeNPCs(): void {
-    let zombieAmt = 3;
     const minX = 0;
     const maxX = 1256;
     const minY = 0;
     const maxY = 1240;
 
-    // Get the object data for the red enemies
-    //let red = this.load.getObject("red");
-
-    // Get the object data for the blue enemies
-    // Initialize the blue enemies
-    for (let i = 0; i < zombieAmt; i++) {
+    console.log("zombie amt: ", this.currentLevelConfig.zombieCount);
+    for (let i = 0; i < this.currentLevelConfig.zombieCount; i++) {
 
       // console.log("ZOMBIES")
       const randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
       const tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y)
       if(!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
-        const zombieType = Math.floor(Math.random() * Object.keys(ZombieType).length / 2);
-        console.log("ZOMB TYPE: ", zombieType)
-        let npc: NPCActor;
+        const zombieTypeIndex = Math.floor(Math.random() * this.currentLevelConfig.zombieTypes.length);
+        const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
+        const lvlMultiplier = this.currentLevelConfig.statMultiplier;
 
-        switch (zombieType) {
-          case ZombieType.Basic:
-            console.log("BASIC ZOMBIE");
-            npc = this.add.animatedSprite(NPCActor, "BasicEnemy", "primary");
-            npc.health = 100;
-            npc.maxHealth = 100;
-            npc.speed = 8;
-            npc.armor = 0;
-            break;
-          case ZombieType.Fast:
-            console.log("FAST ZOMBIE");
-            npc = this.add.animatedSprite(NPCActor, "FastEnemy", "primary");
-            npc.health = 60;
-            npc.maxHealth = 60;
-            npc.speed = 12;
-            npc.armor = 0;
-            break;
-          case ZombieType.Strong:
-            console.log("STRONG ZOMBIE");
-            npc = this.add.animatedSprite(NPCActor, "StrongEnemy", "primary");
-            npc.health = 150;
-            npc.maxHealth = 150;
-            npc.speed = 4;
-            npc.armor = 2;
-            break;
-        }
+      let npc: NPCActor;
+
+      const baseStats = baseZombieStats[zombieType];
+      const multipliedStats = applyMultiplier(baseStats, lvlMultiplier);
+
+      switch (zombieType) {
+        case ZombieType.Basic:
+          npc = this.add.animatedSprite(NPCActor, "BasicEnemy", "primary");
+          break;
+        case ZombieType.Fast:
+          npc = this.add.animatedSprite(NPCActor, "FastEnemy", "primary");
+          break;
+        case ZombieType.Strong:
+          npc = this.add.animatedSprite(NPCActor, "StrongEnemy", "primary");
+          break;
+      }
+
+        npc.health = multipliedStats.health;
+        npc.maxHealth = multipliedStats.maxHealth;
+        npc.speed = multipliedStats.speed;
+        npc.armor = multipliedStats.armor;
         npc.battleGroup = 1;
         npc.navkey = "navmesh";
         npc.isCollidable = true;
@@ -1748,36 +1739,7 @@ export default class MainHW4Scene extends HW4Scene {
       else {
         i--;
       }
-    
-
-
-
-      // npc.position.set(blue.enemies[i][0], blue.enemies[i][1]);
-
-      // Give the NPCS their healthbars
-     
     }
-
-    // Initialize the blue healers
-    /*for (let i = 0; i < blue.healers.length; i++) {
-
-               let npc = this.add.animatedSprite(NPCActor, "BlueHealer", "primary");
-               npc.position.set(blue.healers[i][0], blue.healers[i][1]);
-               npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
-
-            npc.battleGroup = 2;
-               npc.speed = 10;
-               npc.health = 1;
-               npc.maxHealth = 10;
-               npc.navkey = "navmesh";
-
-               let healthbar = new HealthbarHUD(this, npc, "primary", {size: npc.size.clone().scaled(2, 1/2), offset: npc.size.clone().scaled(0, -1/2)});
-               this.healthbars.set(npc.id, healthbar);
-
-               npc.addAI(HealerBehavior);
-               npc.animation.play("IDLE");
-               this.battlers.push(npc);
-           }*/
   }
 
   /**
