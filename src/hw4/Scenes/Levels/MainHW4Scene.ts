@@ -1673,9 +1673,9 @@ export default class MainHW4Scene extends HW4Scene {
   protected initializeNPCs(): void {
     let zombieAmt = 3;
     const minX = 0;
-    const maxX = 2560;
+    const maxX = 1256;
     const minY = 0;
-    const maxY = 1280;
+    const maxY = 1240;
 
     // Get the object data for the red enemies
     //let red = this.load.getObject("red");
@@ -1777,9 +1777,9 @@ export default class MainHW4Scene extends HW4Scene {
   //Initialize the items Material and Fuels
   protected initializeItems(): void {
     const minX = 0;
-    const maxX = 2560;
+    const maxX = 1256;
     const minY = 0;
-    const maxY = 1280;
+    const maxY = 1240;
 
     // Number of materials and fuels to spawn
     const numMaterials = 10;
