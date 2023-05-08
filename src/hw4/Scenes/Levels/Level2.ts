@@ -90,8 +90,8 @@ export default class Level2 extends MainHW4Scene {
         this.load.spritesheet("player1", Level2.PLAYER_SPRITE_PATH);
     
         // Load in the enemy sprites
-        this.load.spritesheet("BasicEnemy", Level2.ZOMBIE_PATH);
-        this.load.spritesheet("FastEnemy", Level2.ZOMBIE_PATH);
+        this.load.spritesheet("BasicZombie", Level2.ZOMBIE_PATH);
+        this.load.spritesheet("FastZombie", Level2.ZOMBIE_PATH);
 
 
         // Load the tilemap

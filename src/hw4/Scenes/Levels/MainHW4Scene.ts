@@ -1825,22 +1825,23 @@ export default class MainHW4Scene extends HW4Scene {
       const multipliedStats = applyMultiplier(baseStats, lvlMultiplier);
       switch (zombieType) {
         case ZombieType.Basic:
-          npc = this.add.animatedSprite(NPCActor, "BasicEnemy", "primary");
+          npc = this.add.animatedSprite(NPCActor, "BasicZombie", "primary");
+          npc.scale.set(.5,.5);
           break;
         case ZombieType.Fast:
-          npc = this.add.animatedSprite(NPCActor, "FastEnemy", "primary");
+          npc = this.add.animatedSprite(NPCActor, "FastZombie", "primary");
           break;
         case ZombieType.Strong:
-          npc = this.add.animatedSprite(NPCActor, "StrongEnemy", "primary");
+          npc = this.add.animatedSprite(NPCActor, "StrongZombie", "primary");
           break;
         case ZombieType.Boss:
-          npc = this.add.animatedSprite(NPCActor, "BossEnemy", "primary");
+          npc = this.add.animatedSprite(NPCActor, "BossZombie", "primary");
           break;
       }
 
       npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
       let healthbar = new HealthbarHUD(this, npc, "primary", {
-        size: npc.size.clone().scaled(2, 1 / 2),
+        size: npc.size.clone().scaled(1.5, 1 / 4),
         offset: npc.size.clone().scaled(0, -1 / 2),
       });
       this.healthbars.set(npc.id, healthbar);
