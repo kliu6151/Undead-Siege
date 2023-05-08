@@ -58,7 +58,10 @@ export default class PlayerAI extends StateMachineAI implements AI {
 
     if (Input.isMouseJustPressed()) {
       console.log("shoot");
-      // this.emitter.fireEvent(ItemEvent.LASERGUN_FIRED)
+      let particles = this.weapon.getPool();
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].active = true;
+      }
       this.weapon.startSystem(500, 0, this.owner.position);
     }
   }

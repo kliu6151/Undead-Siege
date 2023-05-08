@@ -254,7 +254,7 @@ export default class MainHW4Scene extends HW4Scene {
         maxHealth: 100,
         health: 100,
         weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1),
-        speed: 1,
+        speed: 20,
         armor: 0,
         bulletDamage: 10,
         materialAmt: 0,
@@ -848,6 +848,8 @@ export default class MainHW4Scene extends HW4Scene {
       // Get the destructible tilemap
       let zombies = this.zombies;
       if(particle.age > 0){
+        particle.active = true;
+        particle.visible = true;
       // Loop over all possible tiles the particle could be colliding with
         for (let zombie of zombies) {
           if (this.particleHitZombie(zombie, particle)) {
@@ -858,6 +860,8 @@ export default class MainHW4Scene extends HW4Scene {
             // console.log(zombie.id + " hit");
             particle.age = 0;
             particle.visible = false;
+            particle.active = false;
+            break;
           }
         }
       }
@@ -1667,56 +1671,75 @@ export default class MainHW4Scene extends HW4Scene {
   // Get the object data for the red enemies
   //let red = this.load.getObject("red");
   protected initializeNPCs(): void {
+    let zombieAmt = 3;
+    const minX = 0;
+    const maxX = 2560;
+    const minY = 0;
+    const maxY = 1280;
+
     // Get the object data for the red enemies
     //let red = this.load.getObject("red");
 
     // Get the object data for the blue enemies
-    let blue = this.load.getObject("blue");
     // Initialize the blue enemies
-    console.log("ZOMBIE AMT: " , blue.enemies.length)
-    for (let i = 0; i < blue.enemies.length; i++) {
-      let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
-      npc.position.set(blue.enemies[i][0], blue.enemies[i][1]);
-      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(7, 7)), null, false);
+    for (let i = 0; i < zombieAmt; i++) {
+      // console.log("ZOMBIES")
+      const randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
+      const tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y)
+      if(!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
+        // console.log("SPAWN IT")
+        let npc = this.add.animatedSprite(NPCActor, "BlueEnemy", "primary");
+        npc.position.set(randomPos.x, randomPos.y);
+        npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
+        let healthbar = new HealthbarHUD(this, npc, "primary", {
+          size: npc.size.clone().scaled(2, 1 / 2),
+          offset: npc.size.clone().scaled(0, -1 / 2),
+        });
+        this.healthbars.set(npc.id, healthbar);
+  
+        npc.battleGroup = 1;
+        // npc.speed = 5;
+        npc.health = 100;
+        npc.maxHealth = 100;
+        npc.navkey = "navmesh";
+        npc.isCollidable = true;
+        // npc.battleGroup = 1;
+        npc.speed = 8;
+        npc.armor = 0;
+        npc.energy = 100;
+        npc.maxEnergy = 100;
+        // npc.health = 1;
+        // npc.maxHealth = 10;
+        // npc.navkey = "navmesh";
+  
+        // Give the NPCs their AI
+        // npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 10000 });
+        // Play the NPCs "IDLE" animation
+        npc.animation.play("IDLE");
+        // Give the NPCs their AI
+        npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
+        // Play the NPCs "IDLE" animation
+        npc.animation.play("IDLE");
+        npc.setGroup(PhysicsGroups.ZOMBIE);
+        npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
+        npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
+        
+        //npc.setTrigger
+  
+        this.battlers.push(npc);
+        this.zombies.push(npc);
+      }
+      else {
+        i--;
+      }
+    
+
+
+
+      // npc.position.set(blue.enemies[i][0], blue.enemies[i][1]);
 
       // Give the NPCS their healthbars
-      let healthbar = new HealthbarHUD(this, npc, "primary", {
-        size: npc.size.clone().scaled(2, 1 / 2),
-        offset: npc.size.clone().scaled(0, -1 / 2),
-      });
-      this.healthbars.set(npc.id, healthbar);
-
-      npc.battleGroup = 1;
-      // npc.speed = 5;
-      npc.health = 100;
-      npc.maxHealth = 100;
-      npc.navkey = "navmesh";
-      npc.isCollidable = true;
-      // npc.battleGroup = 1;
-      npc.speed = 8;
-      npc.armor = 0;
-      npc.energy = 100;
-      npc.maxEnergy = 100;
-      // npc.health = 1;
-      // npc.maxHealth = 10;
-      // npc.navkey = "navmesh";
-
-      // Give the NPCs their AI
-      // npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 10000 });
-      // Play the NPCs "IDLE" animation
-      npc.animation.play("IDLE");
-      // Give the NPCs their AI
-      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
-      // Play the NPCs "IDLE" animation
-      npc.animation.play("IDLE");
-      npc.setGroup(PhysicsGroups.ZOMBIE);
-      npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
-      npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
-      
-      //npc.setTrigger
-
-      this.battlers.push(npc);
-      this.zombies.push(npc);
+     
     }
 
     // Initialize the blue healers

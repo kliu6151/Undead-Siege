@@ -33,7 +33,7 @@ export default class ZombieHitPlayer extends NPCAction {
         target.health -= 0;
       }
       else {
-        target.health -= 5 - targetArmor;
+        target.health = 5 - targetArmor;
       }
       console.log("TARGET IS: ", target)
 
