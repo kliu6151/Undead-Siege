@@ -193,6 +193,7 @@ export default class Level1 extends MainHW4Scene {
     this.load.keepAudio(this.zombieGrowlAudioKey);
     this.load.keepAudio(this.playerDamagedAudioKey);
     this.load.keepAudio(this.helicopterDamagedAudioKey);
+    this.load.keepAudio(this.levelMusicKey);
 
     this.resourceManager.keepSpritesheet(Level1.PLAYER_SPRITE_KEY);
     this.resourceManager.keepSpritesheet("helicopter");
