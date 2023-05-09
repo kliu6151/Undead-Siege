@@ -117,6 +117,8 @@ export default class Level2 extends MainHW4Scene {
         this.load.spritesheet("BasicZombie", Level2.ZOMBIE_PATH);
         this.load.spritesheet("FastZombie", Level2.ZOMBIE_PATH);
 
+        this.load.audio(this.levelMusicKey, Level2.LEVEL_MUSIC_PATH)
+
 
         // Load the tilemap
         this.load.tilemap(this.levelKey, Level2.TILEMAP_PATH);

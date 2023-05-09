@@ -1829,12 +1829,13 @@ export default class MainHW4Scene extends HW4Scene {
         );
       }
       if (specialSpawn !== null) {
+        console.log("special spawn")
         zombieTypeIndex = specialSpawn;
+        console.log(zombieTypeIndex)
       }
       const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
       const lvlMultiplier = this.currentLevelConfig.statMultiplier;
       let npc: NPCActor;
-
       const baseStats = baseZombieStats[zombieType];
       const multipliedStats = applyMultiplier(baseStats, lvlMultiplier);
       switch (zombieType) {
