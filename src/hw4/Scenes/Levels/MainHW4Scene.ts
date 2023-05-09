@@ -72,6 +72,7 @@ import {
 import { PlayerAnimationType } from "../../AI/Player/PlayerStates/PlayerState";
 import AnimatedSprite from "../../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
 import WeaponSprite from "../../AI/Player/WeaponSprite";
+import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
 
 const BattlerGroups = {
   RED: 1,
@@ -220,7 +221,11 @@ export default class MainHW4Scene extends HW4Scene {
   protected currentLevelConfig: LevelConfig;
 
   /** Sound and Music */
+  protected levelMusicKey: string;
   protected playerShootAudioKey: string;
+  protected zombieGrowlAudioKey: string;
+  protected playerDamagedAudioKey: string;
+  protected helicopterDamagedAudioKey: string;
 
   public constructor(
     viewport: Viewport,
@@ -255,7 +260,6 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-
     if (this.sceneManager.playerData) {
       this.playerData = this.sceneManager.playerData;
     } else {
@@ -361,6 +365,10 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
     this.receiver.subscribe(BattlerEvent.ROLL);
+
+
+    // this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelMusicKey, loop: true, holdReference: true});
+
   }
   /**
    * @see Scene.updateScene
@@ -542,7 +550,7 @@ export default class MainHW4Scene extends HW4Scene {
       switch (event.type) {
         case "exit": {
           this.resetViewportSize();
-          console.log("EXITED")
+          this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
           this.sceneManager.changeToScene(MainMenu);
           break;
         }
@@ -615,7 +623,7 @@ export default class MainHW4Scene extends HW4Scene {
         case SceneEvent.LEVEL_END: {
           this.resetViewportSize();
           let playerData = this.sceneManager.playerData;
-          console.log("GO TO NEXT LV")
+          this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
           this.sceneManager.changeToScene(this.nextLevel, {}, playerData);
           break;
         }
@@ -908,12 +916,12 @@ export default class MainHW4Scene extends HW4Scene {
 
   handlePlayerKilled(): void {
     this.resetViewportSize();
-    console.log("PLAYER KILLED")
+    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
     this.sceneManager.changeToScene(MainMenu);
   }
   handleHelicopterDestroyed(): void {
     this.resetViewportSize();
-    console.log("HELI DESTROYED")
+    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
     this.sceneManager.changeToScene(MainMenu);
   }
 
@@ -2118,5 +2126,18 @@ export default class MainHW4Scene extends HW4Scene {
 
   public getPlayerShootAudioKey(): string {
     return this.playerShootAudioKey
-}
+  }
+
+  public getZombieGrowlAudioKey(): string {
+    return this.zombieGrowlAudioKey
+  }
+
+  public getPlayerDamagedAudioKey(): string {
+    return this.playerDamagedAudioKey
+  }
+
+  public getHelicopterDamagedAudioKey(): string {
+    return this.helicopterDamagedAudioKey
+  }
+
 }

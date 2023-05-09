@@ -50,10 +50,20 @@ export default class Level1 extends MainHW4Scene {
     public static readonly FUEL_SPAWNS = "FUEL_SPAWNS";
     public static readonly FUEL_SPAWNS_PATH = "assets/data/items/fuels.json";
 
+    public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
+    public static readonly LEVEL_MUSIC_PATH = "assets/music/hw5_level_music.wav"
    
     public static readonly SHOOT_AUDIO_KEY = "PLAYER_SHOOT";
     public static readonly SHOOT_AUDIO_PATH = "assets/sounds/gun_shot.wav";
 
+    public static readonly ZOMBIE_GROWL_AUDIO_KEY = "ZOMBIT_HIT"
+    public static readonly ZOMBIE_GROWL_AUDIO_PATH = "assets/sounds/zombie_growl.wav";
+
+    public static readonly PLAYER_DAMAGED_AUDIO_KEY = "PLAYER_DAMAGED"
+    public static readonly PLAYER_DAMAGED_AUDIO_PATH = "assets/sounds/player_hit.mp3";
+
+    public static readonly HELICOPTER_DAMAGED_AUDIO_KEY = "HELICOPTER_DAMAGED"
+    public static readonly HELICOPTER_DAMAGED_AUDIO_PATH = "assets/sounds/metal.mp3"
     // public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
     // public static readonly LEVEL_MUSIC_PATH = "hw4_assets/music/hw5_level_music.wav";
 
@@ -77,10 +87,13 @@ export default class Level1 extends MainHW4Scene {
         // this.destructibleLayerKey = Level1.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = Level1.WALLS_LAYER_KEY;
 
+        this.levelMusicKey = Level1.LEVEL_MUSIC_KEY;
         this.playerShootAudioKey = Level1.SHOOT_AUDIO_KEY;
 
         
-
+        this.zombieGrowlAudioKey = Level1.ZOMBIE_GROWL_AUDIO_KEY
+        this.playerDamagedAudioKey = Level1.PLAYER_DAMAGED_AUDIO_KEY
+        this.helicopterDamagedAudioKey = Level1.HELICOPTER_DAMAGED_AUDIO_KEY
         // Set the key for the player's sprite
         // this.playerSpriteKey = Level1.PLAYER_SPRITE_KEY;
         // Set the player's spawn
@@ -124,7 +137,11 @@ export default class Level1 extends MainHW4Scene {
         this.load.object("fuels", Level1.FUEL_SPAWNS_PATH);
     
         //sounds
+        this.load.audio(this.levelMusicKey, Level1.LEVEL_MUSIC_PATH)
         this.load.audio(this.playerShootAudioKey, Level1.SHOOT_AUDIO_PATH);
+        this.load.audio(this.zombieGrowlAudioKey, Level1.ZOMBIE_GROWL_AUDIO_PATH)
+        this.load.audio(this.playerDamagedAudioKey, Level1.PLAYER_DAMAGED_AUDIO_PATH)
+        this.load.audio(this.helicopterDamagedAudioKey, Level1.HELICOPTER_DAMAGED_AUDIO_PATH)
         // Load the healthpack, inventory slot, and laser gun sprites
         // this.load.image("healthpack", "assets/sprites/healthpack.png");
         // this.load.image("inventorySlot", "assets/sprites/inventory.png");

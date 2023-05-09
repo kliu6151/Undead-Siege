@@ -13,6 +13,7 @@ import Timer from "../../../../Wolfie2D/Timing/Timer";
 import PlayerActor from "../../../Actors/PlayerActor";
 import Battler from "../../../GameSystems/BattleSystem/Battler";
 import { ZombieAnimationType } from "../NPCBehavior/ZombieBehavior";
+import { GameEventType } from "../../../../Wolfie2D/Events/GameEventType";
 
 export default class ZombieHitPlayer extends NPCAction {
   protected timer: Timer;
@@ -20,7 +21,7 @@ export default class ZombieHitPlayer extends NPCAction {
   public constructor(parent: NPCBehavior, actor: NPCActor) {
     super(parent, actor);
     this._target = null;
-    this.timer = new Timer(1000);
+    this.timer = new Timer(2000);
   }
 
   public performAction(target: Battler): void {
@@ -37,6 +38,14 @@ export default class ZombieHitPlayer extends NPCAction {
       else {
         target.health -= 5 - targetArmor;
       }
+
+      if(target instanceof PlayerActor) {
+        this.emitter.fireEvent(GameEventType.PLAY_MUSIC, {key: this.actor.getScene().getPlayerDamagedAudioKey(), loop:false})
+      }
+      else {
+        this.emitter.fireEvent(GameEventType.PLAY_MUSIC, {key: this.actor.getScene().getHelicopterDamagedAudioKey(), loop:false})
+      }
+
       // console.log("I AM: " , this.actor);
       // console.log("TARGET IS: ", target)
       this.timer.start();

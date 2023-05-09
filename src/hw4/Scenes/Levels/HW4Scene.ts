@@ -19,5 +19,10 @@ export default abstract class HW4Scene extends Scene {
     public abstract isTargetVisible(position: Vec2, target: Vec2): boolean;
 
     public abstract getPlayerShootAudioKey(): string;
+
+    public abstract getZombieGrowlAudioKey(): string;
+
+    public abstract getPlayerDamagedAudioKey(): string;
     
+    public abstract getHelicopterDamagedAudioKey(): string;
 }

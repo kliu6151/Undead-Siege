@@ -11,6 +11,7 @@ import PlayerActor from "../../../Actors/PlayerActor";
 import Vec2 from "../../../../Wolfie2D/DataTypes/Vec2";
 import { ZombieAnimationType } from "../NPCBehavior/ZombieBehavior";
 import { BattlerEvent } from "../../../Events";
+import { GameEventType } from "../../../../Wolfie2D/Events/GameEventType";
 
 /**
  * An abstract GoapAction for an NPC. All NPC actions consist of doing three things:
@@ -75,6 +76,7 @@ export default abstract class NPCAction extends GoapAction {
           this.actor.position,
           this.target.position
         );
+
       }
     }
   }
@@ -113,6 +115,7 @@ export default abstract class NPCAction extends GoapAction {
             this.actor.animation.playIfNotAlready("WALK");
           }
           this.actor.moveOnPath(this.actor.speed * deltaT * 10, this.path);
+
           const faceDir = this.actor.faceDir;
           this.actor.rotation = Vec2.UP.angleToCCW(faceDir);
         }
