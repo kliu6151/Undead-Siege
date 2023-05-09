@@ -28,6 +28,24 @@ export interface LevelConfig {
       statMultiplier: 1.5,
       maxAmount: 15,
     },
+    LEVEL4: {
+      zombieTypes: [ZombieType.Basic, ZombieType.Fast, ZombieType.Strong],
+      zombieCount: 150,
+      statMultiplier: 2,
+      maxAmount: 20,
+    },
+    LEVEL5: {
+      zombieTypes: [ZombieType.Basic, ZombieType.Fast, ZombieType.Strong],
+      zombieCount: 200,
+      statMultiplier: 2.1,
+      maxAmount: 30,
+    },
+    LEVEL6: {
+      zombieTypes: [ZombieType.Basic, ZombieType.Fast, ZombieType.Strong, ZombieType.Boss],
+      zombieCount: 300,
+      statMultiplier: 2.5,
+      maxAmount: 40,
+    }
     // Add more level configurations as needed
   };
   

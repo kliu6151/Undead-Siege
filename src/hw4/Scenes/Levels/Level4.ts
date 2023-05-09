@@ -9,23 +9,18 @@ import MainHW4Scene from "./MainHW4Scene";
 import MainMenu from "../MainMenu";
 import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
-import Level4 from "./Level4";
-// import Level4 from "./Level4";
 
 /**
  * The first level for HW4 - should be the one with the grass and the clouds.
  */
-export default class Level3 extends MainHW4Scene {
+export default class Level4 extends MainHW4Scene {
 
     public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/Soldier.json";
 
     public static readonly TILEMAP_KEY = "LEVEL3";
-    public static readonly TILEMAP_PATH = "assets/tilemaps/Level3Map.json";
+    public static readonly TILEMAP_PATH = "assets/tilemaps/Level4Map.json";
     // public static readonly TILEMAP_SCALE = new Vec2(2, 2);
     public static readonly WALLS_LAYER_KEY = "Main";
-
-    public static readonly HELI_SPRITE_KEY = "HELI_SPRITE_KEY";
-    public static readonly HELI_SPRITE_PATH = "assets/spritesheets/HELI.json";
 
     public static readonly BASICZOMBIE_KEY = "BASICZOMBIE";
     public static readonly ZOMBIE_PATH = "assets/spritesheets/BasicZombie.json";
@@ -33,6 +28,9 @@ export default class Level3 extends MainHW4Scene {
     public static readonly STRONGZOMBIE_PATH = "assets/spritesheets/StrongZombie.json";
     public static readonly BOSSZOMBIE_KEY = "BOSSZOMBIE";
     public static readonly BOSSZOMBIE_PATH = "assets/spritesheets/BossZombie.json";
+
+    public static readonly HELI_SPRITE_KEY = "HELI_SPRITE_KEY";
+    public static readonly HELI_SPRITE_PATH = "assets/spritesheets/HELI.json";
 
     public static readonly AXE_KEY = "AXE";
     public static readonly AXE_PATH = "assets/spritesheets/AxeThrow.json";
@@ -67,19 +65,19 @@ export default class Level3 extends MainHW4Scene {
         super(viewport, sceneManager, renderingManager, options);
 
         // Set the keys for the different layers of the tilemap
-        this.levelKey = Level3.TILEMAP_KEY;
+        this.levelKey = Level4.TILEMAP_KEY;
         // this.tilemapScale = Level2.TILEMAP_SCALE;
         // this.destructibleLayerKey = Level2.DESTRUCTIBLE_LAYER_KEY;
-        this.wallsLayerKey = Level3.WALLS_LAYER_KEY;
+        this.wallsLayerKey = Level4.WALLS_LAYER_KEY;
 
-        this.levelMusicKey = Level3.LEVEL_MUSIC_KEY;
+        this.levelMusicKey = Level4.LEVEL_MUSIC_KEY;
 
-        this.playerShootAudioKey = Level3.SHOOT_AUDIO_KEY;
+        this.playerShootAudioKey = Level4.SHOOT_AUDIO_KEY;
 
         
-        this.zombieGrowlAudioKey = Level3.ZOMBIE_GROWL_AUDIO_KEY
-        this.playerDamagedAudioKey = Level3.PLAYER_DAMAGED_AUDIO_KEY
-        this.helicopterDamagedAudioKey = Level3.HELICOPTER_DAMAGED_AUDIO_KEY
+        this.zombieGrowlAudioKey = Level4.ZOMBIE_GROWL_AUDIO_KEY
+        this.playerDamagedAudioKey = Level4.PLAYER_DAMAGED_AUDIO_KEY
+        this.helicopterDamagedAudioKey = Level4.HELICOPTER_DAMAGED_AUDIO_KEY
         
         // Set the key for the player's sprite
 
@@ -90,18 +88,18 @@ export default class Level3 extends MainHW4Scene {
      */
     public override loadScene() {
         // Load the player and enemy spritesheets
-        this.load.spritesheet("player1", Level3.PLAYER_SPRITE_PATH);
+        this.load.spritesheet("player1", Level4.PLAYER_SPRITE_PATH);
     
         // Load in the enemy sprites
-        this.load.spritesheet("BasicZombie", Level3.ZOMBIE_PATH);
-        this.load.spritesheet("FastZombie", Level3.ZOMBIE_PATH);
-        this.load.spritesheet("StrongZombie",Level3.STRONGZOMBIE_PATH);
-        this.load.spritesheet("BossZombie", Level3.BOSSZOMBIE_PATH);
-        this.load.spritesheet("helicopter", Level3.HELI_SPRITE_PATH);
-        
-        this.load.audio(this.levelMusicKey, Level3.LEVEL_MUSIC_PATH)
+        this.load.spritesheet("BasicZombie", Level4.ZOMBIE_PATH);
+        this.load.spritesheet("FastZombie", Level4.ZOMBIE_PATH);
+        this.load.spritesheet("StrongZombie",Level4.STRONGZOMBIE_PATH);
+        this.load.spritesheet("BossZombie", Level4.BOSSZOMBIE_PATH);
+        this.load.spritesheet("helicopter", Level4.HELI_SPRITE_PATH);
+
+        this.load.audio(this.levelMusicKey, Level4.LEVEL_MUSIC_PATH)
         // Load the tilemap
-        this.load.tilemap(this.levelKey, Level3.TILEMAP_PATH);
+        this.load.tilemap(this.levelKey, Level4.TILEMAP_PATH);
         // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
     
         this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
@@ -147,7 +145,7 @@ export default class Level3 extends MainHW4Scene {
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-        this.nextLevel = Level4;
+        this.nextLevel = MainMenu;
     }
 
     /**
