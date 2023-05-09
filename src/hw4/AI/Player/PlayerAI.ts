@@ -56,7 +56,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
   public update(deltaT: number): void {
     if ((<MainHW4Scene>this.owner.getScene()).isPaused) return;
     super.update(deltaT);
-
+    if(!this.owner.isDying) {
     if (Input.isMouseJustPressed()) {
       let particles = this.weapon.getPool();
       for (let i = 0; i < particles.length; i++) {
@@ -64,6 +64,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
       }
       this.weapon.startSystem(500, 0, this.owner.position);
       this.owner.animation.play(PlayerAnimationType.ATTACK)
+    }
     }
   }
 
