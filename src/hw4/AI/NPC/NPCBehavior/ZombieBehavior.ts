@@ -72,7 +72,7 @@ export default class ZombieBehavior extends NPCBehavior {
   }
 
   private avoidZombies(deltaT: number): void {
-    const avoidDistance = 1000; // Set a distance to avoid other zombies (squared to avoid using square root)
+    const avoidDistance = 10000; // Set a distance to avoid other zombies (squared to avoid using square root)
     const weight = 5; // Set a weight for the avoidance force
     const dampingWeight = 0.9;
     let avoidanceForce = new Vec2(0, 0);

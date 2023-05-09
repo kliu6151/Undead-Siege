@@ -60,7 +60,7 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
     public removeTargeting(targeting: TargetingEntity): void { this._battler.removeTargeting(targeting); }
 
     atTarget(): boolean {
-        return this._targeting.getTarget().position.distanceSqTo(this.position) < 625;
+        return this._targeting.getTarget().position.distanceSqTo(this.position) < 350;
     }
 
     public get battlerActive(): boolean { return this.battler.battlerActive; }

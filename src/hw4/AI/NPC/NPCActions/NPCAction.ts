@@ -51,7 +51,6 @@ export default abstract class NPCAction extends GoapAction {
 
   public onEnter(options: Record<string, any>): void {
     if (this.actor.health <= 0) {
-      console.log("IN LOW HEALTH");
       this.actor.isDying = true;
       this.actor.animation.playIfNotAlready(
         ZombieAnimationType.DYING,

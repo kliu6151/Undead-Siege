@@ -1738,7 +1738,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     //oops
     // Give the player physics
-    this.player.addPhysics(new AABB(Vec2.ZERO, new Vec2(15, 15)));
+    this.player.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
 
     // Give the player a healthbar
     let healthbar = new HealthbarHUD(this, this.player, "primary", {
@@ -1829,7 +1829,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
       }
 
-      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(15, 15)), null, false);
+      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
       let healthbar = new HealthbarHUD(this, npc, "primary", {
         size: npc.size.clone().scaled(1.5, 1 / 4),
         offset: npc.size.clone().scaled(0, -1 / 2),
