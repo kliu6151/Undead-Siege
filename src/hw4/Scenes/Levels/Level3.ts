@@ -44,8 +44,8 @@ export default class Level3 extends MainHW4Scene {
     public static readonly HELICOPTER_DAMAGED_AUDIO_KEY = "HELICOPTER_DAMAGED"
     public static readonly HELICOPTER_DAMAGED_AUDIO_PATH = "assets/sounds/metal.mp3"
 
-    // public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
-    // public static readonly LEVEL_MUSIC_PATH = "hw4_assets/music/hw5_level_music.wav";
+    public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
+    public static readonly LEVEL_MUSIC_PATH = "assets/music/level2_music.wav";
 
     // public static readonly JUMP_AUDIO_KEY = "PLAYER_JUMP";
     // public static readonly JUMP_AUDIO_PATH = "hw4_assets/sounds/jump.wav";
@@ -67,7 +67,7 @@ export default class Level3 extends MainHW4Scene {
         // this.destructibleLayerKey = Level2.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = Level3.WALLS_LAYER_KEY;
 
-        // this.levelMusicKey = Level2.LEVEL_MUSIC_KEY;
+        this.levelMusicKey = Level3.LEVEL_MUSIC_KEY;
 
         this.playerShootAudioKey = Level3.SHOOT_AUDIO_KEY;
 
@@ -75,20 +75,9 @@ export default class Level3 extends MainHW4Scene {
         this.zombieGrowlAudioKey = Level3.ZOMBIE_GROWL_AUDIO_KEY
         this.playerDamagedAudioKey = Level3.PLAYER_DAMAGED_AUDIO_KEY
         this.helicopterDamagedAudioKey = Level3.HELICOPTER_DAMAGED_AUDIO_KEY
+        
         // Set the key for the player's sprite
-        // this.playerSpriteKey = Level2.PLAYER_SPRITE_KEY;
-        // Set the player's spawn
-        // this.playerSpawn = Level2.PLAYER_SPAWN;
 
-        // Music and sound
-        // this.levelMusicKey = Level2.LEVEL_MUSIC_KEY
-        // this.jumpAudioKey = Level2.JUMP_AUDIO_KEY;
-        // this.deathAudioKey = Level2.DEATH_AUDIO_KEY;
-        // this.tileDestroyedAudioKey = Level2.TILE_DESTROYED_KEY;
-
-        // Level end size and position
-        // this.levelEndPosition = new Vec2(128, 232).mult(this.tilemapScale);
-        // this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
     }
 
     /**
@@ -104,7 +93,7 @@ export default class Level3 extends MainHW4Scene {
         this.load.spritesheet("StrongZombie",Level3.STRONGZOMBIE_PATH);
         this.load.spritesheet("BossZombie", Level3.BOSSZOMBIE_PATH);
 
-
+        this.load.audio(this.levelMusicKey, Level3.LEVEL_MUSIC_PATH)
         // Load the tilemap
         this.load.tilemap(this.levelKey, Level3.TILEMAP_PATH);
         // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
@@ -126,6 +115,18 @@ export default class Level3 extends MainHW4Scene {
      * Unload resources for level 1
      */
     public unloadScene(): void {
+        this.resourceManager.keepImage(MainHW4Scene.MATERIAL_KEY)
+        this.resourceManager.keepImage(MainHW4Scene.FUEL_KEY);
+        this.resourceManager.keepImage(MainHW4Scene.LOGO_KEY);
+        this.resourceManager.keepImage(MainHW4Scene.PAUSE_BG_KEY);
+        this.resourceManager.keepImage(MainHW4Scene.NIGHT_KEY);
+        this.load.keepAudio(this.playerShootAudioKey);
+        this.load.keepAudio(this.zombieGrowlAudioKey);
+        this.load.keepAudio(this.playerDamagedAudioKey);
+        this.load.keepAudio(this.helicopterDamagedAudioKey);
+
+        this.resourceManager.keepSpritesheet(this.playerSpriteKey);
+        this.resourceManager.unloadAllResources();
         // this.resourceManager.keepSpritesheet(this.playerSpriteKey);
         // this.resourceManager.keepAudio(this.jumpAudioKey);
         // this.resourceManager.keepAudio(this.deathAudioKey);

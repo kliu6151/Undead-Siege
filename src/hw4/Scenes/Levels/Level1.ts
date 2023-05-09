@@ -164,6 +164,11 @@ export default class Level1 extends MainHW4Scene {
      * Unload resources for level 1
      */
     public unloadScene(): void {
+        this.load.keepImage(MainHW4Scene.MATERIAL_KEY)
+        this.load.keepImage(MainHW4Scene.FUEL_KEY);
+        this.load.keepImage(MainHW4Scene.LOGO_KEY);
+        this.load.keepImage(MainHW4Scene.PAUSE_BG_KEY);
+        this.load.keepImage(MainHW4Scene.NIGHT_KEY);
         this.load.keepAudio(this.playerShootAudioKey);
         this.load.keepAudio(this.zombieGrowlAudioKey);
         this.load.keepAudio(this.playerDamagedAudioKey);
