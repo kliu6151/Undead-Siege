@@ -2,6 +2,7 @@ import IdleAction from "../NPCActions/GotoAction";
 import NPCActor from "../../../Actors/NPCActor";
 import NPCBehavior from "../NPCBehavior";
 import GoalReached from "../NPCStatuses/FalseStatus";
+import { ZombieAnimationType } from "./ZombieBehavior";
 
 
 
@@ -16,6 +17,7 @@ export default class IdleBehavior extends NPCBehavior  {
     /** Initialize the NPC AI */
     public initializeAI(owner: NPCActor, opts: Record<string, any>): void {
         this.owner = owner;
+        this.owner.animation.playIfNotAlready(ZombieAnimationType.IDLE, true);
 
         // Add the goal status
         this.addStatus("goal", new GoalReached());

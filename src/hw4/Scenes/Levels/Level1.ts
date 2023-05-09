@@ -31,7 +31,7 @@ export default class Level1 extends MainHW4Scene {
 
     //Load the enemy sprites
     public static readonly ZOMBIE_KEY = "ZOMBIE";
-    public static readonly ZOMBIE_PATH = "assets/spritesheets/BlueEnemy.json";
+    public static readonly ZOMBIE_PATH = "assets/spritesheets/BasicZombie.json";
 
     // Load the enemy locations
     public static readonly ZOMBIE_SPAWNS = "ZOMBIE_SPAWNS";
@@ -100,7 +100,7 @@ export default class Level1 extends MainHW4Scene {
         this.load.spritesheet("player1", Level1.PLAYER_SPRITE_PATH);
     
         // Load in the enemy sprites
-        this.load.spritesheet("BasicEnemy", Level1.ZOMBIE_PATH);
+        this.load.spritesheet("BasicZombie", Level1.ZOMBIE_PATH);
         
 
         // Load the tilemap

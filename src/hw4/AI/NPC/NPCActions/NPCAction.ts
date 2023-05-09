@@ -8,6 +8,7 @@ import { TargetableEntity } from "../../../GameSystems/Targeting/TargetableEntit
 import BasicFinder from "../../../GameSystems/Searching/BasicFinder";
 import NavigationPath from "../../../../Wolfie2D/Pathfinding/NavigationPath";
 import PlayerActor from "../../../Actors/PlayerActor";
+import Vec2 from "../../../../Wolfie2D/DataTypes/Vec2";
 
 /**
  * An abstract GoapAction for an NPC. All NPC actions consist of doing three things:
@@ -27,6 +28,7 @@ export default abstract class NPCAction extends GoapAction {
 
     protected updateCounter: number;
     protected updateInterval: number;
+    
 
     // The targeting strategy used for this GotoAction - determines how the target is selected basically
     protected _targetFinder: Finder<TargetableEntity>;
@@ -58,6 +60,7 @@ export default abstract class NPCAction extends GoapAction {
             // Update the target's position
             this.target.position = this.actor.getTarget().position;
             // Construct a path from the actor to the target
+            
             this.path = this.actor.getPath(this.actor.position, this.target.position);
         }
     }
@@ -82,10 +85,20 @@ export default abstract class NPCAction extends GoapAction {
             if (this.actor.atTarget()) {
                 this.performAction(this.target);
             } else {
+                this.actor.animation.playIfNotAlready("WALK");
                 this.actor.moveOnPath(this.actor.speed * deltaT * 10, this.path);
+                
+                const faceDir = this.actor.faceDir;
+                this.actor.rotation = Vec2.UP.angleToCCW(faceDir);
+
+
             }
         } else {
             this.finished();
+            if (this.actor instanceof NPCActor) {
+                this.actor.animation.playIfNotAlready("IDLE");
+            }
+            
         }
     }
     
