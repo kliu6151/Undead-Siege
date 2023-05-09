@@ -9,6 +9,7 @@ import MainMenu from "./MainMenu";
 import ResourceManager from "../../Wolfie2D/ResourceManager/ResourceManager";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import HW4Scene from "./Levels/HW4Scene";
+import { GameEventType } from "../../Wolfie2D/Events/GameEventType";
 
 
 export default class StartMenu extends Scene {
@@ -20,11 +21,17 @@ export default class StartMenu extends Scene {
     public static BACKGROUND_KEY = "BACKGROUND"
     public static BACKGROUND_PATH = "assets/sprites/background.jpg"
 
+    public static readonly MUSIC_KEY = "MUSIC_KEY"
+    public static readonly MUSIC_PATH = "assets/music/mainMenu_music.wav";
+
     private background: Sprite;
 
 
     public loadScene(){
+
         this.load.image(StartMenu.BACKGROUND_KEY, StartMenu.BACKGROUND_PATH);
+        // this.load.image(StartMenu.MUSIC_KEY, StartMenu.MUSIC_PATH);
+
     }
 
     public startScene(){
@@ -57,6 +64,8 @@ export default class StartMenu extends Scene {
             titleText.fontSize = 80;
         }
         this.receiver.subscribe("start");
+        // this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: StartMenu.MUSIC_KEY, loop: true, holdReference: false})
+
     }
 
     public updateScene(){

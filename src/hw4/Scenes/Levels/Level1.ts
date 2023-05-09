@@ -51,7 +51,7 @@ export default class Level1 extends MainHW4Scene {
     public static readonly FUEL_SPAWNS_PATH = "assets/data/items/fuels.json";
 
     public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
-    public static readonly LEVEL_MUSIC_PATH = "assets/music/hw5_level_music.wav"
+    public static readonly LEVEL_MUSIC_PATH = "assets/music/level1_music.wav"
    
     public static readonly SHOOT_AUDIO_KEY = "PLAYER_SHOOT";
     public static readonly SHOOT_AUDIO_PATH = "assets/sounds/gun_shot.wav";

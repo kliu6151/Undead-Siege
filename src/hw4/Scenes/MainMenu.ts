@@ -4,7 +4,6 @@ import Layer from "../../Wolfie2D/Scene/Layer";
 import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
 import Label from "../../Wolfie2D/Nodes/UIElements/Label";
-import MainHW4Scene from "./Levels/MainHW4Scene";
 import GameEvent from "../../Wolfie2D/Events/GameEvent";
 import Sprite from "../../Wolfie2D/Nodes/Sprites/Sprite";
 import Button from "../../Wolfie2D/Nodes/UIElements/Button";
@@ -12,6 +11,8 @@ import LevelSelectionScene from "./LevelSelectionScene";
 import Controls from "./Controls";
 import Help from "./Help";
 import Level1 from "./Levels/Level1";
+import { GameEventType } from "../../Wolfie2D/Events/GameEventType";
+import StartMenu from "./StartMenu";
 
 export default class MainMenu extends Scene {
   // Layers, for multiple main menu screens
@@ -25,6 +26,9 @@ export default class MainMenu extends Scene {
   public static LOGO_KEY = "LOGO";
   public static LOGO_PATH = "assets/sprites/logo.png";
 
+
+  
+
   private background: Sprite;
   private logo: Sprite;
 
@@ -34,7 +38,6 @@ export default class MainMenu extends Scene {
   }
 
   public startScene() {
-    console.log(this);
     const center = this.viewport.getCenter();
 
     const size = this.viewport.getHalfSize();
@@ -122,6 +125,7 @@ export default class MainMenu extends Scene {
     this.receiver.subscribe("Level Selection");
     this.receiver.subscribe("controls");
     this.receiver.subscribe("help");
+
     
   }
 
@@ -134,6 +138,7 @@ export default class MainMenu extends Scene {
   public handleEvent(event: GameEvent): void {
     switch (event.type) {
       case "play": {
+        // this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: StartMenu.MUSIC_KEY, loop: true, holdReference: false})
         this.sceneManager.changeToScene(Level1);
         break;
       }
