@@ -63,6 +63,7 @@ export default abstract class NPCAction extends GoapAction {
     if (!this.actor.isDying) {
       // Select the target location where the NPC should perform the action
       this.target = this.targetFinder.find(this.targets);
+      console.log(this.targets);
 
       // If we found a target, set the NPCs target to the target and find a path to the target
       if (this.target !== null) {
@@ -92,20 +93,22 @@ export default abstract class NPCAction extends GoapAction {
         .getBattlers()
         .find((battler) => battler instanceof PlayerActor);
       if (player) {
-        const targetPosition = player.position;
-        const distanceMoved = targetPosition.distanceTo(this.actor.position);
-        this.updateCounter += deltaT;
-        // Update target position and path if the player has moved enough or if the path is null
-        if (
-          (distanceMoved > 10 || this.path === null) &&
-          this.updateCounter >= this.updateInterval
-        ) {
-          this.target.position = targetPosition.clone();
-          this.path = this.actor.getPath(
-            this.actor.position,
-            this.target.position
-          );
-          this.updateCounter = 0;
+        if (this.target == player) {
+          const targetPosition = player.position;
+          const distanceMoved = targetPosition.distanceTo(this.actor.position);
+          this.updateCounter += deltaT;
+          // Update target position and path if the player has moved enough or if the path is null
+          if (
+            (distanceMoved > 10 || this.path === null) &&
+            this.updateCounter >= this.updateInterval
+          ) {
+            this.target.position = targetPosition.clone();
+            this.path = this.actor.getPath(
+              this.actor.position,
+              this.target.position
+            );
+            this.updateCounter = 0;
+          }
         }
       }
 
