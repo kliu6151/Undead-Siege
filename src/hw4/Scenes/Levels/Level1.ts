@@ -165,6 +165,9 @@ export default class Level1 extends MainHW4Scene {
      */
     public unloadScene(): void {
         this.load.keepAudio(this.playerShootAudioKey);
+        this.load.keepAudio(this.zombieGrowlAudioKey);
+        this.load.keepAudio(this.playerDamagedAudioKey);
+        this.load.keepAudio(this.helicopterDamagedAudioKey);
 
         // this.resourceManager.keepSpritesheet(this.playerSpriteKey);
         // this.resourceManager.keepAudio(this.jumpAudioKey);
