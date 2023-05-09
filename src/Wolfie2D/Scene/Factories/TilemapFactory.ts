@@ -79,8 +79,6 @@ export default class TilemapFactory {
 
         let collectionTiles = new Array<TiledCollectionTile>();
 
-        console.log("TILEMAPDATA: ", tilemapData.tilesets);
-        console.log("TILESETS: ", tilesets)
         for(let tileset of tilemapData.tilesets){
             if(tileset.image){
                 // If this is a standard tileset and not a collection, create a tileset for it.
@@ -89,8 +87,6 @@ export default class TilemapFactory {
                 // that we only want to use them for object layers
                 tilesets.push(new Tileset(tileset));
             } else {
-                console.log("TILESET: ", tileset)
-                console.log("IM HERE: " + tileset.tiles);
                 tileset.tiles.forEach(tile => tile.id += tileset.firstgid);
                 collectionTiles.push(...tileset.tiles);
             }
