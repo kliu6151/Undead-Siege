@@ -129,6 +129,7 @@ export default class MainHW4Scene extends HW4Scene {
   private controls: Label;
   private exit: Label;
   private cheats: Label;
+  private rest: Label;
   // private AllLevelsCheat: Button;
   private unlimitedHealthCheat: Label;
   private endCycleCheat: Label;
@@ -254,7 +255,7 @@ export default class MainHW4Scene extends HW4Scene {
         maxHealth: 100,
         health: 100,
         weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 1, 5, 0, 1),
-        speed: 1,
+        speed: 20,
         armor: 0,
         bulletDamage: 10,
         materialAmt: 0,
@@ -327,6 +328,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe("unPause");
     this.receiver.subscribe("showCheats");
     this.receiver.subscribe("showControls");
+    this.receiver.subscribe("endDay")
     this.receiver.subscribe(CheatEvent.INFINITE_HEALTH);
     this.receiver.subscribe(CheatEvent.END_DAY);
     this.receiver.subscribe(CheatEvent.ADD_MAT);
@@ -567,6 +569,10 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleAddMaterialCheat();
           break;
         }
+        case "endDay": {
+          this.handleRest();
+          break;
+        }
       }
     } else if (!this.isPaused || event.type === InputEvent.PAUSED) {
       switch (event.type) {
@@ -625,7 +631,8 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleAddMaterialCheat();
           break;
         }
-        case CheatEvent.END_DAY: {
+        case CheatEvent.END_DAY || "endDay": {
+          console.log("IN HERE")
           this.handleEndDayCheat();
           break;
         }
@@ -643,6 +650,14 @@ export default class MainHW4Scene extends HW4Scene {
           );
         }
       }
+    }
+  }
+
+  private handleRest(): void {
+    if(!this.isNight) {
+      this.isPaused = false;
+      this.hidePauseUI();
+      this.handleEndDayCheat();
     }
   }
 
@@ -1038,7 +1053,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   private handleFuelPickedUp(): void {
     const currentValue = parseInt(this.fuelCounter.text);
-    this.fuelCounter.text = (currentValue + 1).toString();
+    this.fuelCounter.text = (currentValue + 1).toString() + "/ 5";
   }
 
   //PAUSE SCREEN
@@ -1143,7 +1158,7 @@ export default class MainHW4Scene extends HW4Scene {
             20,
           15
         ),
-        text: "0",
+        text: "0 / 5",
       }
     );
   }
@@ -1390,7 +1405,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.controls.onClickEventId = "showControls";
 
     this.exit = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
-      position: new Vec2(this.viewport.getHalfSize().x, 200),
+      position: new Vec2(this.viewport.getHalfSize().x, 240),
       text: "Exit",
     });
     this.exit.textColor = Color.RED;
@@ -1409,14 +1424,18 @@ export default class MainHW4Scene extends HW4Scene {
     this.cheats.fontSize = 32;
     this.cheats.onClickEventId = "showCheats";
 
-    // this.AllLevelsCheat = <Button>this.add.uiElement(UIElementType.BUTTON, "Pause", {
-    //   position: new Vec2(this.viewport.getHalfSize().x / 7, this.viewport.getHalfSize().y * 2 - (3*(this.viewport.getHalfSize().y / 8))),
-    //   text: "All Levels",
-    // });
-    // this.AllLevelsCheat.textColor = Color.WHITE;
-    // this.AllLevelsCheat.backgroundColor = Color.BLACK;
-    // this.AllLevelsCheat.fontSize = 24;
-    // this.AllLevelsCheat.onClickEventId = "allLevelCheatUnlock";
+    this.rest = <Label>this.add.uiElement(UIElementType.LABEL, "Pause", {
+      position: new Vec2(this.viewport.getHalfSize().x, 200),
+      text: "Rest",
+    });
+    this.rest.textColor = Color.RED;
+    this.rest.scale.set(0.5, 0.5);
+    this.rest.sizeToText();
+    this.rest.fontSize = 32;
+    this.rest.onClickEventId = "endDay";
+
+    
+
     let Text = " [9] - Unlimited Health ";
     this.unlimitedHealthCheat = <Label>this.add.uiElement(
       UIElementType.LABEL,
@@ -1610,6 +1629,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.controls.visible = true;
     this.exit.visible = true;
     this.cheats.visible = true;
+    this.rest.visible = true;
     this.objectiveLabel.visible = true;
     for (let i = 0; i < this.objectDescriptionLabel.length; i++) {
       this.objectDescriptionLabel[i].visible = true;
@@ -1624,6 +1644,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.controls.visible = false;
     this.exit.visible = false;
     this.cheats.visible = false;
+    this.rest.visible = false;
     this.objectiveLabel.visible = false;
     for (let i = 0; i < this.objectDescriptionLabel.length; i++) {
       this.objectDescriptionLabel[i].visible = false;
@@ -1930,31 +1951,35 @@ export default class MainHW4Scene extends HW4Scene {
     const numMaterials = 10;
     const numFuels = 5;
 
-    // let materials = this.load.getObject("materials");
     this.materials = new Array<Material>(numMaterials);
     for (let i = 0; i < numMaterials; i++) {
-      let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
-      sprite.scale.set(0.5, 0.5);
-      this.materials[i] = new Material(sprite);
-      // this.materials[i].position.set(
-      //   materials.items[i][0],
-      //   materials.items[i][1]
-      // );
-      this.materials[i].position.copy(
-        this.getRandomPosition(minX, maxX, minY, maxY)
-      );
+      let randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
+      let tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
+    if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
+        let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
+        sprite.scale.set(0.5, 0.5);
+        this.materials[i] = new Material(sprite);
+        this.materials[i].position.set(randomPos.x,randomPos.y);
+      }
+      else {
+        i--;
+      }
     }
     // let fuels = this.load.getObject("fuels");
     this.fuels = new Array<Fuel>(numFuels);
     for (let i = 0; i < numFuels; i++) {
+      let randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
+      let tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
+    if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
       let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
       sprite.scale.set(0.5, 0.5);
       this.fuels[i] = new Fuel(sprite);
-      // this.fuels[i].position.set(fuels.items[i][0], fuels.items[i][1]);
-      this.fuels[i].position.copy(
-        this.getRandomPosition(minX, maxX, minY, maxY)
-      );
+      this.fuels[i].position.set(randomPos.x, randomPos.y);
     }
+    else {
+      i--;
+    }
+  }
   }
   /**
    * Initializes the navmesh graph used by the NPCs in the HW3Scene. This method is a little buggy, and
