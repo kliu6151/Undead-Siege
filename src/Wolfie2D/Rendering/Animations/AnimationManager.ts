@@ -74,6 +74,10 @@ export default class AnimationManager {
         this.animations.add(key, animation);
     }
 
+    getCurrentFrame(): number {
+        return this.getIndex();
+    }
+
     /**
      * Gets the index specified by the current animation and current frame
      * @returns The index in the current animation

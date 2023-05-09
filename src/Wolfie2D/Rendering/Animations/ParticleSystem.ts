@@ -14,10 +14,14 @@ import MathUtils from "../../Utils/MathUtils";
 import RandUtils from "../../Utils/RandUtils";
 import ParticleSystemManager from "./ParticleSystemManager";
 import { PhysicsGroups } from "../../../hw4/PhysicsGroups";
+import AnimatedSprite from "../../Nodes/Sprites/AnimatedSprite";
 
 export default class ParticleSystem implements Updateable {
     /** Pool for all particles */
     protected particlePool: Array<Particle>;
+
+    protected sprite: AnimatedSprite;
+
 
     /** Lifetime for each particle */
     protected lifetime: number;
@@ -50,8 +54,9 @@ export default class ParticleSystem implements Updateable {
      * @param size Size of each particle
      * @param mass Initial mass of each particle, can be changed
      * @param maxParticlesPerFrame Total number of particles that can be created during a given frame.
+     * @param sprite animatedSprite
      */
-    constructor(poolSize: number, sourcePoint: Vec2, lifetime: number, width: number, height:number, mass: number, maxParticlesPerFrame: number) {
+    constructor(poolSize: number, sourcePoint: Vec2, lifetime: number, width: number, height:number, mass: number, maxParticlesPerFrame: number, sprite?: AnimatedSprite) {
         this.particlePool = new Array(poolSize);
         this.sourcePoint = sourcePoint;
         this.lifetime = lifetime;
@@ -60,15 +65,20 @@ export default class ParticleSystem implements Updateable {
         this.particlesPerFrame = maxParticlesPerFrame;
         this.particlesToRender = this.particlesPerFrame;
         this.particleMass = mass;
+        this.sprite = sprite || null;
 
         ParticleSystemManager.getInstance().registerParticleSystem(this);
     }
 
+    setSprite(sprite: AnimatedSprite): void {
+        this.sprite = sprite;
+    }
+
     /** Initialize the pool of all particles, creating the assets in advance */
-    initializePool(scene: Scene, layer: string) {
+    initializePool(scene: Scene, layer: string, sprite?: AnimatedSprite) {
         for (let i = 0; i < this.particlePool.length; i++) {
             this.particlePool[i] = <Particle>scene.add.graphic(GraphicType.PARTICLE, layer,
-                { position: this.sourcePoint.clone(), size: this.particleSize.clone(), mass: this.particleMass });
+                { position: this.sourcePoint.clone(), size: this.particleSize.clone(), mass: this.particleMass, sprite: sprite });
             this.particlePool[i].addPhysics();
             this.particlePool[i].setGroup(PhysicsGroups.PLAYER_WEAPON);
             this.particlePool[i].isCollidable = false;
@@ -77,12 +87,12 @@ export default class ParticleSystem implements Updateable {
     }
       
 
-    public increasePoolSize(amount: number, scene: Scene, layer: string): void {
+    public increasePoolSize(amount: number, scene: Scene, layer: string, sprite?:AnimatedSprite): void {
         const newPoolSize = this.particlePool.length + amount;
         
         for (let i = this.particlePool.length; i < newPoolSize; i++) {
           const newParticle = <Particle>scene.add.graphic(GraphicType.PARTICLE, layer,
-            { position: this.sourcePoint.clone(), size: this.particleSize.clone(), mass: this.particleMass });
+            { position: this.sourcePoint.clone(), size: this.particleSize.clone(), mass: this.particleMass, sprite: sprite });
           newParticle.addPhysics();
           newParticle.setGroup(PhysicsGroups.PLAYER_WEAPON);
           newParticle.isCollidable = false;

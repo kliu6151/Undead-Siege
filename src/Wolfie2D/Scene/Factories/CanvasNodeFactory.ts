@@ -216,9 +216,10 @@ export default class CanvasNodeFactory {
 		this.checkIfPropExists("Particle", options, "position", Vec2, "Vec2");
 		this.checkIfPropExists("Particle", options, "size", Vec2, "Vec2");
 		this.checkIfPropExists("Particle", options, "mass", "number", "number");
+		const sprite = options?.sprite || null;
 
 		//Changed for testing
-		return new Particle(options.position, options.size, options.mass);
+		return new Particle(options.position, options.size, options.mass, sprite);
 	}
 
 	buildLine(options?: Record<string, any>): Point {

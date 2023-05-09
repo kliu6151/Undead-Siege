@@ -1,5 +1,6 @@
 import Vec2 from "../../DataTypes/Vec2";
 import Point from "./Point";
+import AnimatedSprite from "../Sprites/AnimatedSprite";
 
 /**
  * - Position X
@@ -22,11 +23,14 @@ export default class Particle extends Point {
 
     mass: number;
 
-    constructor(position: Vec2, size: Vec2, mass: number) {
+    sprite: AnimatedSprite | null;
+
+    constructor(position: Vec2, size: Vec2, mass: number, sprite?: AnimatedSprite) {
         // Are we making this a circle?
         super(position);
         this.inUse = false;
         this.mass = mass;
+        this.sprite = sprite || null
     }
 
     setParticleActive(lifetime: number, position: Vec2) {
@@ -52,6 +56,8 @@ export default class Particle extends Point {
     get velY(): number {
         return this.vel.y;
     }
+
+    
 
 
 }

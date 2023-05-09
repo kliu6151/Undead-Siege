@@ -4,5 +4,6 @@ export enum GraphicType {
 	LINE = "LINE",
 	PARTICLE = "PARTICLE",
 	SPOTLIGHT = "SPOTLIGHT",
-	LIGHT_MASK = "LIGHT_MASK"
+	LIGHT_MASK = "LIGHT_MASK",
+	AXE = "AXE"
 }

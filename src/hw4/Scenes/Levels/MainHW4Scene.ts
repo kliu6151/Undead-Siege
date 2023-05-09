@@ -70,6 +70,8 @@ import {
   ZombieType,
 } from "./zombieStats";
 import { PlayerAnimationType } from "../../AI/Player/PlayerStates/PlayerState";
+import AnimatedSprite from "../../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
+import WeaponSprite from "../../AI/Player/WeaponSprite";
 
 const BattlerGroups = {
   RED: 1,
@@ -88,6 +90,9 @@ const upgradeOptions = [
 const upgradeCosts = [2, 1, 10, 5, 6, 9];
 
 export default class MainHW4Scene extends HW4Scene {
+  //AnimatedSprites
+  private axeThrow: WeaponSprite
+
   //Upgrade
   private onScreenZombies: number;
   public isPaused: boolean;
@@ -246,7 +251,8 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-    console.log("MAIN SCENEEEEE: ", this.sceneManager);
+    // const particleSpritesheet = this.load.getSpritesheet("axeThrow");
+
     if (this.sceneManager.playerData) {
       this.playerData = this.sceneManager.playerData;
     } else {
@@ -263,10 +269,10 @@ export default class MainHW4Scene extends HW4Scene {
         maxEnergy: 100,
       };
     }
+    console.log("MAIN SCENEEEEE: ", this.sceneManager);
     this.onScreenZombies = 0;
     this.currentLevelConfig = levelConfigs[this.levelKey];
 
-    console.log(this.levelKey);
 
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
@@ -287,6 +293,9 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeUI();
     this.initializeUpgradeUI();
     this.initPauseUI();
+
+    this.axeThrow = this.add.animatedSprite(WeaponSprite, "axeThrow", "primary");
+
 
     this.elapsedTime = 0;
     this.remainingTime = 121 * 1000;
@@ -316,6 +325,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     //Initialize the day/night cycle
     this.isNight = false;
+
 
     // Subscribe to relevant events
     this.receiver.subscribe("healthpack");
@@ -854,7 +864,7 @@ export default class MainHW4Scene extends HW4Scene {
       case "MachineGun":
         const increaseAmount = 3;
         const particleSystem = this.playerWeaponSystem;
-
+        
         // Increase the pool size and max particles per frame
         particleSystem.increasePoolSize(increaseAmount, this, "primary");
         particleSystem.increaseMaxParticlesPerFrame(increaseAmount);

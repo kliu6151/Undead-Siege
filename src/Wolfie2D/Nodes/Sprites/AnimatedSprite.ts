@@ -19,11 +19,18 @@ export default class AnimatedSprite extends Sprite {
         return this.numRows;
     }
 
+    protected sheet: Spritesheet;
+
+    get spritesheet(): Spritesheet {
+        return this.sheet;
+    }
+
     /** The animationManager for this sprite */
     animation: AnimationManager;
 
     constructor(spritesheet: Spritesheet){
         super(spritesheet.name);
+        this.sheet = spritesheet
         this.numCols = spritesheet.columns;
         this.numRows = spritesheet.rows;
 

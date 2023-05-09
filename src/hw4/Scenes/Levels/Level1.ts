@@ -33,6 +33,9 @@ export default class Level1 extends MainHW4Scene {
     public static readonly ZOMBIE_KEY = "ZOMBIE";
     public static readonly ZOMBIE_PATH = "assets/spritesheets/BasicZombie.json";
 
+    public static readonly AXE_KEY = "AXE";
+    public static readonly AXE_PATH = "assets/spritesheets/AxeThrow.json";
+
     // Load the enemy locations
     public static readonly ZOMBIE_SPAWNS = "ZOMBIE_SPAWNS";
     public static readonly ZOMBIE_SPAWNS_PATH = "assets/data/enemies/blue.json";
@@ -102,7 +105,8 @@ export default class Level1 extends MainHW4Scene {
         // Load in the enemy sprites
         this.load.spritesheet("BasicZombie", Level1.ZOMBIE_PATH);
         
-
+        this.load.spritesheet("axeThrow", Level1.AXE_PATH);
+        
         // Load the tilemap
         this.load.tilemap(this.levelKey, Level1.TILEMAP_PATH);
         // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
