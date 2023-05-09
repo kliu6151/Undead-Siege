@@ -92,7 +92,7 @@ export default abstract class NPCAction extends GoapAction {
         .getBattlers()
         .find((battler) => battler instanceof PlayerActor);
       if (player) {
-        if (this.target == player) {
+        if (this.target === player) {
           const targetPosition = player.position;
           const distanceMoved = targetPosition.distanceTo(this.actor.position);
           this.updateCounter += deltaT;

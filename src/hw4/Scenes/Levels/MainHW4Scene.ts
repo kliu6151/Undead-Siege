@@ -1738,7 +1738,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     //oops
     // Give the player physics
-    this.player.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+    this.player.addPhysics(new AABB(Vec2.ZERO, new Vec2(15, 15)));
 
     // Give the player a healthbar
     let healthbar = new HealthbarHUD(this, this.player, "primary", {
