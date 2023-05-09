@@ -84,6 +84,7 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
         if (this.health <= 0 && this.battlerActive) {
             this.disablePhysics();
             this.isDying = true;
+            this.animation.stop();
             this.animation.playIfNotAlready(ZombieAnimationType.DYING, false, BattlerEvent.BATTLER_KILLED, {id: this.id});
         }
         else if(!this.isDying) {

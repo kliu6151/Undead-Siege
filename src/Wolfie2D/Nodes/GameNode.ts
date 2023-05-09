@@ -159,6 +159,9 @@ export default abstract class GameNode implements Positioned, Unique, Updateable
 	};
 
 	moveOnPath(speed: number, path: NavigationPath): void {
+		if(this._velocity === new Vec2(0,0)) {
+			return;
+		}
 		if(this.frozen || path.isDone()) return;
 		this.path = path;
 		let dir = path.getMoveDirection(this);

@@ -8,6 +8,7 @@ import NPCActor from "../../Actors/NPCActor";
 import { BattlerEvent, ItemEvent } from "../../Events";
 import MainHW4Scene from "../../Scenes/Levels/MainHW4Scene";
 import NPCAction from "./NPCActions/NPCAction";
+import { ZombieAnimationType } from "./NPCBehavior/ZombieBehavior";
 
 
 /**

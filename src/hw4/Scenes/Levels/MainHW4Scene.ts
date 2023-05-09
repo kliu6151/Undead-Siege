@@ -449,7 +449,7 @@ export default class MainHW4Scene extends HW4Scene {
     if (this.playerData) {
       this.sceneManager.playerData = {
         maxHealth: this.playerData.maxHealth,
-        health: this.playerData.health,
+        health: this.playerData.maxHealth,
         weapon: this.playerData.weapon,
         speed: this.playerData.speed,
         armor: this.playerData.armor,
@@ -596,7 +596,6 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case BattlerEvent.BATTLER_KILLED: {
-          console.log("IT DIED: ", event)
           this.handleBattlerKilled(event);
           break;
         }
@@ -955,7 +954,7 @@ export default class MainHW4Scene extends HW4Scene {
         particle.visible = true;
         // Loop over all possible tiles the particle could be colliding with
         for (let zombie of zombies) {
-          if (this.particleHitZombie(zombie, particle)) {
+          if (this.particleHitZombie(zombie, particle) && zombie.health > 0) {
             zombie.health -= this.player.bulletDamage - zombie.armor;
             // zombie.animation.playIfNotAlready("TAKING_DAMAGE");
             console.log("CURR PLAYING: ", zombie.animation.currentlyPlaying());
@@ -1771,12 +1770,12 @@ export default class MainHW4Scene extends HW4Scene {
 
     // Give the player a healthbar
     let healthbar = new HealthbarHUD(this, this.player, "primary", {
-      size: this.player.size.clone().scaled(2, 1 / 2),
+      size: this.player.size.clone().scaled(1.5, 1 / 4),
       offset: this.player.size.clone().scaled(0, -1 / 2),
     });
 
     let energybar = new EnergybarHUD(this, this.player, "primary", {
-      size: this.player.size.clone().scaled(2, 1 / 2),
+      size: this.player.size.clone().scaled(1.5, 1 / 4),
       offset: this.player.size.clone().scaled(0, -3 / 4),
     });
     this.healthbars.set(this.player.id, healthbar);

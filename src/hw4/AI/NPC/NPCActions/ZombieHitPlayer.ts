@@ -8,7 +8,7 @@ import { TargetableEntity } from "../../../GameSystems/Targeting/TargetableEntit
 import NPCActor from "../../../Actors/NPCActor";
 import NPCBehavior from "../NPCBehavior";
 import NPCAction from "./NPCAction";
-import { ItemEvent } from "../../../Events";
+import { BattlerEvent, ItemEvent } from "../../../Events";
 import Timer from "../../../../Wolfie2D/Timing/Timer";
 import PlayerActor from "../../../Actors/PlayerActor";
 import Battler from "../../../GameSystems/BattleSystem/Battler";
@@ -24,6 +24,9 @@ export default class ZombieHitPlayer extends NPCAction {
   }
 
   public performAction(target: Battler): void {
+    if(this.actor.health <= 0) {
+      this.actor.animation.playIfNotAlready(ZombieAnimationType.DYING, false, BattlerEvent.BATTLER_KILLED, {id: this.actor.id});
+  }
     this.actor.animation.playIfNotAlready("ATTACK", true)
     if (this.timer.isStopped() && target.invincible !== true) {
       // Send a laser fired event
@@ -40,6 +43,7 @@ export default class ZombieHitPlayer extends NPCAction {
       this.timer.start();
     }
     // Finish the action
+    
     this.finished();
   }
 
