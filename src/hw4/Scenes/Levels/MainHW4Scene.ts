@@ -274,8 +274,8 @@ export default class MainHW4Scene extends HW4Scene {
         materialAmt: 0,
         energy: 100,
         maxEnergy: 100,
-        heliMaxHealth: 300,
-        heliHealth: 300,
+        heliMaxHealth: 1000,
+        heliHealth: 1000,
         heliArmor: 0,
       };
     }
@@ -294,7 +294,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     // Set the viewport bounds to the tilemap
     let tilemapSize: Vec2 = this.walls.size;
-    console.log("TILEMAPSIZE: ", tilemapSize)
+
     this.viewport.setBounds(0, 0, tilemapSize.x, tilemapSize.y);
     this.viewport.setZoomLevel(2);
 
@@ -480,8 +480,8 @@ export default class MainHW4Scene extends HW4Scene {
         materialAmt: parseInt(this.materialCounter.text),
         energy: 100,
         maxEnergy: 100,
-        heliMaxHealth: 100,
-        heliHealth: 100,
+        heliMaxHealth: 1000,
+        heliHealth: this.playerData.heliHealth,
         heliArmor: 0,
       };
     }
@@ -870,6 +870,7 @@ export default class MainHW4Scene extends HW4Scene {
     switch (upgradeText) {
       case "Health":
         this.player.maxHealth += 10;
+        this.player.health += 10;
         this.playerData.maxHealth += 10;
         console.log("Health Upgrade");
         break;
@@ -1747,8 +1748,8 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.bulletDamage = 10;
       this.player.energy = 100;
       this.player.maxEnergy = 100;
-      this.helicopter.maxHealth = 100;
-      this.helicopter.health = 100;
+      this.helicopter.maxHealth = 1000;
+      this.helicopter.health = 1000;
       this.helicopter.armor = 0;
       this.helicopter.isHeli = true;
     }
