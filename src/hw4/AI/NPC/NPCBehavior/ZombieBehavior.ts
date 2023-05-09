@@ -72,14 +72,14 @@ export default class ZombieBehavior extends NPCBehavior {
   }
 
   private avoidZombies(deltaT: number): void {
-    const avoidDistance = 1000; // Set a distance to avoid other zombies (squared to avoid using square root)
+    const avoidDistance = 10000; // Set a distance to avoid other zombies (squared to avoid using square root)
     const weight = 5; // Set a weight for the avoidance force
     const dampingWeight = 0.9;
     let avoidanceForce = new Vec2(0, 0);
     // Loop through all the zombies
     // console.log(this.owner.getScene().getBattlers().slice(1))
     for (let zombie of this.owner.getScene().getBattlers().slice(1)) {
-      if (zombie === this.owner) continue; // Skip self
+      if (zombie === this.owner || zombie === this.helicopter) continue; // Skip self
       // Calculate the distance between the current zombie and the other zombie
       let distanceVec = this.owner.position.clone().sub(zombie.position);
       let distance =

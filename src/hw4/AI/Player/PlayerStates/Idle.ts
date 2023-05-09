@@ -25,6 +25,7 @@ export default class Idle extends PlayerState {
         }
         if(this.parent.owner.health <= 0) {
             console.log("IN IDLE AND < 0 HP")
+            this.parent.owner.isDying = true;
             this.finished(PlayerStateType.DEAD);
         }
     }

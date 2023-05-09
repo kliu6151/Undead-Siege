@@ -70,6 +70,8 @@ import {
   ZombieType,
 } from "./zombieStats";
 import { PlayerAnimationType } from "../../AI/Player/PlayerStates/PlayerState";
+import AnimatedSprite from "../../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
+import WeaponSprite from "../../AI/Player/WeaponSprite";
 
 const BattlerGroups = {
   RED: 1,
@@ -88,6 +90,9 @@ const upgradeOptions = [
 const upgradeCosts = [2, 1, 10, 5, 6, 9];
 
 export default class MainHW4Scene extends HW4Scene {
+  //AnimatedSprites
+  private axeThrow: WeaponSprite;
+
   //Upgrade
   private onScreenZombies: number;
   public isPaused: boolean;
@@ -248,7 +253,8 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-    console.log("MAIN SCENEEEEE: ", this.sceneManager);
+    // const particleSpritesheet = this.load.getSpritesheet("axeThrow");
+
     if (this.sceneManager.playerData) {
       this.playerData = this.sceneManager.playerData;
     } else {
@@ -268,10 +274,9 @@ export default class MainHW4Scene extends HW4Scene {
         heliArmor: 0,
       };
     }
+    console.log("MAIN SCENEEEEE: ", this.sceneManager);
     this.onScreenZombies = 0;
     this.currentLevelConfig = levelConfigs[this.levelKey];
-
-    console.log(this.levelKey);
 
     this.initialViewportSize = new Vec2(
       this.viewport.getHalfSize().x * 2,
@@ -292,6 +297,12 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeUI();
     this.initializeUpgradeUI();
     this.initPauseUI();
+
+    this.axeThrow = this.add.animatedSprite(
+      WeaponSprite,
+      "axeThrow",
+      "primary"
+    );
 
     this.elapsedTime = 0;
     this.remainingTime = 121 * 1000;
@@ -333,7 +344,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe("unPause");
     this.receiver.subscribe("showCheats");
     this.receiver.subscribe("showControls");
-    this.receiver.subscribe("endDay")
+    this.receiver.subscribe("endDay");
     this.receiver.subscribe(CheatEvent.INFINITE_HEALTH);
     this.receiver.subscribe(CheatEvent.END_DAY);
     this.receiver.subscribe(CheatEvent.ADD_MAT);
@@ -349,6 +360,7 @@ export default class MainHW4Scene extends HW4Scene {
     this.addUILayer("health");
 
     this.receiver.subscribe(PlayerEvent.PLAYER_KILLED);
+    this.receiver.subscribe(PlayerEvent.HELICOPTER_DESTROYED);
     this.receiver.subscribe(BattlerEvent.BATTLER_KILLED);
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
@@ -389,9 +401,11 @@ export default class MainHW4Scene extends HW4Scene {
           this.player.maxEnergy
         );
       }
+      if (this.helicopter.health <= 0)
+        this.handleHelicopterDestroyed();
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
-      
+
       this.energybars.forEach((energybar) => energybar.update(deltaT));
 
       this.elapsedTime += deltaT;
@@ -434,7 +448,7 @@ export default class MainHW4Scene extends HW4Scene {
             this.elapsedTime = 0;
             this.remainingTime = Math.max(
               this.countDownTimer.getTotalTime() - this.elapsedTime,
-            0
+              0
             );
             this.initializeNPCs();
             this.showUpgradesUI();
@@ -445,7 +459,6 @@ export default class MainHW4Scene extends HW4Scene {
           }
           this.countDownTimer.reset();
           this.countDownTimer.start();
-          
         }
       }
     }
@@ -530,6 +543,7 @@ export default class MainHW4Scene extends HW4Scene {
       switch (event.type) {
         case "exit": {
           this.resetViewportSize();
+          this.sceneManager.changeToScene(MainMenu);
           break;
         }
         case "unPause": {
@@ -590,6 +604,10 @@ export default class MainHW4Scene extends HW4Scene {
           this.handlePlayerKilled();
           break;
         }
+        case PlayerEvent.HELICOPTER_DESTROYED: {
+          this.handleHelicopterDestroyed();
+          break;
+        }
         case SceneEvent.LEVEL_START: {
           Input.enableInput();
           break;
@@ -636,7 +654,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case CheatEvent.END_DAY || "endDay": {
-          console.log("IN HERE")
+          console.log("IN HERE");
           this.handleEndDayCheat();
           break;
         }
@@ -654,7 +672,7 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   private handleRest(): void {
-    if(!this.isNight) {
+    if (!this.isNight) {
       this.isPaused = false;
       this.hidePauseUI();
       this.handleEndDayCheat();
@@ -887,8 +905,12 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   handlePlayerKilled(): void {
-      this.resetViewportSize();
-      this.sceneManager.changeToScene(MainMenu);
+    this.resetViewportSize();
+    this.sceneManager.changeToScene(MainMenu);
+  }
+  handleHelicopterDestroyed(): void {
+    this.resetViewportSize();
+    this.sceneManager.changeToScene(MainMenu);
   }
 
   protected handleParticleHit(particleId: number): void {
@@ -1352,8 +1374,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.rest.fontSize = 32;
     this.rest.onClickEventId = "endDay";
 
-    
-
     let Text = " [9] - Unlimited Health ";
     this.unlimitedHealthCheat = <Label>this.add.uiElement(
       UIElementType.LABEL,
@@ -1664,7 +1684,7 @@ export default class MainHW4Scene extends HW4Scene {
   protected initializePlayer(): void {
     this.player = this.add.animatedSprite(PlayerActor, "player1", "primary");
     this.player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
-    console.log(this.walls.position.x+","+this.walls.position.y)
+    console.log(this.walls.position.x + "," + this.walls.position.y);
     this.player.battleGroup = 2;
 
     this.helicopter = this.add.animatedSprite(
@@ -1726,6 +1746,7 @@ export default class MainHW4Scene extends HW4Scene {
     //     itemLayer: "items"
     // });
 
+    //oops
     // Give the player physics
     this.player.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
 
@@ -1782,7 +1803,6 @@ export default class MainHW4Scene extends HW4Scene {
       tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
     }
     if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
-      
       let zombieTypeIndex = 0;
       if (this.levelKey === "LEVEL3" || this.levelKey === "LEVEL6") {
         zombieTypeIndex = Math.floor(
@@ -1793,8 +1813,8 @@ export default class MainHW4Scene extends HW4Scene {
           Math.random() * this.currentLevelConfig.zombieTypes.length
         );
       }
-      if(specialSpawn !== null) {
-        zombieTypeIndex = specialSpawn; 
+      if (specialSpawn !== null) {
+        zombieTypeIndex = specialSpawn;
       }
       const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
       const lvlMultiplier = this.currentLevelConfig.statMultiplier;
@@ -1839,10 +1859,10 @@ export default class MainHW4Scene extends HW4Scene {
       npc.animation.play("IDLE");
 
       const randomInt = Math.floor(Math.random() * 10);
-      npc.addAI(ZombieBehavior, { 
-        target: this.battlers[0], 
+      npc.addAI(ZombieBehavior, {
+        target: this.battlers[0],
         range: 25,
-        helicopter: this.battlers[1]
+        helicopter: this.battlers[1],
       });
       npc.setGroup(PhysicsGroups.ZOMBIE);
       npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
@@ -1911,13 +1931,12 @@ export default class MainHW4Scene extends HW4Scene {
     for (let i = 0; i < numMaterials; i++) {
       let randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
       let tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
-    if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
+      if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
         let sprite = this.add.sprite(MainHW4Scene.MATERIAL_KEY, "primary");
         sprite.scale.set(0.5, 0.5);
         this.materials[i] = new Material(sprite);
-        this.materials[i].position.set(randomPos.x,randomPos.y);
-      }
-      else {
+        this.materials[i].position.set(randomPos.x, randomPos.y);
+      } else {
         i--;
       }
     }
@@ -1926,16 +1945,15 @@ export default class MainHW4Scene extends HW4Scene {
     for (let i = 0; i < numFuels; i++) {
       let randomPos = this.getRandomPosition(minX, maxX, minY, maxY);
       let tileRow = this.walls.getTilemapPosition(randomPos.x, randomPos.y);
-    if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
-      let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
-      sprite.scale.set(0.5, 0.5);
-      this.fuels[i] = new Fuel(sprite);
-      this.fuels[i].position.set(randomPos.x, randomPos.y);
+      if (!this.walls.isTileCollidable(tileRow.x, tileRow.y)) {
+        let sprite = this.add.sprite(MainHW4Scene.FUEL_KEY, "primary");
+        sprite.scale.set(0.5, 0.5);
+        this.fuels[i] = new Fuel(sprite);
+        this.fuels[i].position.set(randomPos.x, randomPos.y);
+      } else {
+        i--;
+      }
     }
-    else {
-      i--;
-    }
-  }
   }
   /**
    * Initializes the navmesh graph used by the NPCs in the HW3Scene. This method is a little buggy, and

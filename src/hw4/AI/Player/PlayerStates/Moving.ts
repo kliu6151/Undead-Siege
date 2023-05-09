@@ -24,6 +24,7 @@ export default class Moving extends PlayerState {
         }
         if(this.parent.owner.health <= 0) {
             console.log("IN MOVING AND < 0 HP")
+            this.parent.owner.isDying = true;
             this.finished(PlayerStateType.DEAD);
         }
     }

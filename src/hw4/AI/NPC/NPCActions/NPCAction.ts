@@ -51,7 +51,6 @@ export default abstract class NPCAction extends GoapAction {
 
   public onEnter(options: Record<string, any>): void {
     if (this.actor.health <= 0) {
-      console.log("IN LOW HEALTH");
       this.actor.isDying = true;
       this.actor.animation.playIfNotAlready(
         ZombieAnimationType.DYING,
@@ -92,7 +91,7 @@ export default abstract class NPCAction extends GoapAction {
         .getBattlers()
         .find((battler) => battler instanceof PlayerActor);
       if (player) {
-        if (this.target == player) {
+        if (this.target === player) {
           const targetPosition = player.position;
           const distanceMoved = targetPosition.distanceTo(this.actor.position);
           this.updateCounter += deltaT;

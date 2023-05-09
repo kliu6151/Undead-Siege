@@ -24,6 +24,8 @@ export default class PlayerActor extends AnimatedSprite implements Battler {
 
     protected heldItem: HW3Item;
 
+    public isDying: boolean = false;
+    
     constructor(sheet: Spritesheet) {
         super(sheet);
         this.battler = new BasicBattler(this);
