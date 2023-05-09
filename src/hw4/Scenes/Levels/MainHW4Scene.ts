@@ -69,6 +69,7 @@ import {
   applyMultiplier,
   ZombieType,
 } from "./zombieStats";
+import { PlayerAnimationType } from "../../AI/Player/PlayerStates/PlayerState";
 
 const BattlerGroups = {
   RED: 1,
@@ -252,7 +253,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.playerData = {
         maxHealth: 100,
         health: 100,
-        weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 3, 0, 1),
+        weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 1, 5, 0, 1),
         speed: 1,
         armor: 0,
         bulletDamage: 10,
@@ -355,6 +356,12 @@ export default class MainHW4Scene extends HW4Scene {
     while (this.receiver.hasNextEvent()) {
       this.handleEvent(this.receiver.getNextEvent());
     }
+    // if (this.player.health <= 0) {
+    //   this.isPaused = true;
+    //   this.player.animation.stop();
+    //   console.log(this.player.animation)
+    //   this.player.animation.playIfNotAlready(PlayerAnimationType.DYING, false, PlayerEvent.PLAYER_KILLED);
+    // }
 
     if (!this.isPaused) {
       if (this.invincibilityTimer) {
@@ -378,9 +385,7 @@ export default class MainHW4Scene extends HW4Scene {
       }
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
-      if (this.battlers[0].health <= 0) {
-        this.emitter.fireEvent(PlayerEvent.PLAYER_KILLED);
-      }
+      
       this.energybars.forEach((energybar) => energybar.update(deltaT));
 
       this.elapsedTime += deltaT;
@@ -418,7 +423,7 @@ export default class MainHW4Scene extends HW4Scene {
 
           if (this.isNight) {
             //Create the upgrade screen here
-            this.night.alpha = 0.9;
+            this.night.alpha = 0.7;
             this.lightMask.alpha = 0.7;
             this.elapsedTime = 0;
             this.remainingTime = Math.max(
@@ -867,8 +872,8 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   handlePlayerKilled(): void {
-    this.resetViewportSize();
-    this.sceneManager.changeToScene(MainMenu);
+      this.resetViewportSize();
+      this.sceneManager.changeToScene(MainMenu);
   }
 
   protected handleZombieRepulsion(zombieId: number): void {
@@ -951,6 +956,8 @@ export default class MainHW4Scene extends HW4Scene {
         for (let zombie of zombies) {
           if (this.particleHitZombie(zombie, particle)) {
             zombie.health -= this.player.bulletDamage - zombie.armor;
+            // zombie.animation.playIfNotAlready("TAKING_DAMAGE");
+            console.log("CURR PLAYING: ", zombie.animation.currentlyPlaying());
             particle.setParticleInactive();
             // console.log("BULLETO DAMAGE: ", this.player.bulletDamage);
             // console.log("ZOMB HEALTH: ", zombie.health)
@@ -1073,7 +1080,7 @@ export default class MainHW4Scene extends HW4Scene {
     let id: number = event.data.get("id");
     let battler = this.battlers.find((b) => b.id === id);
 
-    if (battler) {
+    if (battler && battler !== this.player) {
       this.onScreenZombies -= 1;
       battler.battlerActive = false;
       this.healthbars.get(id).visible = false;
@@ -1826,7 +1833,7 @@ export default class MainHW4Scene extends HW4Scene {
       switch (zombieType) {
         case ZombieType.Basic:
           npc = this.add.animatedSprite(NPCActor, "BasicZombie", "primary");
-          npc.scale.set(.5,.5);
+          // npc.scale.set(.5,.5);
           break;
         case ZombieType.Fast:
           npc = this.add.animatedSprite(NPCActor, "FastZombie", "primary");

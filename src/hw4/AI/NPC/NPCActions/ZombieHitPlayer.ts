@@ -20,7 +20,7 @@ export default class ZombieHitPlayer extends NPCAction {
   public constructor(parent: NPCBehavior, actor: NPCActor) {
     super(parent, actor);
     this._target = null;
-    this.timer = new Timer(2000);
+    this.timer = new Timer(1000);
   }
 
   public performAction(target: Battler): void {

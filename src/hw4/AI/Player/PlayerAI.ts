@@ -15,6 +15,7 @@ import {
   Moving,
   Dead,
   PlayerStateType,
+  PlayerAnimationType,
 } from "./PlayerStates/PlayerState";
 import PlayerWeapon from "./PlayerWeapon";
 
@@ -62,6 +63,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
         particles[i].active = true;
       }
       this.weapon.startSystem(500, 0, this.owner.position);
+      this.owner.animation.play(PlayerAnimationType.ATTACK)
     }
   }
 

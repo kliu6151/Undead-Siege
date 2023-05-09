@@ -1,6 +1,6 @@
 import GameEvent from "../../../../Wolfie2D/Events/GameEvent";
 import { PlayerEvent } from "../../../Events";
-import PlayerState from "./PlayerState";
+import PlayerState, { PlayerAnimationType } from "./PlayerState";
 
 /**
  * The Dead state for the PlayerAI. While the player is in the "Dead" state, the player does not
@@ -13,7 +13,7 @@ export default class Dead extends PlayerState {
      * that the player is officially dead.
      */
     onEnter(options: Record<string, any>): void {
-        this.emitter.fireEvent(PlayerEvent.PLAYER_KILLED);
+        this.parent.owner.animation.playIfNotAlready(PlayerAnimationType.DYING, false, PlayerEvent.PLAYER_KILLED);
     }
 
     /**

@@ -21,7 +21,7 @@ export default class Level1 extends MainHW4Scene {
 
     //Player
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
-    public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/player1.json";
+    public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/Soldier.json";
 
     //Tile maps
     public static readonly TILEMAP_KEY = "LEVEL1";

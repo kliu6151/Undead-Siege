@@ -23,6 +23,10 @@ export default class Idle extends PlayerState {
         if (!this.parent.controller.moveDir.equals(Vec2.ZERO)) {
             this.finished(PlayerStateType.MOVING);
         }
+        if(this.parent.owner.health <= 0) {
+            console.log("IN IDLE AND < 0 HP")
+            this.finished(PlayerStateType.DEAD);
+        }
     }
 
     public override onExit(): Record<string, any> { 

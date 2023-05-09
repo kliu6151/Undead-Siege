@@ -31,7 +31,7 @@ export default class ParticleSystem implements Updateable {
 
     protected systemRunning: boolean;
 
-    protected color: Color = new Color(255, 0, 0);
+    protected color: Color = new Color(204, 153, 0);
 
     /** Particles that can be rendered per frame */
     protected particlesPerFrame: number;
@@ -51,11 +51,11 @@ export default class ParticleSystem implements Updateable {
      * @param mass Initial mass of each particle, can be changed
      * @param maxParticlesPerFrame Total number of particles that can be created during a given frame.
      */
-    constructor(poolSize: number, sourcePoint: Vec2, lifetime: number, size: number, mass: number, maxParticlesPerFrame: number) {
+    constructor(poolSize: number, sourcePoint: Vec2, lifetime: number, width: number, height:number, mass: number, maxParticlesPerFrame: number) {
         this.particlePool = new Array(poolSize);
         this.sourcePoint = sourcePoint;
         this.lifetime = lifetime;
-        this.particleSize = new Vec2(size, size);
+        this.particleSize = new Vec2(width, height);
         this.systemRunning = false;
         this.particlesPerFrame = maxParticlesPerFrame;
         this.particlesToRender = this.particlesPerFrame;

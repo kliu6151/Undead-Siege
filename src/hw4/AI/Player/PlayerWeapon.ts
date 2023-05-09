@@ -19,6 +19,7 @@ export default class PlayerWeapon extends ParticleSystem {
     return this.particlePool;
   }
 
+  
   public increasePoolSize(amount: number, scene: Scene, layer: string): void {
     const newPoolSize = this.particlePool.length + amount;
     for (let i = this.particlePool.length; i < newPoolSize; i++) {

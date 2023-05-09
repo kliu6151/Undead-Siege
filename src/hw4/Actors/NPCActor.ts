@@ -30,6 +30,9 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
     protected _battler: Battler;
 
     protected _targeting: TargetingEntity
+    isDying: boolean = false;
+    isTakingDamage: boolean = false;
+
 
     public constructor(sheet: Spritesheet) {
         super(sheet);
@@ -79,7 +82,12 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
         this.battler.health = health; 
         if (this.health <= 0 && this.battlerActive) {
             this.disablePhysics();
+            this.isDying = true;
+            this.animation.playIfNotAlready("DYING");
             this.emitter.fireEvent(BattlerEvent.BATTLER_KILLED, {id: this.id});
+        }
+        else if(!this.isDying) {
+            this.animation.playIfNotAlready("TAKING_DAMAGE");   
         }
     }
 

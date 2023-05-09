@@ -85,20 +85,17 @@ export default abstract class NPCAction extends GoapAction {
             if (this.actor.atTarget()) {
                 this.performAction(this.target);
             } else {
-                this.actor.animation.playIfNotAlready("WALK");
+                if(!this.actor.isDying) {
+                    this.actor.animation.playIfNotAlready("WALK");
+                }
                 this.actor.moveOnPath(this.actor.speed * deltaT * 10, this.path);
                 
                 const faceDir = this.actor.faceDir;
                 this.actor.rotation = Vec2.UP.angleToCCW(faceDir);
-
-
             }
         } else {
             this.finished();
-            if (this.actor instanceof NPCActor) {
-                this.actor.animation.playIfNotAlready("IDLE");
-            }
-            
+            this.actor.animation.playIfNotAlready("IDLE");
         }
     }
     

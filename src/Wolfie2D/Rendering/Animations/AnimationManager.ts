@@ -192,6 +192,10 @@ export default class AnimationManager {
         this.pendingAnimation = null;
     }
 
+    currentlyPlaying(): string {
+        return this.currentAnimation;
+    }
+
     /**
      * Queues a single animation to be played after the current one. Does NOT stack.
      * Queueing additional animations past 1 will just replace the queued animation

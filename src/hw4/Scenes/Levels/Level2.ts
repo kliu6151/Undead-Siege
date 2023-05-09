@@ -15,7 +15,7 @@ import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
  */
 export default class Level2 extends MainHW4Scene {
 
-    public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/player1.json";
+    public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/Soldier.json";
 
     public static readonly TILEMAP_KEY = "LEVEL2";
     public static readonly TILEMAP_PATH = "assets/tilemaps/Level2Map.json";
