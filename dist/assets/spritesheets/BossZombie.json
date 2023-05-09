@@ -1,0 +1,28 @@
+{
+    "name": "BossZombie",
+    "spriteSheetImage": "BossZombie.png",
+    "spriteWidth": 48,
+    "spriteHeight": 48,
+    "columns": 4,
+    "rows": 5,
+    "durationType": "time",
+    "animations": [
+        { 
+            "name": "IDLE",
+            "frames": [ {"index": 0, "duration": 1} ]
+        },
+        {
+            "name": "WALK",
+            "frames": [ {"index": 1, "duration": 32}, {"index": 2, "duration": 32}, {"index": 2, "duration": 32}, {"index": 3, "duration": 32}, {"index": 4, "duration": 32} ]
+        },
+        {
+            "name": "ATTACK",
+            "frames": [ {"index": 5, "duration": 32}, {"index": 6, "duration": 32}, {"index": 7, "duration": 32}, {"index": 8, "duration": 32} ]
+        },
+        {
+            "name": "DYING",
+            "frames": [ {"index": 9, "duration": 32}, {"index": 10, "duration": 32}, {"index": 11, "duration": 32}, {"index": 12, "duration": 32}, {"index": 13, "duration": 32}, {"index": 14, "duration": 32}, {"index": 15, "duration": 32}, {"index": 16, "duration": 32}, {"index": 17, "duration": 32} ]
+
+        }
+    ]
+}
