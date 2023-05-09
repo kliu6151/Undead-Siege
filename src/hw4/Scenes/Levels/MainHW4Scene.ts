@@ -1873,11 +1873,18 @@ export default class MainHW4Scene extends HW4Scene {
       npc.animation.play("IDLE");
 
       const randomInt = Math.floor(Math.random() * 10);
+      if (zombieType === ZombieType.Boss) {
+        npc.addAI(ZombieBehavior, {
+          target: this.battlers[0],
+          range: 25,
+        })
+    } else {
       npc.addAI(ZombieBehavior, {
         target: this.battlers[0],
         range: 25,
         helicopter: this.battlers[1],
       });
+    }
       npc.setGroup(PhysicsGroups.ZOMBIE);
       npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
 

@@ -127,6 +127,7 @@ export default class ZombieBehavior extends NPCBehavior {
       playerAtZombiePosition
     );
 
+    if (this.helicopter) {
     let heliBattlerFinder = new BasicFinder<Battler>(
       null,
       BattlerActiveFilter(),
@@ -141,6 +142,7 @@ export default class ZombieBehavior extends NPCBehavior {
       ZombieStatuses.HELI_IN_ZOMBIE_POSITION,
       heliAtPlayerPosition
     );
+    }
 
     // Add the goal status
     this.addStatus(ZombieStatuses.GOAL, new FalseStatus());
@@ -159,6 +161,7 @@ export default class ZombieBehavior extends NPCBehavior {
     attack.cost = 1;
     this.addState(ZombieActions.ATTACK_PLAYER, attack);
 
+    if (this.helicopter) {
     let attackHeli = new ZombieHitPlayer(this, this.owner);
     attackHeli.targets = [this.helicopter];
     attackHeli.targetFinder = new BasicFinder<Battler>(
@@ -169,10 +172,14 @@ export default class ZombieBehavior extends NPCBehavior {
     attackHeli.addEffect(ZombieStatuses.GOAL);
     attackHeli.cost = 1;
     this.addState(ZombieActions.ATTACK_HELICOPTER, attackHeli);
+    }
 
     // An action for moving towards the target
     let moveTowards = new Idle(this, this.owner);
-    moveTowards.targets = [this.target, this.helicopter];
+    moveTowards.targets = [this.target];
+    if (this.helicopter) {
+      moveTowards.targets.push(this.helicopter);
+    }
     moveTowards.targetFinder = new BasicFinder<Battler>(
       ClosestPositioned(this.owner),
       BattlerActiveFilter()
