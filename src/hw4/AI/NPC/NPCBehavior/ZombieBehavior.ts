@@ -101,6 +101,7 @@ export default class ZombieBehavior extends NPCBehavior {
   }
 
   public update(deltaT: number): void {
+    // console.log(this.currentStatus)
     this.avoidZombies(deltaT);
     super.update(deltaT);
     // this.applyRepulsionForce(deltaT);
@@ -125,6 +126,21 @@ export default class ZombieBehavior extends NPCBehavior {
       playerAtZombiePosition
     );
 
+    let heliBattlerFinder = new BasicFinder<Battler>(
+      null,
+      BattlerActiveFilter(),
+      EnemyFilter(this.owner),
+      RangeFilter(this.owner, this.helicopter, 0, this.range * this.range)
+    );
+    let heliAtPlayerPosition = new TargetExists(
+      scene.getBattlers(),
+      heliBattlerFinder
+    );
+    this.addStatus(
+      ZombieStatuses.HELI_IN_ZOMBIE_POSITION,
+      heliAtPlayerPosition
+    );
+
     // Add the goal status
     this.addStatus(ZombieStatuses.GOAL, new FalseStatus());
   }
@@ -132,16 +148,26 @@ export default class ZombieBehavior extends NPCBehavior {
   protected initializeActions(): void {
     // An action for attacking the target
     let attack = new ZombieHitPlayer(this, this.owner);
-    attack.targets = [this.target, this.helicopter];
+    attack.targets = [this.target];
     attack.targetFinder = new BasicFinder<Battler>(
       ClosestPositioned(this.owner),
-      BattlerActiveFilter(),
-      RangeFilter(this.owner, this.target, 0, this.range * this.range)
+      BattlerActiveFilter()
     );
     attack.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
     attack.addEffect(ZombieStatuses.GOAL);
     attack.cost = 1;
     this.addState(ZombieActions.ATTACK_PLAYER, attack);
+
+    let attackHeli = new ZombieHitPlayer(this, this.owner);
+    attackHeli.targets = [this.helicopter];
+    attackHeli.targetFinder = new BasicFinder<Battler>(
+      ClosestPositioned(this.owner),
+      BattlerActiveFilter()
+    );
+    attackHeli.addPrecondition(ZombieStatuses.HELI_IN_ZOMBIE_POSITION);
+    attackHeli.addEffect(ZombieStatuses.GOAL);
+    attackHeli.cost = 1;
+    this.addState(ZombieActions.ATTACK_HELICOPTER, attackHeli);
 
     // An action for moving towards the target
     let moveTowards = new Idle(this, this.owner);
@@ -174,13 +200,14 @@ export type ZombieStatus = (typeof ZombieStatuses)[keyof typeof ZombieStatuses];
 export const ZombieStatuses = {
   ATTACK_PLAYER: "attack-player",
   PLAYER_IN_ZOMBIE_POSITION: "player-at-zombie-position",
-  ZOMBIE_IN_ZOMBIE_POSITION: "zombie-at-zombie-position",
+  HELI_IN_ZOMBIE_POSITION: "heli-at-zombie-position",
   GOAL: "goal",
 } as const;
 
 export type ZombieAction = (typeof ZombieActions)[keyof typeof ZombieActions];
 export const ZombieActions = {
   ATTACK_PLAYER: "attack-player",
+  ATTACK_HELICOPTER: "attack-helicopter",
   REPULSE: "repulse",
   CHASE_PLAYER: "chase-player",
   MOVE_TOWARDS_PLAYER: "move-towards-player",

@@ -63,7 +63,6 @@ export default abstract class NPCAction extends GoapAction {
     if (!this.actor.isDying) {
       // Select the target location where the NPC should perform the action
       this.target = this.targetFinder.find(this.targets);
-      console.log(this.targets);
 
       // If we found a target, set the NPCs target to the target and find a path to the target
       if (this.target !== null) {
