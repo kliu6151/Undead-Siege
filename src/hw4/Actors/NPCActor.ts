@@ -13,6 +13,7 @@ import { TargetableEntity } from "../GameSystems/Targeting/TargetableEntity";
 import { TargetingEntity } from "../GameSystems/Targeting/TargetingEntity";
 import BasicBattler from "../GameSystems/BattleSystem/BasicBattler";
 import Timer from "../../Wolfie2D/Timing/Timer";
+import { ZombieAnimationType } from "../AI/NPC/NPCBehavior/ZombieBehavior";
 
 
 export default class NPCActor extends AnimatedSprite implements Battler, TargetingEntity {
@@ -83,11 +84,10 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
         if (this.health <= 0 && this.battlerActive) {
             this.disablePhysics();
             this.isDying = true;
-            this.animation.playIfNotAlready("DYING");
-            this.emitter.fireEvent(BattlerEvent.BATTLER_KILLED, {id: this.id});
+            this.animation.playIfNotAlready(ZombieAnimationType.DYING, false, BattlerEvent.BATTLER_KILLED, {id: this.id});
         }
         else if(!this.isDying) {
-            this.animation.playIfNotAlready("TAKING_DAMAGE");   
+            this.animation.playIfNotAlready(ZombieAnimationType.TAKING_DAMAGE);   
         }
     }
 

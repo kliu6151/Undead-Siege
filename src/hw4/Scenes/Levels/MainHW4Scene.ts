@@ -596,6 +596,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
         }
         case BattlerEvent.BATTLER_KILLED: {
+          console.log("IT DIED: ", event)
           this.handleBattlerKilled(event);
           break;
         }

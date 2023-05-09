@@ -46,6 +46,9 @@ export default class AnimationManager {
     /** The onEnd event of a pending animation */
     protected pendingOnEnd: string;
 
+    protected onEndData: any;
+
+
     /**
      * Creates a new AnimationManager
      * @param owner The owner of the AnimationManager
@@ -141,7 +144,7 @@ export default class AnimationManager {
         this.animationState = AnimationState.STOPPED;
 
         if(this.onEndEvent !== null){
-            this.emitter.fireEvent(this.onEndEvent, {owner: this.owner.id, animation: this.currentAnimation});
+            this.emitter.fireEvent(this.onEndEvent, {owner: this.owner.id, animation: this.currentAnimation, ...this.onEndData});
         }
 
         // If there is a pending animation, play it
@@ -156,9 +159,9 @@ export default class AnimationManager {
      * @param loop Whether or not to loop the animation. False by default
      * @param onEnd The name of an event to send when this animation naturally stops playing. This only matters if loop is false.
      */
-    playIfNotAlready(animation: string, loop?: boolean, onEnd?: string): void {
+    playIfNotAlready(animation: string, loop?: boolean, onEnd?: string, onEndData?: any): void {
         if(this.currentAnimation !== animation){
-            this.play(animation, loop, onEnd);
+            this.play(animation, loop, onEnd, onEndData);
         }
     }
 
@@ -168,11 +171,13 @@ export default class AnimationManager {
      * @param loop Whether or not to loop the animation. False by default
      * @param onEnd The name of an event to send when this animation naturally stops playing. This only matters if loop is false.
      */
-    play(animation: string, loop?: boolean, onEnd?: string): void {
+    play(animation: string, loop?: boolean, onEnd?: string, onEndData?: any): void {
         this.currentAnimation = animation;
         this.currentFrame = 0;
         this.frameProgress = 0;
         this.animationState = AnimationState.PLAYING;
+        this.onEndData = onEndData;
+
 
         // If loop arg was provided, use that
         if(loop !== undefined){
