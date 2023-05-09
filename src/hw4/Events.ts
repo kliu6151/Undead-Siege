@@ -34,7 +34,8 @@ export enum HudEvent {
 }
 
 export enum PlayerEvent {
-    PLAYER_KILLED = "PLAYER_KILLED"
+    PLAYER_KILLED = "PLAYER_KILLED",
+    HELICOPTER_DESTROYED = "HELICOPTER_DESTROYED"
 }
 
 export enum InputEvent {
