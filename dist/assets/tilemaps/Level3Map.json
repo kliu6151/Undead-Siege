@@ -1,4 +1,12 @@
 { "compressionlevel":-1,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"json",
+         "target":"Level3Map.json"
+        }
+    },
  "height":80,
  "infinite":false,
  "layers":[
@@ -197,20 +205,19 @@
  "tiledversion":"1.10.0",
  "tileheight":16,
  "tilesets":[
-        {
-         
-         "columns":40,
-         "firstgid":1,
-         "source":"imageslvl3.png",
-         "imageheight":320,
-         "imagewidth":640,
-         "margin":0,
-         "name":"imageslvl3",
-         "spacing":0,
-         "tilecount":800,
-         "tileheight":16,
-         "tilewidth":16
-        }],
+       {
+        "columns":40,
+        "firstgid":1,
+        "image":"imageslvl3.tsx",
+        "imageheight":320,
+        "imagewidth":640,
+        "margin":0,
+        "name":"imageslvl3",
+        "spacing":0,
+        "tilecount":800,
+        "tileheight":16,
+        "tilewidth":16
+       }],
  "tilewidth":16,
  "type":"map",
  "version":"1.10",
