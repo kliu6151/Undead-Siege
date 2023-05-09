@@ -79,7 +79,7 @@ export default class ZombieBehavior extends NPCBehavior {
     // Loop through all the zombies
     // console.log(this.owner.getScene().getBattlers().slice(1))
     for (let zombie of this.owner.getScene().getBattlers().slice(1)) {
-      if (zombie === this.owner) continue; // Skip self
+      if (zombie === this.owner || zombie === this.helicopter) continue; // Skip self
       // Calculate the distance between the current zombie and the other zombie
       let distanceVec = this.owner.position.clone().sub(zombie.position);
       let distance =
