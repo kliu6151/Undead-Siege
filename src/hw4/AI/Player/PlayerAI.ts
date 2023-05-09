@@ -65,7 +65,6 @@ export default class PlayerAI extends StateMachineAI implements AI {
       }
       this.weapon.startSystem(500, 0, this.owner.position);
       this.emitter.fireEvent(GameEventType.PLAY_MUSIC, {key: this.owner.getScene().getPlayerShootAudioKey(), loop: false, holdReference: false})
-      console.log("EMITTER: " ,this.emitter)
       this.owner.animation.play(PlayerAnimationType.ATTACK)
     }
     }

@@ -393,7 +393,7 @@ export default class MainHW4Scene extends HW4Scene {
         if (this.invincibilityTimer.isStopped()) {
           // Reset the player's scale
           this.player.scale.set(1, 1);
-          this.player.speed = 1;
+          this.player.speed = this.player.speed/2;
           this.player.invincible = false;
           this.invincibilityTimer = null;
         }
@@ -693,7 +693,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.scale.set(0.5, 0.5);
       this.invincibilityTimer = new Timer(duration);
       this.invincibilityTimer.start();
-      this.player.speed = 3;
+      this.player.speed = this.player.speed * 2;
       this.player.invincible = true;
     }
   }
@@ -928,7 +928,6 @@ export default class MainHW4Scene extends HW4Scene {
 
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
-    console.log(particles);
     let particle = particles.find((particle) => particle.id === particleId);
     if (particle !== undefined) {
       // Get the destructible tilemap
@@ -941,7 +940,6 @@ export default class MainHW4Scene extends HW4Scene {
           if (this.particleHitZombie(zombie, particle) && zombie.health > 0) {
             zombie.health -= this.player.bulletDamage - zombie.armor;
             // zombie.animation.playIfNotAlready("TAKING_DAMAGE");
-            console.log("CURR PLAYING: ", zombie.animation.currentlyPlaying());
             particle.setParticleInactive();
             // console.log("BULLETO DAMAGE: ", this.player.bulletDamage);
             // console.log("ZOMB HEALTH: ", zombie.health)
