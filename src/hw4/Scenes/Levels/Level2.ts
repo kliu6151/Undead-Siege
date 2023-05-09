@@ -58,8 +58,8 @@ export default class Level2 extends MainHW4Scene {
     public static readonly HELICOPTER_DAMAGED_AUDIO_KEY = "HELICOPTER_DAMAGED"
     public static readonly HELICOPTER_DAMAGED_AUDIO_PATH = "assets/sounds/metal.mp3"
 
-    // public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
-    // public static readonly LEVEL_MUSIC_PATH = "hw4_assets/music/hw5_level_music.wav";
+    public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
+    public static readonly LEVEL_MUSIC_PATH = "assets/music/level2_music.wav";
 
     // public static readonly JUMP_AUDIO_KEY = "PLAYER_JUMP";
     // public static readonly JUMP_AUDIO_PATH = "hw4_assets/sounds/jump.wav";
@@ -89,6 +89,7 @@ export default class Level2 extends MainHW4Scene {
         this.zombieGrowlAudioKey = Level2.ZOMBIE_GROWL_AUDIO_KEY
         this.playerDamagedAudioKey = Level2.PLAYER_DAMAGED_AUDIO_KEY
         this.helicopterDamagedAudioKey = Level2.HELICOPTER_DAMAGED_AUDIO_KEY
+        this.levelMusicKey = Level2.LEVEL_MUSIC_KEY;
         // Set the key for the player's sprite
         // this.playerSpriteKey = Level2.PLAYER_SPRITE_KEY;
         // Set the player's spawn
@@ -138,11 +139,18 @@ export default class Level2 extends MainHW4Scene {
      * Unload resources for level 1
      */
     public unloadScene(): void {
+        this.load.keepAudio(this.playerShootAudioKey);
+        this.load.keepAudio(this.zombieGrowlAudioKey);
+        this.load.keepAudio(this.playerDamagedAudioKey);
+        this.load.keepAudio(this.helicopterDamagedAudioKey);
+
+        this.resourceManager.keepSpritesheet(this.playerSpriteKey);
+        this.resourceManager.unloadAllResources();
         // this.resourceManager.keepSpritesheet(this.playerSpriteKey);
         // this.resourceManager.keepAudio(this.jumpAudioKey);
         // this.resourceManager.keepAudio(this.deathAudioKey);
         // this.resourceManager.keepAudio(this.tileDestroyedAudioKey);
-        // this.resourceManager.unloadAllResources();
+        this.resourceManager.unloadAllResources();
         
         // TODO decide which resources to keep/cull
         // this.unload.tilemap(this.tilemapKey);

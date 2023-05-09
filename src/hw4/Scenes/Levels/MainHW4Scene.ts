@@ -294,7 +294,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     // Set the viewport bounds to the tilemap
     let tilemapSize: Vec2 = this.walls.size;
-
+    console.log("TILEMAPSIZE: ", tilemapSize)
     this.viewport.setBounds(0, 0, tilemapSize.x, tilemapSize.y);
     this.viewport.setZoomLevel(2);
 

@@ -169,15 +169,9 @@ export default class Level1 extends MainHW4Scene {
         this.load.keepAudio(this.playerDamagedAudioKey);
         this.load.keepAudio(this.helicopterDamagedAudioKey);
 
-        // this.resourceManager.keepSpritesheet(this.playerSpriteKey);
-        // this.resourceManager.keepAudio(this.jumpAudioKey);
-        // this.resourceManager.keepAudio(this.deathAudioKey);
-        // this.resourceManager.keepAudio(this.tileDestroyedAudioKey);
-        // this.resourceManager.unloadAllResources();
-        
-        // TODO decide which resources to keep/cull
-        // this.unload.tilemap(this.tilemapKey);
-        // this.keepSpriteSheet(this.playerSpriteKey, Level1.PLAYER_SPRITE_PATH);
+        this.resourceManager.keepSpritesheet(this.playerSpriteKey);
+        this.resourceManager.unloadAllResources();
+
     }
 
     public startScene(): void {
