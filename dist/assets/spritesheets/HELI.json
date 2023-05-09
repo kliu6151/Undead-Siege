@@ -1,0 +1,15 @@
+{
+  "name": "HELI",
+  "spriteSheetImage": "HELI.png",
+  "spriteWidth": 160,
+  "spriteHeight": 160,
+  "columns": 1,
+  "rows": 1,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "IDLE",
+      "frames": [{ "index": 0, "duration": 1 }]
+    }
+  ]
+}

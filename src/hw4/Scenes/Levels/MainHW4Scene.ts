@@ -190,6 +190,9 @@ export default class MainHW4Scene extends HW4Scene {
   public static NIGHT_KEY = "NIGHT";
   public static NIGHT_PATH = "assets/sprites/black.png";
 
+  public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
+  public static readonly HELI_SPRITE_KEY = "HELI_SPRITE_KEY";
+
   /** All the battlers in the HW3Scene (including the player) */
   private battlers: (Battler & Actor)[];
   private zombies: NPCActor[];
@@ -303,7 +306,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeUpgradeUI();
     this.initPauseUI();
 
-
     this.elapsedTime = 0;
     this.remainingTime = 121 * 1000;
     this.countDownTimer = new Timer(121 * 1000);
@@ -366,9 +368,11 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.HIT);
     this.receiver.subscribe(BattlerEvent.ROLL);
 
-
-    this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelMusicKey, loop: true, holdReference: true});
-
+    this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+      key: this.levelMusicKey,
+      loop: true,
+      holdReference: true,
+    });
   }
   /**
    * @see Scene.updateScene
@@ -393,7 +397,7 @@ export default class MainHW4Scene extends HW4Scene {
         if (this.invincibilityTimer.isStopped()) {
           // Reset the player's scale
           this.player.scale.set(1, 1);
-          this.player.speed = this.player.speed/2;
+          this.player.speed = this.player.speed / 2;
           this.player.invincible = false;
           this.invincibilityTimer = null;
         }
@@ -405,8 +409,7 @@ export default class MainHW4Scene extends HW4Scene {
           this.player.maxEnergy
         );
       }
-      if (this.helicopter.health <= 0)
-        this.handleHelicopterDestroyed();
+      if (this.helicopter.health <= 0) this.handleHelicopterDestroyed();
       // this.inventoryHud.update(deltaT);
       this.healthbars.forEach((healthbar) => healthbar.update(deltaT));
 
@@ -550,7 +553,9 @@ export default class MainHW4Scene extends HW4Scene {
       switch (event.type) {
         case "exit": {
           this.resetViewportSize();
-          this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+          this.emitter.fireEvent(GameEventType.STOP_SOUND, {
+            key: this.levelMusicKey,
+          });
           this.sceneManager.changeToScene(MainMenu);
           break;
         }
@@ -623,7 +628,9 @@ export default class MainHW4Scene extends HW4Scene {
         case SceneEvent.LEVEL_END: {
           this.resetViewportSize();
           let playerData = this.sceneManager.playerData;
-          this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+          this.emitter.fireEvent(GameEventType.STOP_SOUND, {
+            key: this.levelMusicKey,
+          });
           this.sceneManager.changeToScene(this.nextLevel, {}, playerData);
           break;
         }
@@ -917,12 +924,16 @@ export default class MainHW4Scene extends HW4Scene {
 
   handlePlayerKilled(): void {
     this.resetViewportSize();
-    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+    this.emitter.fireEvent(GameEventType.STOP_SOUND, {
+      key: this.levelMusicKey,
+    });
     this.sceneManager.changeToScene(MainMenu);
   }
   handleHelicopterDestroyed(): void {
     this.resetViewportSize();
-    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+    this.emitter.fireEvent(GameEventType.STOP_SOUND, {
+      key: this.levelMusicKey,
+    });
     this.sceneManager.changeToScene(MainMenu);
   }
 
@@ -979,8 +990,7 @@ export default class MainHW4Scene extends HW4Scene {
       ...this.fuels
     ).filter((item: Item) => {
       return (
-        item.inventory === null &&
-        item.position.distanceTo(node.position) <= 40
+        item.inventory === null && item.position.distanceTo(node.position) <= 40
       );
     });
 
@@ -1700,7 +1710,7 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.helicopter = this.add.animatedSprite(
       NPCActor,
-      "BasicZombie",
+      "helicopter",
       "primary"
     );
     this.heliSpawn = new Vec2(this.walls.size.x / 2, this.walls.size.y / 2);
@@ -1827,9 +1837,9 @@ export default class MainHW4Scene extends HW4Scene {
         );
       }
       if (specialSpawn !== null) {
-        console.log("special spawn")
+        console.log("special spawn");
         zombieTypeIndex = specialSpawn;
-        console.log(zombieTypeIndex)
+        console.log(zombieTypeIndex);
       }
       const zombieType = this.currentLevelConfig.zombieTypes[zombieTypeIndex];
       const lvlMultiplier = this.currentLevelConfig.statMultiplier;
@@ -1877,14 +1887,14 @@ export default class MainHW4Scene extends HW4Scene {
         npc.addAI(ZombieBehavior, {
           target: this.battlers[0],
           range: 25,
-        })
-    } else {
-      npc.addAI(ZombieBehavior, {
-        target: this.battlers[0],
-        range: 25,
-        helicopter: this.battlers[1],
-      });
-    }
+        });
+      } else {
+        npc.addAI(ZombieBehavior, {
+          target: this.battlers[0],
+          range: 25,
+          helicopter: this.battlers[1],
+        });
+      }
       npc.setGroup(PhysicsGroups.ZOMBIE);
       npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
 
@@ -2132,19 +2142,18 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   public getPlayerShootAudioKey(): string {
-    return this.playerShootAudioKey
+    return this.playerShootAudioKey;
   }
 
   public getZombieGrowlAudioKey(): string {
-    return this.zombieGrowlAudioKey
+    return this.zombieGrowlAudioKey;
   }
 
   public getPlayerDamagedAudioKey(): string {
-    return this.playerDamagedAudioKey
+    return this.playerDamagedAudioKey;
   }
 
   public getHelicopterDamagedAudioKey(): string {
-    return this.helicopterDamagedAudioKey
+    return this.helicopterDamagedAudioKey;
   }
-
 }
