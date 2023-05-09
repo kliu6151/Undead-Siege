@@ -24,7 +24,10 @@ export default class Level2 extends MainHW4Scene {
 
 
     public static readonly ZOMBIE_KEY = "ZOMBIE";
-    public static readonly ZOMBIE_PATH = "assets/spritesheets/BlueEnemy.json";
+    public static readonly ZOMBIE_PATH = "assets/spritesheets/BasicZombie.json";
+
+    public static readonly AXE_KEY = "AXE";
+    public static readonly AXE_PATH = "assets/spritesheets/AxeThrow.json";
 
     // Load the enemy locations
     public static readonly ZOMBIE_SPAWNS = "ZOMBIE_SPAWNS";

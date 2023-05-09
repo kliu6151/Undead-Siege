@@ -14,6 +14,7 @@ import { TargetingEntity } from "../GameSystems/Targeting/TargetingEntity";
 import BasicBattler from "../GameSystems/BattleSystem/BasicBattler";
 import Timer from "../../Wolfie2D/Timing/Timer";
 import { ZombieAnimationType } from "../AI/NPC/NPCBehavior/ZombieBehavior";
+import PlayerWeapon from "../AI/Player/PlayerWeapon";
 
 
 export default class NPCActor extends AnimatedSprite implements Battler, TargetingEntity {
@@ -30,10 +31,14 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
     // The NPCs battler object
     protected _battler: Battler;
 
+    public weaponSystem: PlayerWeapon | null;
+
+
     protected _targeting: TargetingEntity
     isDying: boolean = false;
     isTakingDamage: boolean = false;
-  heliArmor: any;
+    heliArmor: any;
+    isHeli: boolean = false;
 
 
     public constructor(sheet: Spritesheet) {
@@ -42,6 +47,8 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
         this._battler = new BasicBattler(this);
         this._targeting = new BasicTargeting(this);
         this.invincibleTimer = new Timer(1000);
+        this.weaponSystem = null;
+
 
         this.receiver.subscribe("use-hpack");
     }
@@ -60,7 +67,7 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
     public removeTargeting(targeting: TargetingEntity): void { this._battler.removeTargeting(targeting); }
 
     atTarget(): boolean {
-        return this._targeting.getTarget().position.distanceSqTo(this.position) < 350;
+        return this._targeting.getTarget().position.distanceSqTo(this.position) < 500;
     }
 
     public get battlerActive(): boolean { return this.battler.battlerActive; }
@@ -88,7 +95,7 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
             this.animation.stop();
             this.animation.playIfNotAlready(ZombieAnimationType.DYING, false, BattlerEvent.BATTLER_KILLED, {id: this.id});
         }
-        else if(!this.isDying) {
+        else if(!this.isHeli && !this.isDying) {
             this.animation.playIfNotAlready(ZombieAnimationType.TAKING_DAMAGE);   
         }
     }

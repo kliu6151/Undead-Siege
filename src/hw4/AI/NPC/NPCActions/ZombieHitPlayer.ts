@@ -27,7 +27,7 @@ export default class ZombieHitPlayer extends NPCAction {
     if(this.actor.health <= 0) {
       this.actor.animation.playIfNotAlready(ZombieAnimationType.DYING, false, BattlerEvent.BATTLER_KILLED, {id: this.actor.id});
   }
-    this.actor.animation.playIfNotAlready("ATTACK", true)
+    this.actor.animation.playIfNotAlready(ZombieAnimationType.ATTACK, true)
     if (this.timer.isStopped() && target.invincible !== true) {
       // Send a laser fired event
       let targetArmor = target.armor;

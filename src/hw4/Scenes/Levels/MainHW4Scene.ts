@@ -91,7 +91,6 @@ const upgradeCosts = [2, 1, 10, 5, 6, 9];
 
 export default class MainHW4Scene extends HW4Scene {
   //AnimatedSprites
-  private axeThrow: WeaponSprite;
 
   //Upgrade
   private onScreenZombies: number;
@@ -253,7 +252,6 @@ export default class MainHW4Scene extends HW4Scene {
    * @see Scene.startScene
    */
   public override startScene() {
-    // const particleSpritesheet = this.load.getSpritesheet("axeThrow");
 
     if (this.sceneManager.playerData) {
       this.playerData = this.sceneManager.playerData;
@@ -298,11 +296,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.initializeUpgradeUI();
     this.initPauseUI();
 
-    this.axeThrow = this.add.animatedSprite(
-      WeaponSprite,
-      "axeThrow",
-      "primary"
-    );
 
     this.elapsedTime = 0;
     this.remainingTime = 121 * 1000;
@@ -476,6 +469,9 @@ export default class MainHW4Scene extends HW4Scene {
         materialAmt: parseInt(this.materialCounter.text),
         energy: 100,
         maxEnergy: 100,
+        heliMaxHealth: 100,
+        heliHealth: 100,
+        heliArmor: 0,
       };
     }
     this.emitter.fireEvent(SceneEvent.LEVEL_END, {
@@ -543,6 +539,7 @@ export default class MainHW4Scene extends HW4Scene {
       switch (event.type) {
         case "exit": {
           this.resetViewportSize();
+          console.log("EXITED")
           this.sceneManager.changeToScene(MainMenu);
           break;
         }
@@ -615,6 +612,7 @@ export default class MainHW4Scene extends HW4Scene {
         case SceneEvent.LEVEL_END: {
           this.resetViewportSize();
           let playerData = this.sceneManager.playerData;
+          console.log("GO TO NEXT LV")
           this.sceneManager.changeToScene(this.nextLevel, {}, playerData);
           break;
         }
@@ -906,10 +904,12 @@ export default class MainHW4Scene extends HW4Scene {
 
   handlePlayerKilled(): void {
     this.resetViewportSize();
+    console.log("PLAYER KILLED")
     this.sceneManager.changeToScene(MainMenu);
   }
   handleHelicopterDestroyed(): void {
     this.resetViewportSize();
+    console.log("HELI DESTROYED")
     this.sceneManager.changeToScene(MainMenu);
   }
 
@@ -1725,6 +1725,7 @@ export default class MainHW4Scene extends HW4Scene {
       }
       if (this.playerData.heliArmor) {
         this.helicopter.armor = this.playerData.heliArmor;
+        this.helicopter.isHeli = true;
       }
     } else {
       this.player.maxHealth = 100;
@@ -1737,6 +1738,7 @@ export default class MainHW4Scene extends HW4Scene {
       this.helicopter.maxHealth = 100;
       this.helicopter.health = 100;
       this.helicopter.armor = 0;
+      this.helicopter.isHeli = true;
     }
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {

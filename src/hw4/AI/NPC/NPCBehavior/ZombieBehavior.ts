@@ -26,6 +26,7 @@ import PlayerActor from "../../../Actors/PlayerActor";
 import Repulsion from "../NPCActions/Repulsion";
 import { PhysicsGroups } from "../../../PhysicsGroups";
 import Vec2 from "../../../../Wolfie2D/DataTypes/Vec2";
+import SpitZombieAttack from "../NPCActions/SpitZombieAttack";
 // import MoveTowardsPlayer from "../NPCActions/MoveTowardsPlayer";
 
 export enum ZombieAnimationType {
@@ -72,14 +73,14 @@ export default class ZombieBehavior extends NPCBehavior {
   }
 
   private avoidZombies(deltaT: number): void {
-    const avoidDistance = 10000; // Set a distance to avoid other zombies (squared to avoid using square root)
+    const avoidDistance = 20000; // Set a distance to avoid other zombies (squared to avoid using square root)
     const weight = 5; // Set a weight for the avoidance force
     const dampingWeight = 0.9;
     let avoidanceForce = new Vec2(0, 0);
     // Loop through all the zombies
     // console.log(this.owner.getScene().getBattlers().slice(1))
     for (let zombie of this.owner.getScene().getBattlers().slice(1)) {
-      if (zombie === this.owner || zombie === this.helicopter) continue; // Skip self
+      if (zombie === this.owner || zombie === this.helicopter || zombie === this.player) continue; // Skip self
       // Calculate the distance between the current zombie and the other zombie
       let distanceVec = this.owner.position.clone().sub(zombie.position);
       let distance =
@@ -211,4 +212,5 @@ export const ZombieActions = {
   REPULSE: "repulse",
   CHASE_PLAYER: "chase-player",
   MOVE_TOWARDS_PLAYER: "move-towards-player",
+  SPIT_ATTACK_PLAYER: "spit-attack-player"
 } as const;

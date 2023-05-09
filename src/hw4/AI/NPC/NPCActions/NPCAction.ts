@@ -80,11 +80,6 @@ export default abstract class NPCAction extends GoapAction {
   }
 
   public update(deltaT: number): void {
-    // console.log(deltaT);
-    // if(this.actor.health <= 0) {
-    //     this.finished();
-    //     this.actor.animation.playIfNotAlready(ZombieAnimationType.DYING, false, BattlerEvent.BATTLER_KILLED, {id: this.actor.id});
-    // }
     if (!this.actor.isDying) {
       const player = this.actor
         .getScene()

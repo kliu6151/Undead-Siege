@@ -3,7 +3,8 @@ export enum ZombieType {
     Basic,
     Fast,
     Strong,
-    Boss
+    Boss,
+    Spit
 }
 
 export interface ZombieStats {
@@ -37,6 +38,12 @@ export const baseZombieStats: Record<ZombieType, ZombieStats> = {
     maxHealth: 500,
     speed: 4,
     armor: 2,
+  },
+  [ZombieType.Spit]: {
+    health: 40,
+    maxHealth: 40,
+    speed: 2,
+    armor: 0
   }
 };
 
