@@ -1838,7 +1838,7 @@ export default class MainHW4Scene extends HW4Scene {
           break;
       }
 
-      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(6, 6)), null, false);
+      npc.addPhysics(new AABB(Vec2.ZERO, new Vec2(15, 15)), null, false);
       let healthbar = new HealthbarHUD(this, npc, "primary", {
         size: npc.size.clone().scaled(1.5, 1 / 4),
         offset: npc.size.clone().scaled(0, -1 / 2),
