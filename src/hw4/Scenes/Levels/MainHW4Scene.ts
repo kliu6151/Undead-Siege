@@ -101,6 +101,8 @@ export default class MainHW4Scene extends HW4Scene {
 
   private bossSpawned: boolean;
   private player: PlayerActor;
+  private helicopter: NPCActor;
+  private heliSpawn: Vec2;
   protected invincibilityTimer: Timer | null = null;
 
   /** GameSystems in the HW3 Scene */
@@ -267,6 +269,9 @@ export default class MainHW4Scene extends HW4Scene {
         materialAmt: 0,
         energy: 100,
         maxEnergy: 100,
+        heliMaxHealth: 300,
+        heliHealth: 300,
+        heliArmor: 0,
       };
     }
     console.log("MAIN SCENEEEEE: ", this.sceneManager);
@@ -357,7 +362,6 @@ export default class MainHW4Scene extends HW4Scene {
     this.receiver.subscribe(BattlerEvent.BATTLER_KILLED);
     this.receiver.subscribe(BattlerEvent.BATTLER_RESPAWN);
     this.receiver.subscribe(BattlerEvent.HIT);
-    this.receiver.subscribe(BattlerEvent.OVERLAP);
     this.receiver.subscribe(BattlerEvent.ROLL);
   }
   /**
@@ -373,7 +377,7 @@ export default class MainHW4Scene extends HW4Scene {
     //   this.player.animation.stop();
     //   console.log(this.player.animation)
     //   this.player.animation.playIfNotAlready(PlayerAnimationType.DYING, false, PlayerEvent.PLAYER_KILLED);
-    // }
+    // }\
 
     if (!this.isPaused) {
       if (this.invincibilityTimer) {
@@ -650,10 +654,6 @@ export default class MainHW4Scene extends HW4Scene {
           this.handleParticleHit(event.data.get("node"));
           break;
         }
-        case BattlerEvent.OVERLAP: {
-          this.handleZombieRepulsion(event.data.get("node"));
-          break;
-        }
         default: {
           throw new Error(
             `Unhandled event type "${event.type}" caught in HW3Scene event handler`
@@ -901,72 +901,6 @@ export default class MainHW4Scene extends HW4Scene {
       this.sceneManager.changeToScene(MainMenu);
   }
 
-  protected handleZombieRepulsion(zombieId: number): void {
-    let zombies = this.zombies;
-    //console.log(zombies);
-    let thisZombie = zombies.find((zombie) => zombie.id === zombieId);
-    if (thisZombie !== undefined) {
-      for (let zombie of zombies) {
-        if (
-          zombie.id !== zombieId &&
-          this.zombieCollision(thisZombie, zombie)
-        ) {
-          //console.log(thisZombie.id+","+zombie.id);
-          /*let dx = thisZombie.boundary.x - zombie.boundary.x;
-          let dy = thisZombie.boundary.y - zombie.boundary.y;
-          let distance = Math.sqrt(dx * dx + dy * dy);
-          let nx = dx / distance;
-          let ny = dy / distance;
-
-          // Calculate the dot product of the velocity and the normal/tangent vectors
-          let dpNorm1 =
-            thisZombie._velocity.x * nx + thisZombie._velocity.y * ny;
-          let dpNorm2 = zombie._velocity.x * nx + zombie._velocity.y * ny;
-
-          // Calculate the new velocity vectors after the collision
-          let m1 =
-            (dpNorm1 * (thisZombie._velocity.mag() - zombie._velocity.mag()) +
-              2 * zombie._velocity.mag() * dpNorm2) /
-            (thisZombie._velocity.mag() + zombie._velocity.mag());
-          let m2 =
-            (dpNorm2 * (zombie._velocity.mag() - thisZombie._velocity.mag()) +
-              2 * thisZombie._velocity.mag() * dpNorm1) /
-            (thisZombie._velocity.mag() + zombie._velocity.mag());
-          //console.log("old"+thisZombie._velocity.x + "," + thisZombie._velocity.y);
-          thisZombie._velocity.x = nx * m1;
-          thisZombie._velocity.y = ny * m1;
-          //console.log(thisZombie._velocity.x+","+thisZombie._velocity.y);
-          zombie._velocity.x = nx * m2;
-          zombie._velocity.y = ny * m2;*/
-          /*let dx = thisZombie. - zombie.x;
-          let dy = thisZombie.y - zombie.y;
-          let distance = Math.sqrt(dx * dx + dy * dy);
-          let nx = dx / distance;
-          let ny = dy / distance;
-
-          // Calculate the new positions of the zombies after the collision
-          let x1 = thisZombie.x;
-          let y1 = thisZombie.y;
-          let x2 = zombie.x;
-          let y2 = zombie.y;
-          let p =
-            (2 * ((x1 - x2) * nx + (y1 - y2) * ny)) /
-            (thisZombie.mass + zombie.mass);
-          let x1New = x1 - p * thisZombie.mass * nx;
-          let y1New = y1 - p * thisZombie.mass * ny;
-          let x2New = x2 + p * zombie.mass * nx;
-          let y2New = y2 + p * zombie.mass * ny;
-
-          // Update the positions of the zombies
-          thisZombie.x = x1New;
-          thisZombie.y = y1New;
-          zombie.x = x2New;
-          zombie.y = y2New;*/
-        }
-      }
-    }
-  }
-
   protected handleParticleHit(particleId: number): void {
     let particles = this.playerWeaponSystem.getPool();
     console.log(particles);
@@ -1015,23 +949,7 @@ export default class MainHW4Scene extends HW4Scene {
       return true;
     }
   }
-  protected zombieCollision(zombieA: NPCActor, zombieB: NPCActor): boolean {
-    let b1 = zombieA.boundary;
-    let b2 = zombieB.boundary;
 
-    if (
-      b2.right < b1.left ||
-      b2.left > b1.right ||
-      b2.bottom < b1.top ||
-      b2.top > b1.bottom
-    ) {
-      // the particle and tile do not intersect, so there is no collision
-      return false;
-    } else {
-      // the particle and tile intersect, so there is a collision
-      return true;
-    }
-  }
   protected handleItemRequest(node: GameNode, inventory: Inventory): void {
     let items: Item[] = new Array<Item>(
       ...this.materials,
@@ -1756,7 +1674,17 @@ export default class MainHW4Scene extends HW4Scene {
   protected initializePlayer(): void {
     this.player = this.add.animatedSprite(PlayerActor, "player1", "primary");
     this.player.position.set(this.walls.size.x / 2, this.walls.size.y / 2);
+    console.log(this.walls.position.x+","+this.walls.position.y)
     this.player.battleGroup = 2;
+
+    this.helicopter = this.add.animatedSprite(
+      NPCActor,
+      "BasicZombie",
+      "primary"
+    );
+    this.heliSpawn = new Vec2(this.walls.size.x / 2, this.walls.size.y / 2);
+    this.helicopter.position.set(this.heliSpawn.x, this.heliSpawn.y);
+    this.helicopter.battleGroup = 2;
     if (this.playerData) {
       if (this.playerData.maxHealth) {
         this.player.maxHealth = this.playerData.maxHealth;
@@ -1779,6 +1707,15 @@ export default class MainHW4Scene extends HW4Scene {
       if (this.playerData.maxEnergy) {
         this.player.maxEnergy = this.playerData.maxEnergy;
       }
+      if (this.playerData.heliMaxHealth) {
+        this.helicopter.maxHealth = this.playerData.heliMaxHealth;
+      }
+      if (this.playerData.heliHealth) {
+        this.helicopter.health = this.playerData.heliHealth;
+      }
+      if (this.playerData.heliArmor) {
+        this.helicopter.armor = this.playerData.heliArmor;
+      }
     } else {
       this.player.maxHealth = 100;
       this.player.health = 100;
@@ -1787,6 +1724,9 @@ export default class MainHW4Scene extends HW4Scene {
       this.player.bulletDamage = 10;
       this.player.energy = 100;
       this.player.maxEnergy = 100;
+      this.helicopter.maxHealth = 100;
+      this.helicopter.health = 100;
+      this.helicopter.armor = 0;
     }
     // player.inventory.onChange = ItemEvent.INVENTORY_CHANGED
     // this.inventoryHud = new InventoryHUD(this, player.inventory, "inventorySlot", {
@@ -1821,6 +1761,17 @@ export default class MainHW4Scene extends HW4Scene {
 
     this.battlers.push(this.player);
     this.viewport.follow(this.player);
+
+    this.helicopter.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+
+    healthbar = new HealthbarHUD(this, this.helicopter, "primary", {
+      size: this.helicopter.size.clone().scaled(1.5, 1 / 4),
+      offset: this.helicopter.size.clone().scaled(0, -1 / 2),
+    });
+
+    this.healthbars.set(this.helicopter.id, healthbar);
+
+    this.battlers.push(this.helicopter);
   }
 
   /**
@@ -1896,9 +1847,14 @@ export default class MainHW4Scene extends HW4Scene {
       npc.position.set(randomPos.x, randomPos.y);
 
       npc.animation.play("IDLE");
-      npc.addAI(ZombieBehavior, { target: this.battlers[0], range: 25 });
+
+      const randomInt = Math.floor(Math.random() * 10);
+      npc.addAI(ZombieBehavior, { 
+        target: this.battlers[0], 
+        range: 25,
+        helicopter: this.battlers[1]
+      });
       npc.setGroup(PhysicsGroups.ZOMBIE);
-      npc.setTrigger(PhysicsGroups.ZOMBIE, BattlerEvent.OVERLAP, null);
       npc.setTrigger(PhysicsGroups.PLAYER_WEAPON, BattlerEvent.HIT, null);
 
       this.battlers.push(npc);

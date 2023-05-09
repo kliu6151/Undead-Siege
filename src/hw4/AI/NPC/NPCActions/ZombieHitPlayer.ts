@@ -39,7 +39,6 @@ export default class ZombieHitPlayer extends NPCAction {
       }
       // console.log("I AM: " , this.actor);
       // console.log("TARGET IS: ", target)
-
       this.timer.start();
     }
     // Finish the action

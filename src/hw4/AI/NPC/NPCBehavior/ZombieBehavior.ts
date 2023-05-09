@@ -41,7 +41,8 @@ export default class ZombieBehavior extends NPCBehavior {
   protected target: TargetableEntity;
   /** The range the guard should be from the target they're guarding to be considered guarding the target */
   protected range: number;
-
+  protected player: TargetableEntity;
+  protected helicopter: TargetableEntity;
 
   /** Initialize the NPC AI */
   public initializeAI(owner: NPCActor, options: ZombieOptions): void {
@@ -50,7 +51,7 @@ export default class ZombieBehavior extends NPCBehavior {
     // Initialize the targetable entity the guard should try to protect and the range to the target
     this.target = options.target;
     this.range = options.range;
-
+    this.helicopter = options.helicopter;
 
     // Initialize zombie statuses
     this.initializeStatuses();
@@ -78,30 +79,29 @@ export default class ZombieBehavior extends NPCBehavior {
     // Loop through all the zombies
     // console.log(this.owner.getScene().getBattlers().slice(1))
     for (let zombie of this.owner.getScene().getBattlers().slice(1)) {
-
-        if (zombie === this.owner) continue; // Skip self
-        // Calculate the distance between the current zombie and the other zombie
-        let distanceVec = this.owner.position.clone().sub(zombie.position);
-        let distance = distanceVec.x * distanceVec.x + distanceVec.y * distanceVec.y;
-        // If the distance is less than the avoid distance, apply an avoidance force
-        if (distance < avoidDistance) {
-            let force = distanceVec
-                .normalize()
-                .scale(((avoidDistance - distance) * weight) / distance);
-            avoidanceForce.add(force);
-        }
+      if (zombie === this.owner) continue; // Skip self
+      // Calculate the distance between the current zombie and the other zombie
+      let distanceVec = this.owner.position.clone().sub(zombie.position);
+      let distance =
+        distanceVec.x * distanceVec.x + distanceVec.y * distanceVec.y;
+      // If the distance is less than the avoid distance, apply an avoidance force
+      if (distance < avoidDistance) {
+        let force = distanceVec
+          .normalize()
+          .scale(((avoidDistance - distance) * weight) / distance);
+        avoidanceForce.add(force);
+      }
     }
 
     let dampingForce = this.owner._velocity.clone().scale(-dampingWeight);
     let combinedForce = avoidanceForce.add(dampingForce);
 
-
     // Apply the avoidance force to the current zombie
     this.owner.move(combinedForce.scale(deltaT));
   }
-  
+
   public update(deltaT: number): void {
-    
+    // console.log(this.currentStatus)
     this.avoidZombies(deltaT);
     super.update(deltaT);
     // this.applyRepulsionForce(deltaT);
@@ -126,18 +126,19 @@ export default class ZombieBehavior extends NPCBehavior {
       playerAtZombiePosition
     );
 
-    let allyBattlerFinder = new BasicFinder<Battler>(
+    let heliBattlerFinder = new BasicFinder<Battler>(
       null,
       BattlerActiveFilter(),
-      AllyFilter(this.owner)
+      EnemyFilter(this.owner),
+      RangeFilter(this.owner, this.helicopter, 0, this.range * this.range)
     );
-    let zombieAtZombiePosition = new TargetExists(
+    let heliAtPlayerPosition = new TargetExists(
       scene.getBattlers(),
-      allyBattlerFinder
+      heliBattlerFinder
     );
     this.addStatus(
-      ZombieStatuses.ZOMBIE_IN_ZOMBIE_POSITION,
-      zombieAtZombiePosition
+      ZombieStatuses.HELI_IN_ZOMBIE_POSITION,
+      heliAtPlayerPosition
     );
 
     // Add the goal status
@@ -150,30 +151,31 @@ export default class ZombieBehavior extends NPCBehavior {
     attack.targets = [this.target];
     attack.targetFinder = new BasicFinder<Battler>(
       ClosestPositioned(this.owner),
-      BattlerActiveFilter(),
-      EnemyFilter(this.owner),
-      RangeFilter(this.owner, this.target, 0, this.range * this.range)
+      BattlerActiveFilter()
     );
     attack.addPrecondition(ZombieStatuses.PLAYER_IN_ZOMBIE_POSITION);
     attack.addEffect(ZombieStatuses.GOAL);
     attack.cost = 1;
     this.addState(ZombieActions.ATTACK_PLAYER, attack);
 
-    //let repulse = new Repulsion(this, this.owner);
-    /*repulse.targetFinder = new BasicFinder<Battler>(
+    let attackHeli = new ZombieHitPlayer(this, this.owner);
+    attackHeli.targets = [this.helicopter];
+    attackHeli.targetFinder = new BasicFinder<Battler>(
       ClosestPositioned(this.owner),
-      BattlerActiveFilter(),
-      AllyFilter(this.owner)
+      BattlerActiveFilter()
     );
-    repulse.addPrecondition(ZombieStatuses.ZOMBIE_IN_ZOMBIE_POSITION);
-    repulse.addEffect(ZombieStatuses.GOAL);
-    repulse.cost = 1;
-    this.addState(ZombieActions.REPULSE, repulse);*/
+    attackHeli.addPrecondition(ZombieStatuses.HELI_IN_ZOMBIE_POSITION);
+    attackHeli.addEffect(ZombieStatuses.GOAL);
+    attackHeli.cost = 1;
+    this.addState(ZombieActions.ATTACK_HELICOPTER, attackHeli);
 
     // An action for moving towards the target
     let moveTowards = new Idle(this, this.owner);
-    moveTowards.targets = [this.target];
-    moveTowards.targetFinder = new BasicFinder();
+    moveTowards.targets = [this.target, this.helicopter];
+    moveTowards.targetFinder = new BasicFinder<Battler>(
+      ClosestPositioned(this.owner),
+      BattlerActiveFilter()
+    );
     moveTowards.addEffect(ZombieStatuses.GOAL);
     moveTowards.cost = 1000;
     this.addState(ZombieActions.MOVE_TOWARDS_PLAYER, moveTowards);
@@ -189,6 +191,7 @@ export default class ZombieBehavior extends NPCBehavior {
 }
 
 export interface ZombieOptions {
+  helicopter: TargetableEntity;
   target: TargetableEntity;
   range: number;
 }
@@ -197,13 +200,14 @@ export type ZombieStatus = (typeof ZombieStatuses)[keyof typeof ZombieStatuses];
 export const ZombieStatuses = {
   ATTACK_PLAYER: "attack-player",
   PLAYER_IN_ZOMBIE_POSITION: "player-at-zombie-position",
-  ZOMBIE_IN_ZOMBIE_POSITION: "zombie-at-zombie-position",
+  HELI_IN_ZOMBIE_POSITION: "heli-at-zombie-position",
   GOAL: "goal",
 } as const;
 
 export type ZombieAction = (typeof ZombieActions)[keyof typeof ZombieActions];
 export const ZombieActions = {
   ATTACK_PLAYER: "attack-player",
+  ATTACK_HELICOPTER: "attack-helicopter",
   REPULSE: "repulse",
   CHASE_PLAYER: "chase-player",
   MOVE_TOWARDS_PLAYER: "move-towards-player",

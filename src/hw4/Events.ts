@@ -5,7 +5,6 @@ export enum BattlerEvent {
     BATTLER_CHANGE = "BATTLER_CHANGE",
     CONSUME = "CONSUME",
     HIT = "HIT",
-    OVERLAP = "OVERLAP",
     ROLL = "ROLL",
 }
 

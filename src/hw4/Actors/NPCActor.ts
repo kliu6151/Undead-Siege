@@ -33,6 +33,7 @@ export default class NPCActor extends AnimatedSprite implements Battler, Targeti
     protected _targeting: TargetingEntity
     isDying: boolean = false;
     isTakingDamage: boolean = false;
+  heliArmor: any;
 
 
     public constructor(sheet: Spritesheet) {
