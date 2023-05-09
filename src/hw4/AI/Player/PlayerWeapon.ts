@@ -81,7 +81,7 @@ export default class PlayerWeapon extends ParticleSystem {
   public setParticleAnimation(particle: Particle) {
     let mouse = Input.getGlobalMousePosition();
     let direction = mouse.sub(particle.position).normalize();
-    let velocity = direction.scale(RandUtils.randInt(100, 200));
+    let velocity = direction.scale(RandUtils.randInt(1000, 1100));
 
     velocity = velocity.add(
       new Vec2(RandUtils.randInt(-32, 32), RandUtils.randInt(-32, 32))

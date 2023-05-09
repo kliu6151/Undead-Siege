@@ -1,4 +1,12 @@
 { "compressionlevel":-1,
+"editorsettings":
+{
+ "export":
+    {
+     "format":"json",
+     "target":"Level4Map.json"
+    }
+},
  "height":80,
  "infinite":false,
  "layers":[
@@ -198,7 +206,7 @@
  "tileheight":16,
  "tilesets":[
        {
-        "columns":20,
+        "columns":40,
         "firstgid":1,
         "image":"imageslvl4.png",
         "imageheight":320,
