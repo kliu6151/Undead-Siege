@@ -17,5 +17,7 @@ export default abstract class HW4Scene extends Scene {
     public abstract getLaserGuns(): LaserGun[];
 
     public abstract isTargetVisible(position: Vec2, target: Vec2): boolean;
+
+    public abstract getPlayerShootAudioKey(): string;
     
 }

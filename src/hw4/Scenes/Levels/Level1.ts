@@ -51,6 +51,8 @@ export default class Level1 extends MainHW4Scene {
     public static readonly FUEL_SPAWNS_PATH = "assets/data/items/fuels.json";
 
    
+    public static readonly SHOOT_AUDIO_KEY = "PLAYER_SHOOT";
+    public static readonly SHOOT_AUDIO_PATH = "assets/sounds/gun_shot.wav";
 
     // public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
     // public static readonly LEVEL_MUSIC_PATH = "hw4_assets/music/hw5_level_music.wav";
@@ -74,6 +76,9 @@ export default class Level1 extends MainHW4Scene {
         // this.tilemapScale = Level1.TILEMAP_SCALE;
         // this.destructibleLayerKey = Level1.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = Level1.WALLS_LAYER_KEY;
+
+        this.playerShootAudioKey = Level1.SHOOT_AUDIO_KEY;
+
         
 
         // Set the key for the player's sprite
@@ -118,6 +123,8 @@ export default class Level1 extends MainHW4Scene {
         this.load.object("materials", Level1.MATERIAL_SPAWNS_PATH);
         this.load.object("fuels", Level1.FUEL_SPAWNS_PATH);
     
+        //sounds
+        this.load.audio(this.playerShootAudioKey, Level1.SHOOT_AUDIO_PATH);
         // Load the healthpack, inventory slot, and laser gun sprites
         // this.load.image("healthpack", "assets/sprites/healthpack.png");
         // this.load.image("inventorySlot", "assets/sprites/inventory.png");
@@ -140,6 +147,8 @@ export default class Level1 extends MainHW4Scene {
      * Unload resources for level 1
      */
     public unloadScene(): void {
+        this.load.keepAudio(this.playerShootAudioKey);
+
         // this.resourceManager.keepSpritesheet(this.playerSpriteKey);
         // this.resourceManager.keepAudio(this.jumpAudioKey);
         // this.resourceManager.keepAudio(this.deathAudioKey);

@@ -2,6 +2,7 @@ import StateMachineAI from "../../../Wolfie2D/AI/StateMachineAI";
 import AI from "../../../Wolfie2D/DataTypes/Interfaces/AI";
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import GameEvent from "../../../Wolfie2D/Events/GameEvent";
+import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
 import Input from "../../../Wolfie2D/Input/Input";
 import PlayerActor from "../../Actors/PlayerActor";
 import { ItemEvent } from "../../Events";
@@ -63,6 +64,7 @@ export default class PlayerAI extends StateMachineAI implements AI {
         particles[i].active = true;
       }
       this.weapon.startSystem(500, 0, this.owner.position);
+      this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.owner.getScene().getPlayerShootAudioKey(), loop: false, holdReference: false})
       this.owner.animation.play(PlayerAnimationType.ATTACK)
     }
     }

@@ -219,6 +219,9 @@ export default class MainHW4Scene extends HW4Scene {
   protected playerData: Record<string, any>;
   protected currentLevelConfig: LevelConfig;
 
+  /** Sound and Music */
+  protected playerShootAudioKey: string;
+
   public constructor(
     viewport: Viewport,
     sceneManager: SceneManager,
@@ -261,7 +264,7 @@ export default class MainHW4Scene extends HW4Scene {
         maxHealth: 100,
         health: 100,
         weapon: new PlayerWeapon(1, Vec2.ZERO, 1000, 1, 5, 0, 1),
-        speed: 20,
+        speed: 1,
         armor: 0,
         bulletDamage: 10,
         materialAmt: 0,
@@ -670,7 +673,7 @@ export default class MainHW4Scene extends HW4Scene {
   }
 
   private handleRest(): void {
-    if (!this.isNight) {
+    if (!this.isNight && this.fuelCounter.text === "5 / 5") {
       this.isPaused = false;
       this.hidePauseUI();
       this.handleEndDayCheat();
@@ -880,7 +883,8 @@ export default class MainHW4Scene extends HW4Scene {
         console.log("MachineGun Upgrade");
         break;
       case "Helicopter Health":
-        // Apply Helicopter Health upgrade
+        this.helicopter.health += 10;
+        this.playerData.heliMaxHealth += 10;
         console.log("Helicopter Health Upgrade");
         break;
       case "Movement Speed":
@@ -969,7 +973,7 @@ export default class MainHW4Scene extends HW4Scene {
     ).filter((item: Item) => {
       return (
         item.inventory === null &&
-        item.position.distanceTo(node.position) <= 100
+        item.position.distanceTo(node.position) <= 40
       );
     });
 
@@ -993,7 +997,7 @@ export default class MainHW4Scene extends HW4Scene {
 
   private handleFuelPickedUp(): void {
     const currentValue = parseInt(this.fuelCounter.text);
-    this.fuelCounter.text = (currentValue + 1).toString() + "/ 5";
+    this.fuelCounter.text = (currentValue + 1).toString() + " / 5";
   }
 
   //PAUSE SCREEN
@@ -2111,4 +2115,8 @@ export default class MainHW4Scene extends HW4Scene {
     }
     return true;
   }
+
+  public getPlayerShootAudioKey(): string {
+    return this.playerShootAudioKey
+}
 }
