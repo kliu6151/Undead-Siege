@@ -432,7 +432,7 @@ export default class MainHW4Scene extends HW4Scene {
       ).padStart(2, "0")}`;
       if (this.isNight) {
         if (parseInt(this.fuelCounter.text) !== 5) {
-          //this.remainingTime = Math.max(this.countDownTimer.getTotalTime() - this.elapsedTime, 0)
+          this.remainingTime = Math.max(this.countDownTimer.getTotalTime() - this.elapsedTime, 0)
           this.countDownTimer.reset()
           this.elapsedTime = 1;
         }
