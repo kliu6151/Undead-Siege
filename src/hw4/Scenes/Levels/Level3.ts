@@ -9,42 +9,28 @@ import MainHW4Scene from "./MainHW4Scene";
 import MainMenu from "../MainMenu";
 import SpotlightShader from "../../Custom/Shaders/SpotLightShader";
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
-import Level3 from "./Level3";
 
 /**
  * The first level for HW4 - should be the one with the grass and the clouds.
  */
-export default class Level2 extends MainHW4Scene {
+export default class Level3 extends MainHW4Scene {
 
     public static readonly PLAYER_SPRITE_PATH = "assets/spritesheets/Soldier.json";
 
-    public static readonly TILEMAP_KEY = "LEVEL2";
-    public static readonly TILEMAP_PATH = "assets/tilemaps/Level2Map.json";
+    public static readonly TILEMAP_KEY = "LEVEL3";
+    public static readonly TILEMAP_PATH = "assets/tilemaps/Level3Map.json";
     // public static readonly TILEMAP_SCALE = new Vec2(2, 2);
     public static readonly WALLS_LAYER_KEY = "Main";
 
-    public static readonly ZOMBIE_KEY = "ZOMBIE";
+    public static readonly BASICZOMBIE_KEY = "BASICZOMBIE";
     public static readonly ZOMBIE_PATH = "assets/spritesheets/BasicZombie.json";
+    public static readonly STRONGZOMBIE_KEY = "STRONGZOMBIE";
+    public static readonly STRONGZOMBIE_PATH = "assets/spritesheets/StrongZombie.json";
+    public static readonly BOSSZOMBIE_KEY = "BOSSZOMBIE";
+    public static readonly BOSSZOMBIE_PATH = "assets/spritesheets/BossZombie.json";
 
     public static readonly AXE_KEY = "AXE";
     public static readonly AXE_PATH = "assets/spritesheets/AxeThrow.json";
-
-    // Load the enemy locations
-    public static readonly ZOMBIE_SPAWNS = "ZOMBIE_SPAWNS";
-    public static readonly ZOMBIE_SPAWNS_PATH = "assets/data/enemies/blue.json";
-
-    public static readonly HEALTHPACK_SPAWNS = "HEALTHPACK_SPAWNS";
-    public static readonly HEALTHPACK_SPAWNS_PATH = "assets/data/items/healthpacks.json";
-
-    public static readonly LASERGUN_SPAWNS = "LASERGUN_SPAWNS";
-    public static readonly LASERGUN_SPAWNS_PATH = "assets/data/items/laserguns.json";
-
-    // Load the material and fuel locations
-    public static readonly MATERIAL_SPAWNS = "MATERIAL_SPAWNS";
-    public static readonly MATERIAL_SPAWNS_PATH = "assets/data/items/materials.json";
-
-    public static readonly FUEL_SPAWNS = "FUEL_SPAWNS";
-    public static readonly FUEL_SPAWNS_PATH = "assets/data/items/fuels.json";
 
     public static readonly SHOOT_AUDIO_KEY = "PLAYER_SHOOT";
     public static readonly SHOOT_AUDIO_PATH = "assets/sounds/gun_shot.wav";
@@ -76,19 +62,19 @@ export default class Level2 extends MainHW4Scene {
         super(viewport, sceneManager, renderingManager, options);
 
         // Set the keys for the different layers of the tilemap
-        this.levelKey = Level2.TILEMAP_KEY;
+        this.levelKey = Level3.TILEMAP_KEY;
         // this.tilemapScale = Level2.TILEMAP_SCALE;
         // this.destructibleLayerKey = Level2.DESTRUCTIBLE_LAYER_KEY;
-        this.wallsLayerKey = Level2.WALLS_LAYER_KEY;
+        this.wallsLayerKey = Level3.WALLS_LAYER_KEY;
 
         // this.levelMusicKey = Level2.LEVEL_MUSIC_KEY;
 
-        this.playerShootAudioKey = Level2.SHOOT_AUDIO_KEY;
+        this.playerShootAudioKey = Level3.SHOOT_AUDIO_KEY;
 
         
-        this.zombieGrowlAudioKey = Level2.ZOMBIE_GROWL_AUDIO_KEY
-        this.playerDamagedAudioKey = Level2.PLAYER_DAMAGED_AUDIO_KEY
-        this.helicopterDamagedAudioKey = Level2.HELICOPTER_DAMAGED_AUDIO_KEY
+        this.zombieGrowlAudioKey = Level3.ZOMBIE_GROWL_AUDIO_KEY
+        this.playerDamagedAudioKey = Level3.PLAYER_DAMAGED_AUDIO_KEY
+        this.helicopterDamagedAudioKey = Level3.HELICOPTER_DAMAGED_AUDIO_KEY
         // Set the key for the player's sprite
         // this.playerSpriteKey = Level2.PLAYER_SPRITE_KEY;
         // Set the player's spawn
@@ -110,15 +96,17 @@ export default class Level2 extends MainHW4Scene {
      */
     public override loadScene() {
         // Load the player and enemy spritesheets
-        this.load.spritesheet("player1", Level2.PLAYER_SPRITE_PATH);
+        this.load.spritesheet("player1", Level3.PLAYER_SPRITE_PATH);
     
         // Load in the enemy sprites
-        this.load.spritesheet("BasicZombie", Level2.ZOMBIE_PATH);
-        this.load.spritesheet("FastZombie", Level2.ZOMBIE_PATH);
+        this.load.spritesheet("BasicZombie", Level3.ZOMBIE_PATH);
+        this.load.spritesheet("FastZombie", Level3.ZOMBIE_PATH);
+        this.load.spritesheet("StrongZombie",Level3.STRONGZOMBIE_PATH);
+        this.load.spritesheet("BossZombie", Level3.BOSSZOMBIE_PATH);
 
 
         // Load the tilemap
-        this.load.tilemap(this.levelKey, Level2.TILEMAP_PATH);
+        this.load.tilemap(this.levelKey, Level3.TILEMAP_PATH);
         // this.load.tilemap("level", "assets/tilemaps/HW3Tilemap.json");
     
         this.load.image(MainHW4Scene.MATERIAL_KEY, MainHW4Scene.MATERIAL_PATH);
@@ -152,7 +140,7 @@ export default class Level2 extends MainHW4Scene {
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-        this.nextLevel = Level3;
+        this.nextLevel = MainMenu;
     }
 
     /**
